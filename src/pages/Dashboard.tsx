@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Plus, Wallet, LayoutGrid } from 'lucide-react';
+import { LogOut, Plus, Wallet, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TransactionList from '@/components/TransactionList';
 import TransactionForm from '@/components/TransactionForm';
@@ -85,13 +85,6 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center gap-4">
-              <Link 
-                to="/categories"
-                className="hidden sm:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 px-4 py-2 hover:bg-blue-50 rounded-xl transition-all"
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Categorias
-              </Link>
               <div className="hidden sm:flex flex-col items-end mr-2">
                 <span className="text-xs text-gray-400 font-medium">Conta logada</span>
                 <span className="text-sm font-semibold text-gray-700">{user?.email}</span>
@@ -137,14 +130,47 @@ export default function Dashboard() {
           />
         </div>
         
-        {/* Floating Action Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-8 right-8 w-16 h-16 bg-gray-900 text-white rounded-full shadow-2xl hover:bg-black flex items-center justify-center transition-all hover:scale-110 active:scale-95 group z-30"
-          title="Nova Transação"
-        >
-          <Plus className="w-7 h-7 group-hover:rotate-90 transition-transform duration-300" />
-        </button>
+        {/* Floating Action Menu */}
+        <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 group z-50">
+          {/* Menu Items (Hidden by default, shown on hover) */}
+          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+            {/* Opção: Nova Transação */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-3 pr-2 group/item"
+            >
+              <span className="bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity">
+                Nova Transação
+              </span>
+              <div className="w-12 h-12 bg-white text-gray-900 rounded-full shadow-lg flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition-colors">
+                <Plus className="w-5 h-5" />
+              </div>
+            </button>
+
+            {/* Opção: Categorias */}
+            <Link
+              to="/categories"
+              className="flex items-center gap-3 pr-2 group/item"
+            >
+              <span className="bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+                Gerenciar Categorias
+              </span>
+              <div className="w-12 h-12 bg-white text-gray-900 rounded-full shadow-lg flex items-center justify-center border border-gray-100 hover:bg-gray-50 transition-colors">
+                <Tag className="w-5 h-5" />
+              </div>
+            </Link>
+          </div>
+
+          {/* Main Button */}
+          <button
+            className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group-hover:rotate-45 relative overflow-hidden group-hover:bg-blue-700"
+          >
+            <Plus className="w-8 h-8 transition-transform duration-300" />
+            
+            {/* Subtle overlay effect */}
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        </div>
 
         <TransactionForm
           isOpen={isModalOpen}
