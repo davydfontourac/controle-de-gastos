@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, Tag, Trash2 } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Tag, Trash2, Edit2 } from 'lucide-react';
 import type { Transaction } from '@/types';
 import { useState } from 'react';
 import { api } from '@/services/api';
@@ -8,9 +8,10 @@ import ConfirmModal from './ConfirmModal';
 interface Props {
   transaction: Transaction;
   onDelete: () => void;
+  onEdit: (transaction: Transaction) => void;
 }
 
-export default function TransactionItem({ transaction, onDelete }: Props) {
+export default function TransactionItem({ transaction, onDelete, onEdit }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isIncome = transaction.type === 'income';
@@ -69,14 +70,25 @@ export default function TransactionItem({ transaction, onDelete }: Props) {
             {isIncome ? '+' : '-'} {formattedAmount.replace('R$', '').trim()}
           </div>
 
-          {/* Botão Deletar */}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-            title="Excluir transação"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+            {/* Botão Editar */}
+            <button
+              onClick={() => onEdit(transaction)}
+              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              title="Editar transação"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+
+            {/* Botão Deletar */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              title="Excluir transação"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
