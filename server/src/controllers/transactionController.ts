@@ -160,18 +160,18 @@ export const transactionController = {
       const userId = req.user.id;
       const history = [];
       const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth(); // 0-indexed
 
-      // Loop para buscar os últimos 6 meses (incluindo o atual)
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(1); // Evita problemas de transbordo em meses curtos
-        date.setMonth(date.getMonth() - i);
+      // Loop de Janeiro até o mês atual
+      for (let i = 0; i <= currentMonth; i++) {
+        const month = i + 1;
         
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
-        
-        const startDate = new Date(year, month - 1, 1).toISOString();
-        const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+        // Datas em UTC para evitar problemas de fuso horário
+        const startDate = new Date(Date.UTC(currentYear, i, 1)).toISOString();
+        const endDate = new Date(Date.UTC(currentYear, i + 1, 0, 23, 59, 59)).toISOString();
 
         const { data, error } = await supabaseAdmin
           .from('transactions')
@@ -191,11 +191,11 @@ export const transactionController = {
         });
 
         history.push({
-          month: monthNames[month - 1],
+          month: monthNames[i],
           income: Number(income.toFixed(2)),
           expense: Number(expense.toFixed(2)),
           fullMonth: month,
-          year
+          year: currentYear
         });
       }
 

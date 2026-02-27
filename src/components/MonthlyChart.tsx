@@ -1,9 +1,12 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useMemo } from 'react';
 
 interface HistoryData {
   month: string;
   income: number;
   expense: number;
+  fullMonth: number;
+  year: number;
 }
 
 interface Props {
@@ -11,7 +14,38 @@ interface Props {
   isLoading?: boolean;
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 min-w-[150px]">
+        <p className="font-bold text-gray-800 mb-2">{label}</p>
+        <div className="space-y-1">
+          {payload.map((item: any) => (
+            <div key={item.dataKey} className="flex items-center justify-between gap-4">
+              <span className="text-sm font-medium" style={{ color: item.color }}>
+                {item.name}:
+              </span>
+              <span className="text-sm font-bold text-gray-700">
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.value)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function MonthlyChart({ data, isLoading }: Props) {
+  // Ordenar cronologicamente garantido
+  const sortedData = useMemo(() => {
+    return [...data].sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.fullMonth - b.fullMonth;
+    });
+  }, [data]);
+
   if (isLoading) {
     return (
       <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-[400px] flex flex-col animate-pulse">
@@ -27,7 +61,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
+            data={sortedData}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             barGap={8}
           >
@@ -44,16 +78,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
               tickLine={false} 
               tick={{ fill: '#9CA3AF', fontSize: 12 }}
             />
-            <Tooltip
-              cursor={{ fill: '#F9FAFB' }}
-              contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-              itemStyle={{ fontWeight: 'bold' }}
-              formatter={(value: any, name: any) => [
-                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value),
-                name === 'Receitas' ? 'Receitas' : 'Despesas'
-              ]}
-              labelStyle={{ fontWeight: 'bold', color: '#1F2937', marginBottom: '4px' }}
-            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F9FAFB' }} />
             <Legend 
               verticalAlign="top" 
               align="right"
@@ -68,6 +93,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
               radius={[4, 4, 0, 0]} 
               name="Despesas"
               barSize={20}
+              animationDuration={1500}
             />
             <Bar 
               dataKey="income" 
@@ -75,6 +101,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
               radius={[4, 4, 0, 0]} 
               name="Receitas"
               barSize={20}
+              animationDuration={1500}
             />
           </BarChart>
         </ResponsiveContainer>
