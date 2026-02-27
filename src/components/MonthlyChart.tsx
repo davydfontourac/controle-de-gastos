@@ -47,7 +47,12 @@ export default function MonthlyChart({ data, isLoading }: Props) {
             <Tooltip
               cursor={{ fill: '#F9FAFB' }}
               contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-              formatter={(value: any) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)}
+              itemStyle={{ fontWeight: 'bold' }}
+              formatter={(value: any, name: any) => [
+                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value),
+                name === 'Receitas' ? 'Receitas' : 'Despesas'
+              ]}
+              labelStyle={{ fontWeight: 'bold', color: '#1F2937', marginBottom: '4px' }}
             />
             <Legend 
               verticalAlign="top" 
@@ -55,20 +60,20 @@ export default function MonthlyChart({ data, isLoading }: Props) {
               iconType="circle"
               iconSize={8}
               wrapperStyle={{ paddingBottom: '20px' }}
-              formatter={(value) => <span className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{value === 'income' ? 'Receitas' : 'Despesas'}</span>}
-            />
-            <Bar 
-              dataKey="income" 
-              fill="#3B82F6" 
-              radius={[4, 4, 0, 0]} 
-              name="income"
-              barSize={20}
+              formatter={(value) => <span className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{value}</span>}
             />
             <Bar 
               dataKey="expense" 
               fill="#EF4444" 
               radius={[4, 4, 0, 0]} 
-              name="expense"
+              name="Despesas"
+              barSize={20}
+            />
+            <Bar 
+              dataKey="income" 
+              fill="#3B82F6" 
+              radius={[4, 4, 0, 0]} 
+              name="Receitas"
               barSize={20}
             />
           </BarChart>

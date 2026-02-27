@@ -143,13 +143,13 @@ export default function Dashboard() {
         </div>
         
         {/* Floating Action Menu */}
-        <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 group z-50">
+        <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 group z-50 pointer-events-none">
           {/* Menu Items (Hidden by default, shown on hover) */}
-          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
+          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 group-hover:pointer-events-auto">
             {/* Opção: Nova Transação */}
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-3 pr-2 group/item"
+              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
             >
               <span className="bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity">
                 Nova Transação
@@ -162,7 +162,7 @@ export default function Dashboard() {
             {/* Opção: Categorias */}
             <Link
               to="/categories"
-              className="flex items-center gap-3 pr-2 group/item"
+              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
             >
               <span className="bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
                 Gerenciar Categorias
@@ -175,7 +175,7 @@ export default function Dashboard() {
 
           {/* Main Button */}
           <button
-            className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group-hover:rotate-45 relative overflow-hidden group-hover:bg-blue-700"
+            className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group-hover:rotate-45 relative overflow-hidden group-hover:bg-blue-700 pointer-events-auto"
           >
             <Plus className="w-8 h-8 transition-transform duration-300" />
             
