@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Plus, Wallet } from 'lucide-react';
+import { LogOut, Plus, Wallet, LayoutGrid } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import TransactionList from '@/components/TransactionList';
 import TransactionForm from '@/components/TransactionForm';
 import SummaryCards from '@/components/SummaryCards';
@@ -84,6 +85,13 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center gap-4">
+              <Link 
+                to="/categories"
+                className="hidden sm:flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 px-4 py-2 hover:bg-blue-50 rounded-xl transition-all"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                Categorias
+              </Link>
               <div className="hidden sm:flex flex-col items-end mr-2">
                 <span className="text-xs text-gray-400 font-medium">Conta logada</span>
                 <span className="text-sm font-semibold text-gray-700">{user?.email}</span>

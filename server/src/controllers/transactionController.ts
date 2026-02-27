@@ -159,10 +159,12 @@ export const transactionController = {
     try {
       const userId = req.user.id;
       const history = [];
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
       // Loop para buscar os últimos 6 meses (incluindo o atual)
       for (let i = 5; i >= 0; i--) {
         const date = new Date();
+        date.setDate(1); // Evita problemas de transbordo em meses curtos
         date.setMonth(date.getMonth() - i);
         
         const month = date.getMonth() + 1;
@@ -188,13 +190,10 @@ export const transactionController = {
           if (t.type === 'expense') expense += Number(t.amount);
         });
 
-        // Nome do mês abreviado
-        const monthName = date.toLocaleDateString('pt-BR', { month: 'short' });
-
         history.push({
-          month: monthName.charAt(0).toUpperCase() + monthName.slice(1).replace('.', ''),
-          income,
-          expense,
+          month: monthNames[month - 1],
+          income: Number(income.toFixed(2)),
+          expense: Number(expense.toFixed(2)),
           fullMonth: month,
           year
         });
