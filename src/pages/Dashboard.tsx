@@ -26,7 +26,7 @@ export default function Dashboard() {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            Nova Despesa
+            Nova Transação
           </button>
           <span className="text-gray-500 text-sm hidden sm:block">
             {user?.email}
