@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { api } from '@/services/api';
 import { 
   Plus, 
   Trash2, 
   Edit2, 
   ArrowLeft,
-  Tag
+  Tag,
+  User
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,6 +22,7 @@ interface Category {
 }
 
 export default function Categories() {
+  const { profile } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -80,16 +83,29 @@ export default function Categories() {
                 Minhas Categorias
               </h1>
             </div>
-            <button
-              onClick={() => {
-                setEditingCategory(null);
-                setIsFormOpen(true);
-              }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Nova Categoria</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/profile"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-sm relative overflow-hidden group/avatar bg-gray-100 flex items-center justify-center shrink-0 hover:border-blue-100 transition-all"
+                title="Meu Perfil"
+              >
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-gray-400 group-hover/avatar:text-blue-500 transition-colors" />
+                )}
+              </Link>
+              <button
+                onClick={() => {
+                  setEditingCategory(null);
+                  setIsFormOpen(true);
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Nova Categoria</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>

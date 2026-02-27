@@ -74,3 +74,30 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete their own transactions" 
 ON transactions FOR DELETE 
 USING (auth.uid() = user_id);
+-- Tabela de Perfis
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Habilitar RLS para 'profiles'
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para 'profiles'
+CREATE POLICY "Users can view their own profile"
+ON profiles FOR SELECT
+USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert their own profile"
+ON profiles FOR INSERT
+WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile"
+ON profiles FOR UPDATE
+USING (auth.uid() = id)
+WITH CHECK (auth.uid() = id);
+
+-- Trigger para criar perfil automaticamente no SignUp (Opcional, mas recomendado)
+-- Vamos deixar manual por enquanto via frontend para simplificar a lógica inicial.

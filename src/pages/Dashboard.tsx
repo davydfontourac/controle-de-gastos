@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Plus, Wallet, Tag } from 'lucide-react';
+import { LogOut, Plus, Wallet, Tag, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TransactionList from '@/components/TransactionList';
 import TransactionForm from '@/components/TransactionForm';
@@ -12,7 +12,7 @@ import MonthlyChart from '@/components/MonthlyChart';
 import { api } from '@/services/api';
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState({ 
@@ -102,10 +102,30 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex flex-col items-end mr-2">
+              <div className="hidden sm:flex flex-col items-end mr-2 text-right">
                 <span className="text-xs text-gray-400 font-medium">Conta logada</span>
-                <span className="text-sm font-semibold text-gray-700">{user?.email}</span>
+                <span className="text-sm font-semibold text-gray-700 truncate max-w-[150px]">
+                  {profile?.full_name || user?.email}
+                </span>
               </div>
+              <Link 
+                to="/profile"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-md relative overflow-hidden group/avatar bg-gray-100 flex items-center justify-center shrink-0 hover:border-blue-100 transition-all"
+              >
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-gray-400 group-hover/avatar:text-blue-500 transition-colors" />
+                )}
+                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover/avatar:opacity-100 transition-opacity" />
+              </Link>
+              <Link
+                to="/profile"
+                className="hidden md:flex items-center gap-2 text-sm text-gray-600 font-bold hover:bg-gray-50 py-2.5 px-4 rounded-xl transition-all border border-transparent hover:border-gray-100"
+              >
+                Perfil
+                <User className="w-4 h-4" />
+              </Link>
               <button
                 onClick={() => signOut()}
                 className="flex items-center gap-2 text-sm text-red-500 font-bold hover:bg-red-50 py-2.5 px-4 rounded-xl transition-all border border-transparent hover:border-red-100"
