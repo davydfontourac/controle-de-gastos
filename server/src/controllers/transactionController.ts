@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { supabaseAdmin } from '../lib/supabase';
+import { createTransactionSchema, updateTransactionSchema } from '../utils/validators';
 
 // Helper tipado
 interface AuthRequest extends Request {
@@ -43,21 +44,22 @@ export const transactionController = {
   async create(req: AuthRequest, res: Response) {
     try {
       const userId = req.user.id;
-      const { amount, type, description, date, category_id } = req.body;
-
-      if (!amount || !type || !description || !date) {
-        return res.status(400).json({ error: 'Campos obrigatórios faltando.' });
-      }
+      
+      // Validações pesadas no momento em que os dados batem
+      const parsedBody = createTransactionSchema.parse(req.body);
 
       const { data, error } = await supabaseAdmin
         .from('transactions')
-        .insert([{ amount, type, description, date, category_id, user_id: userId }])
+        .insert([{ ...parsedBody, user_id: userId }])
         .select()
         .single();
 
       if (error) throw error;
       res.status(201).json(data);
     } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(500).json({ error: error.message });
     }
   },
@@ -67,12 +69,14 @@ export const transactionController = {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      const updates = req.body;
+      
+      // Validação Zod com campos opcionais
+      const parsedUpdates = updateTransactionSchema.parse(req.body);
 
       // Importante: garante edição APENAS se o userID bater com o token
       const { data, error } = await supabaseAdmin
         .from('transactions')
-        .update(updates)
+        .update(parsedUpdates)
         .match({ id, user_id: userId })
         .select()
         .single();
@@ -82,6 +86,9 @@ export const transactionController = {
 
       res.json(data);
     } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(500).json({ error: error.message });
     }
   },
