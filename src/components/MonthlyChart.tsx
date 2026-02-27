@@ -97,7 +97,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
             />
             <Bar 
               dataKey="income" 
-              fill="#3B82F6" 
+              fill="#10B981" 
               radius={[4, 4, 0, 0]} 
               name="Receitas"
               barSize={20}
