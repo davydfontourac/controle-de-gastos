@@ -19,6 +19,26 @@ export const categoryController = {
         .order('name', { ascending: true });
 
       if (error) throw error;
+
+      // Se não tiver categorias, cria as básicas/padrão
+      if (data.length === 0) {
+        const defaultCategories = [
+          { name: 'Alimentação', icon: 'utensils', color: '#EF4444', user_id: userId },
+          { name: 'Lazer', icon: 'clapperboard', color: '#F59E0B', user_id: userId },
+          { name: 'Saúde', icon: 'heart', color: '#10B981', user_id: userId },
+          { name: 'Transporte', icon: 'car', color: '#3B82F6', user_id: userId },
+          { name: 'Salário', icon: 'banknote', color: '#8B5CF6', user_id: userId },
+        ];
+
+        const { data: seededData, error: seedError } = await supabaseAdmin
+          .from('categories')
+          .insert(defaultCategories)
+          .select();
+
+        if (seedError) throw seedError;
+        return res.json(seededData);
+      }
+
       res.json(data);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -65,6 +85,32 @@ export const categoryController = {
 
       res.status(204).send();
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // PUT /categories/:id
+  async update(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const parsedBody = categorySchema.parse(req.body);
+
+      const { data, error } = await supabaseAdmin
+        .from('categories')
+        .update(parsedBody)
+        .match({ id, user_id: userId })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (!data) return res.status(404).json({ error: 'Categoria não encontrada.' });
+
+      res.json(data);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(500).json({ error: error.message });
     }
   }

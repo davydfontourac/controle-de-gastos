@@ -24,7 +24,7 @@ interface Props {
   onClose: () => void;
   onSuccess: () => void;
   category?: {
-    id: number;
+    id: string;
     name: string;
     icon: string;
     color: string;

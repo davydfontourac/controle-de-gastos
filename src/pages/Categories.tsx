@@ -13,7 +13,7 @@ import ConfirmModal from '@/components/ConfirmModal';
 import CategoryForm from '@/components/CategoryForm';
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
   icon: string;
   color: string;

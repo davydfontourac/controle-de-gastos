@@ -18,7 +18,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -78,7 +78,7 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       const payload = {
         ...data,
         amount: Number(data.amount),
-        category_id: data.category_id ? Number(data.category_id) : null,
+        category_id: data.category_id || null, // UUID é string
       };
 
       if (transaction) {

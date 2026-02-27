@@ -55,7 +55,7 @@ export const transactionController = {
       const { data, error } = await supabaseAdmin
         .from('transactions')
         .insert([{ ...parsedBody, user_id: userId }])
-        .select()
+        .select('*, categories(name, icon, color)')
         .single();
 
       if (error) throw error;
@@ -82,7 +82,7 @@ export const transactionController = {
         .from('transactions')
         .update(parsedUpdates)
         .match({ id, user_id: userId })
-        .select()
+        .select('*, categories(name, icon, color)')
         .single();
 
       if (error) throw error;

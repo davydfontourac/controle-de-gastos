@@ -145,7 +145,7 @@ export default function Dashboard() {
         {/* Floating Action Menu */}
         <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 group z-50">
           {/* Menu Items (Hidden by default, shown on hover) */}
-          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
             {/* Opção: Nova Transação */}
             <button
               onClick={() => setIsModalOpen(true)}
