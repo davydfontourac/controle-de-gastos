@@ -6,6 +6,7 @@ import TransactionForm from '@/components/TransactionForm';
 import SummaryCards from '@/components/SummaryCards';
 import TransactionFilters from '@/components/TransactionFilters';
 import CategoryPieChart from '@/components/CategoryPieChart';
+import MonthlyChart from '@/components/MonthlyChart';
 import { api } from '@/services/api';
 import type { Transaction } from '@/types';
 
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
+  const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Estado Global de Filtros (Compartilhado entre Resumo e Lista)
@@ -36,10 +38,11 @@ export default function Dashboard() {
       }
       if (filters.search) params.append('search', filters.search);
 
-      // Busca transações e sumário em paralelo
-      const [transRes, sumRes] = await Promise.all([
+      // Busca transações, sumário e histórico em paralelo
+      const [transRes, sumRes, historyRes] = await Promise.all([
         api.get<Transaction[]>(`/transactions?${params.toString()}`),
-        api.get(`/transactions/summary?month=${filters.month}&year=${filters.year}`)
+        api.get(`/transactions/summary?month=${filters.month}&year=${filters.year}`),
+        api.get('/transactions/history')
       ]);
 
       setTransactions(transRes.data);
@@ -48,6 +51,7 @@ export default function Dashboard() {
         totalExpense: sumRes.data.expense,
         balance: sumRes.data.total
       });
+      setHistory(historyRes.data);
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
     } finally {
@@ -102,29 +106,27 @@ export default function Dashboard() {
         {/* Cards de Resumo */}
         <SummaryCards summary={summary} isLoading={isLoading} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
-          {/* Gráfico de Gastos (Fica à esquerda em telas grandes) */}
-          <div className="lg:col-span-1">
-            <CategoryPieChart transactions={transactions} />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+          <CategoryPieChart transactions={transactions} />
+          <MonthlyChart data={history} isLoading={isLoading} />
+        </div>
 
-          {/* Listagem e Filtros (Fica à direita em telas grandes) */}
-          <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-            <TransactionFilters 
-              filters={filters}
-              onSearchChange={(v) => setFilters(prev => ({ ...prev, search: v }))}
-              onTypeChange={(v) => setFilters(prev => ({ ...prev, type: v }))}
-              onMonthChange={(v) => setFilters(prev => ({ ...prev, month: v }))}
-              onYearChange={(v) => setFilters(prev => ({ ...prev, year: v }))}
-            />
+        {/* Listagem e Filtros */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 mt-10">
+          <TransactionFilters 
+            filters={filters}
+            onSearchChange={(v) => setFilters(prev => ({ ...prev, search: v }))}
+            onTypeChange={(v) => setFilters(prev => ({ ...prev, type: v }))}
+            onMonthChange={(v) => setFilters(prev => ({ ...prev, month: v }))}
+            onYearChange={(v) => setFilters(prev => ({ ...prev, year: v }))}
+          />
 
-            <TransactionList 
-              transactions={transactions} 
-              isLoading={isLoading} 
-              filters={filters}
-              onDelete={fetchData}
-            />
-          </div>
+          <TransactionList 
+            transactions={transactions} 
+            isLoading={isLoading} 
+            filters={filters}
+            onDelete={fetchData}
+          />
         </div>
         
         {/* Floating Action Button */}

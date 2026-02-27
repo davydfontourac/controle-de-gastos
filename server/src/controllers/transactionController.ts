@@ -152,5 +152,57 @@ export const transactionController = {
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
+  },
+
+  // GET /transactions/history
+  async getHistory(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user.id;
+      const history = [];
+
+      // Loop para buscar os últimos 6 meses (incluindo o atual)
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        
+        const startDate = new Date(year, month - 1, 1).toISOString();
+        const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+
+        const { data, error } = await supabaseAdmin
+          .from('transactions')
+          .select('amount, type')
+          .eq('user_id', userId)
+          .gte('date', startDate)
+          .lte('date', endDate);
+
+        if (error) throw error;
+
+        let income = 0;
+        let expense = 0;
+
+        data.forEach(t => {
+          if (t.type === 'income') income += Number(t.amount);
+          if (t.type === 'expense') expense += Number(t.amount);
+        });
+
+        // Nome do mês abreviado
+        const monthName = date.toLocaleDateString('pt-BR', { month: 'short' });
+
+        history.push({
+          month: monthName.charAt(0).toUpperCase() + monthName.slice(1).replace('.', ''),
+          income,
+          expense,
+          fullMonth: month,
+          year
+        });
+      }
+
+      res.json(history);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
