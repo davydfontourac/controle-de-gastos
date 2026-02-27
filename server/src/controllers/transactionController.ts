@@ -163,10 +163,9 @@ export const transactionController = {
       
       const today = new Date();
       const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth(); // 0-indexed
 
-      // Loop de Janeiro até o mês atual
-      for (let i = 0; i <= currentMonth; i++) {
+      // Loop de Janeiro até Dezembro
+      for (let i = 0; i <= 11; i++) {
         const month = i + 1;
         
         // Datas em UTC para evitar problemas de fuso horário
