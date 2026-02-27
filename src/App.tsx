@@ -3,18 +3,32 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import Dashboard from '@/pages/Dashboard';
+import { AuthProvider } from '@/context/AuthContext';
+import { PrivateRoute, PublicRoute } from '@/components/RouteGuards';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <AuthProvider>
       <Routes>
+        {/* Rotas Públicas (apenas deslogados) */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
+
+        {/* Rotas Privadas (apenas logados) */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
+        
+        {/* Fallback de rotas inexistentes redireciona pra home para o App processar */}
+        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-    </div>
+    </AuthProvider>
   );
 }
 
