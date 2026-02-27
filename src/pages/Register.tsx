@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,8 +9,14 @@ import { toast } from 'sonner';
 
 const registerSchema = z
   .object({
+    fullName: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
     email: z.string().email('E-mail inválido'),
-    password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+    password: z.string()
+      .min(8, 'A senha deve ter pelo menos 8 caracteres')
+      .regex(/[A-Z]/, 'Deve conter pelo menos uma letra maiúscula')
+      .regex(/[a-z]/, 'Deve conter pelo menos uma letra minúscula')
+      .regex(/[0-9]/, 'Deve conter pelo menos um número')
+      .regex(/[^A-Za-z0-9]/, 'Deve conter pelo menos um símbolo'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -21,9 +27,9 @@ const registerSchema = z
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Register() {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const {
     register,
@@ -40,12 +46,17 @@ export default function Register() {
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
 
-      toast.success('Cadastro realizado com sucesso! Redirecionando...');
-      setTimeout(() => navigate('/login'), 3000);
+      setIsRegistered(true);
+      toast.success('Cadastro realizado! Verifique seu e-mail.');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao realizar cadastro');
     } finally {
@@ -72,6 +83,28 @@ export default function Register() {
     }
   };
 
+  if (isRegistered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center">
+          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-2xl">📧</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifique seu e-mail</h1>
+          <p className="text-gray-500 mb-8">
+            Enviamos um link de confirmação para o seu e-mail. Por favor, acesse sua caixa de entrada para ativar sua conta.
+          </p>
+          <Link 
+            to="/login" 
+            className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors"
+          >
+            Ir para o Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -84,6 +117,17 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+              <input
+                type="text"
+                {...register('fullName')}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                placeholder="Seu nome"
+              />
+              {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
               <input
@@ -101,8 +145,11 @@ export default function Register() {
                 type="password"
                 {...register('password')}
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                placeholder="••••••"
+                placeholder="••••••••"
               />
+              <p className="text-[10px] text-gray-400 mt-1 leading-tight">
+                Mínimo 8 caracteres, com maiúsculas, minúsculas, números e símbolos
+              </p>
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
             </div>
 
@@ -112,7 +159,7 @@ export default function Register() {
                 type="password"
                 {...register('confirmPassword')}
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                placeholder="••••••"
+                placeholder="••••••••"
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>

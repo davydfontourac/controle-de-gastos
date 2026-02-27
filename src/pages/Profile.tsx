@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { api } from '@/services/api';
 import { 
+  Trash2, 
+  AlertTriangle,
   User, 
   Mail, 
   Camera, 
@@ -10,48 +15,25 @@ import {
   Loader2,
   CheckCircle2
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 
 
 export default function Profile() {
-  const { user, refreshProfile } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, profile, isLoading: isAuthLoading, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
+  // Sincroniza campos locais com o perfil global quando carregado
   useEffect(() => {
-    async function getProfile() {
-      try {
-        setIsLoading(true);
-        if (!user) return;
-
-        const { data, error, status } = await supabase
-          .from('profiles')
-          .select(`full_name, avatar_url`)
-          .eq('id', user.id)
-          .single();
-
-        if (error && status !== 406) {
-          throw error;
-        }
-
-        if (data) {
-          setFullName(data.full_name || '');
-          setAvatarUrl(data.avatar_url || '');
-        }
-      } catch (error: any) {
-        toast.error('Erro ao carregar perfil');
-        console.error('Error loading profile:', error.message);
-      } finally {
-        setIsLoading(false);
-      }
+    if (profile) {
+      setFullName(profile.full_name || '');
+      setAvatarUrl(profile.avatar_url || '');
     }
-
-    getProfile();
-  }, [user]);
+  }, [profile]);
 
   async function updateProfile() {
     try {
@@ -78,6 +60,25 @@ export default function Profile() {
     }
   }
 
+  async function deleteAccount() {
+    try {
+      setIsDeleting(true);
+      const response = await api.delete('/users');
+      
+      if (response.status === 200) {
+        toast.success('Sua conta foi excluída permanentemente.');
+        await signOut();
+        navigate('/login');
+      }
+    } catch (error: any) {
+      toast.error('Erro ao excluir conta. Tente novamente mais tarde.');
+      console.error('Error deleting account:', error.message);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  }
+
   async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
     try {
       setUploading(true);
@@ -91,7 +92,6 @@ export default function Profile() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
-      // Certifique-se de que o bucket 'avatars' existe no Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
@@ -115,7 +115,7 @@ export default function Profile() {
     }
   }
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
         <div className="flex flex-col items-center gap-4">
@@ -250,8 +250,67 @@ export default function Profile() {
               ID: {user?.id.slice(0, 8)}...
             </div>
           </section>
+
+          {/* Zona de Perigo */}
+          <section className="bg-white p-8 rounded-3xl border border-red-100 shadow-sm space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-50 text-red-600 rounded-lg">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Zona de Perigo</h3>
+            </div>
+
+            <div className="p-4 bg-red-50/50 rounded-2xl border border-red-100">
+              <p className="text-sm text-red-800 font-medium">
+                Ao excluir sua conta, todos os seus dados (transações, categorias e perfil) serão removidos permanentemente. Esta ação não pode ser desfeita.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-red-100 text-red-600 font-bold rounded-xl hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center gap-2"
+            >
+              <Trash2 className="w-5 h-5" />
+              Excluir Minha Conta
+            </button>
+          </section>
         </div>
       </main>
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertTriangle className="w-10 h-10" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Tem certeza absoluta?</h3>
+              <p className="text-gray-500 mb-8">
+                Esta ação é irreversível. Todos os seus dados de gastos e categorias serão perdidos para sempre.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeleting}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={deleteAccount}
+                  disabled={isDeleting}
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2 disabled:opacity-70"
+                >
+                  {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                  <span>Sim, excluir</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
