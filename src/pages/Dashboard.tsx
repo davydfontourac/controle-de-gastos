@@ -1,9 +1,14 @@
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Wallet } from 'lucide-react';
+import { LogOut, Plus, Wallet } from 'lucide-react';
 import TransactionList from '@/components/TransactionList';
+import TransactionForm from '@/components/TransactionForm';
+import { useState } from 'react';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Trick to force list re-render
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -16,6 +21,13 @@ export default function Dashboard() {
         </div>
         
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Nova Despesa
+          </button>
           <span className="text-gray-500 text-sm hidden sm:block">
             {user?.email}
           </span>
@@ -31,9 +43,16 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-6 lg:px-0">
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mt-10">
-          <TransactionList />
+          <TransactionList key={refreshKey} />
         </div>
       </main>
+
+      {/* Renderização Condicional do Modal */}
+      <TransactionForm 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => setRefreshKey(prev => prev + 1)} 
+      />
     </div>
   );
 }
