@@ -118,41 +118,79 @@ export const transactionController = {
   },
 
   // GET /transactions/summary?month=X&year=Y
-  async getSummary(req: AuthRequest, res: Response) {
-    try {
-      const { month, year } = req.query;
-      const userId = req.user.id;
+async getSummary(req: AuthRequest, res: Response) {
+  try {
+    const { month, year } = req.query;
+    const userId = req.user.id;
 
-      let query = supabaseAdmin
+    // 1. Saldo Acumulado (All-time)
+    const { data: allData, error: allError } = await supabaseAdmin
+      .from('transactions')
+      .select('amount, type')
+      .eq('user_id', userId);
+
+    if (allError) throw allError;
+
+    let totalBalance = 0;
+    allData.forEach(t => {
+      if (t.type === 'income') totalBalance += Number(t.amount);
+      if (t.type === 'expense') totalBalance -= Number(t.amount);
+    });
+
+    // 2. Saldo do Ano Selecionado
+    let yearBalance = 0;
+    if (year) {
+      const yearStart = new Date(Date.UTC(Number(year), 0, 1)).toISOString();
+      const yearEnd = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59)).toISOString();
+      
+      const { data: yearData, error: yearError } = await supabaseAdmin
         .from('transactions')
         .select('amount, type')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .gte('date', yearStart)
+        .lte('date', yearEnd);
 
-      if (month && year) {
-        const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString();
-        const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59).toISOString();
-        query = query.gte('date', startDate).lte('date', endDate);
-      }
+      if (yearError) throw yearError;
+      
+      yearData.forEach(t => {
+        if (t.type === 'income') yearBalance += Number(t.amount);
+        if (t.type === 'expense') yearBalance -= Number(t.amount);
+      });
+    }
 
-      const { data, error } = await query;
+    // 3. Resumo Mensal (Filtrado)
+    let income = 0;
+    let expense = 0;
+    if (month && year) {
+      const startDate = new Date(Date.UTC(Number(year), Number(month) - 1, 1)).toISOString();
+      const endDate = new Date(Date.UTC(Number(year), Number(month), 0, 23, 59, 59)).toISOString();
+      
+      const { data: monthData, error: monthError } = await supabaseAdmin
+        .from('transactions')
+        .select('amount, type')
+        .eq('user_id', userId)
+        .gte('date', startDate)
+        .lte('date', endDate);
 
-      if (error) throw error;
+      if (monthError) throw monthError;
 
-      let income = 0;
-      let expense = 0;
-
-      data.forEach(t => {
+      monthData.forEach(t => {
         if (t.type === 'income') income += Number(t.amount);
         if (t.type === 'expense') expense += Number(t.amount);
       });
-
-      const total = income - expense;
-
-      res.json({ income, expense, total });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
     }
-  },
+
+    res.json({ 
+      income, 
+      expense, 
+      totalBalance,
+      yearBalance,
+      balance: totalBalance // Compatibilidade com frontend anterior
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+},
 
   // GET /transactions/history
   async getHistory(req: AuthRequest, res: Response) {

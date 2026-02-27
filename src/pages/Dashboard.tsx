@@ -15,7 +15,12 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
+  const [summary, setSummary] = useState({ 
+    totalIncome: 0, 
+    totalExpense: 0, 
+    balance: 0,
+    yearBalance: 0
+  });
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -51,7 +56,8 @@ export default function Dashboard() {
       setSummary({
         totalIncome: sumRes.data.income,
         totalExpense: sumRes.data.expense,
-        balance: sumRes.data.total
+        balance: sumRes.data.totalBalance,
+        yearBalance: sumRes.data.yearBalance
       });
       setHistory(historyRes.data);
     } catch (err) {

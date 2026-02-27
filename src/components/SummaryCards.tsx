@@ -6,6 +6,7 @@ interface Props {
     totalIncome: number;
     totalExpense: number;
     balance: number;
+    yearBalance: number;
   };
   isLoading?: boolean;
 }
@@ -17,21 +18,23 @@ export default function SummaryCards({ summary, isLoading }: Props) {
       amount: summary.balance,
       icon: Wallet,
       color: 'blue',
-      description: 'Disponível agora'
+      description: 'Disponível agora',
+      subValue: summary.yearBalance,
+      subDescription: 'Acumulado no ano'
     },
     {
       title: 'Receitas',
       amount: summary.totalIncome,
       icon: TrendingUp,
       color: 'emerald',
-      description: 'Neste período'
+      description: 'Neste mês'
     },
     {
       title: 'Despesas',
       amount: summary.totalExpense,
       icon: TrendingDown,
       color: 'red',
-      description: 'Neste período'
+      description: 'Neste mês'
     }
   ];
 
@@ -79,7 +82,19 @@ export default function SummaryCards({ summary, isLoading }: Props) {
                   {formatCurrency(card.amount)}
                 </h2>
               )}
-              <p className="text-sm text-gray-500">{card.description}</p>
+              <p className="text-sm text-gray-500">
+                {card.description}
+                {card.subValue !== undefined && (
+                  <span className="block mt-1 text-[10px] font-bold uppercase tracking-tight">
+                    {card.subDescription}: {' '}
+                    <span className={cn(
+                      card.subValue >= 0 ? "text-emerald-500" : "text-red-500"
+                    )}>
+                      {formatCurrency(card.subValue)}
+                    </span>
+                  </span>
+                )}
+              </p>
             </div>
           </div>
         );
