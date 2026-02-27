@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Wallet, UserPlus, AlertCircle } from 'lucide-react';
+import { Wallet, UserPlus } from 'lucide-react';
 import { supabase } from '@/services/supabase';
+import { toast } from 'sonner';
 
 const registerSchema = z
   .object({
@@ -21,10 +22,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     register,
@@ -37,7 +36,6 @@ export default function Register() {
   const onSubmit = async (data: RegisterForm) => {
     try {
       setIsLoading(true);
-      setError(null);
 
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
@@ -46,10 +44,10 @@ export default function Register() {
 
       if (signUpError) throw signUpError;
 
-      setIsSuccess(true);
+      toast.success('Cadastro realizado com sucesso! Redirecionando...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
-      setError(err.message || 'Erro ao realizar cadastro');
+      toast.error(err.message || 'Erro ao realizar cadastro');
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +56,6 @@ export default function Register() {
   const handleGoogleRegister = async () => {
     try {
       setIsGoogleLoading(true);
-      setError(null);
       
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -69,7 +66,7 @@ export default function Register() {
 
       if (oauthError) throw oauthError;
     } catch (err: any) {
-      setError(err.message || 'Erro ao conectar com Google');
+      toast.error(err.message || 'Erro ao conectar com Google');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -86,19 +83,7 @@ export default function Register() {
           <p className="text-gray-500 text-sm mt-1">Comece a ter controle do seu dinheiro</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-3 text-sm">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
-          </div>
-        )}
-
-        {isSuccess ? (
-          <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg text-center font-medium">
-            Cadastro realizado com sucesso! Redirecionando para o login...
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
               <input
@@ -149,7 +134,6 @@ export default function Register() {
               )}
             </button>
           </form>
-        )}
 
         <div className="mt-6 flex items-center justify-center space-x-4">
           <div className="h-px w-full bg-gray-200"></div>

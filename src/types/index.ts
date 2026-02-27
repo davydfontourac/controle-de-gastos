@@ -9,16 +9,21 @@ export interface Category {
   id: string;
   name: string;
   color: string;
-  icon?: string;
+  icon: string;
+  user_id: string;
+  created_at: string;
 }
 
 export type TransactionType = 'income' | 'expense';
 
 export interface Transaction {
   id: string;
-  description: string;
   amount: number;
-  date: string; // ISO date string
-  categoryId: string;
   type: TransactionType;
+  description: string;
+  date: string;
+  category_id?: string | null;
+  categories?: Pick<Category, 'name' | 'icon' | 'color'> | null;
+  user_id: string;
+  created_at: string;
 }

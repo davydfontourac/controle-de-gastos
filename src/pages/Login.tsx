@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Wallet, LogIn, AlertCircle } from 'lucide-react';
+import { Wallet, LogIn } from 'lucide-react';
 import { supabase } from '@/services/supabase';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -15,7 +16,6 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -30,7 +30,6 @@ export default function Login() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
-      setError(null);
       
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
@@ -39,10 +38,10 @@ export default function Login() {
 
       if (signInError) throw signInError;
       
-      console.log('Login bem-sucedido!');
+      toast.success('Login realizado com sucesso!');
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Erro ao realizar login');
+      toast.error(err.message || 'Erro ao realizar login');
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +50,6 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     try {
       setIsGoogleLoading(true);
-      setError(null);
       
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -62,7 +60,7 @@ export default function Login() {
 
       if (oauthError) throw oauthError;
     } catch (err: any) {
-      setError(err.message || 'Erro ao conectar com Google');
+      toast.error(err.message || 'Erro ao conectar com Google');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -79,12 +77,6 @@ export default function Login() {
           <p className="text-gray-500 text-sm mt-1">Faça login para gerenciar seus gastos</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-3 text-sm">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>

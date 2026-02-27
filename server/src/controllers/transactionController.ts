@@ -11,7 +11,7 @@ export const transactionController = {
   // GET /transactions
   async getAll(req: AuthRequest, res: Response) {
     try {
-      const { type, month, year } = req.query;
+      const { type, month, year, search } = req.query;
       const userId = req.user.id;
 
       let query = supabaseAdmin
@@ -24,7 +24,11 @@ export const transactionController = {
         query = query.eq('type', type);
       }
 
-      // Filtros básicos de mês/ano (opcional base para depois)
+      if (search) {
+        query = query.ilike('description', `%${search}%`);
+      }
+
+      // Filtros básicos de mês/ano
       if (month && year) {
         const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString();
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59).toISOString();
