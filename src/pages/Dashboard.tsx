@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom';
 import TransactionList from '@/components/TransactionList';
 import TransactionForm from '@/components/TransactionForm';
 import SummaryCards from '@/components/SummaryCards';
+import type { Transaction } from '@/types';
 import TransactionFilters from '@/components/TransactionFilters';
 import CategoryPieChart from '@/components/CategoryPieChart';
 import MonthlyChart from '@/components/MonthlyChart';
 import { api } from '@/services/api';
-import type { Transaction } from '@/types';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   
   // Estado Global de Filtros (Compartilhado entre Resumo e Lista)
   const [filters, setFilters] = useState({
@@ -68,6 +69,16 @@ export default function Dashboard() {
 
     return () => clearTimeout(timer);
   }, [fetchData, filters.search]);
+
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingTransaction(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -127,6 +138,7 @@ export default function Dashboard() {
             isLoading={isLoading} 
             filters={filters}
             onDelete={fetchData}
+            onEdit={handleEdit}
           />
         </div>
         
@@ -174,8 +186,9 @@ export default function Dashboard() {
 
         <TransactionForm
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleCloseModal}
           onSuccess={fetchData}
+          transaction={editingTransaction}
         />
       </main>
     </div>

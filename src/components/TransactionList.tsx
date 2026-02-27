@@ -12,9 +12,10 @@ interface Props {
     year: string;
   };
   onDelete: () => void;
+  onEdit: (transaction: Transaction) => void;
 }
 
-export default function TransactionList({ transactions, isLoading, filters, onDelete }: Props) {
+export default function TransactionList({ transactions, isLoading, filters, onDelete, onEdit }: Props) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -51,6 +52,7 @@ export default function TransactionList({ transactions, isLoading, filters, onDe
             key={transaction.id} 
             transaction={transaction} 
             onDelete={onDelete} 
+            onEdit={onEdit}
           />
         ))}
       </div>
