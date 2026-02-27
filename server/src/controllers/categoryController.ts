@@ -101,6 +101,21 @@ export const categoryController = {
       const { id } = req.params;
       const userId = req.user.id;
 
+      // 1. Verificar se existem transações vinculadas a esta categoria
+      const { count: transCount, error: countError } = await supabaseAdmin
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('category_id', id);
+
+      if (countError) throw countError;
+
+      if (transCount && transCount > 0) {
+        return res.status(400).json({ 
+          error: 'Não é possível excluir uma categoria que possui transações vinculadas. Remova ou altere as transações primeiro.' 
+        });
+      }
+
+      // 2. Prosseguir com a deleção
       const { error, count } = await supabaseAdmin
         .from('categories')
         .delete({ count: 'exact' })
