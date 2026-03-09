@@ -91,7 +91,7 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-60s flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">
@@ -108,7 +108,7 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           {/* Nome */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+            <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
               <Tag className="w-4 h-4 text-gray-400" />
               Nome da Categoria
             </label>
@@ -126,7 +126,7 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
 
           {/* Cor */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+            <label className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
               <Palette className="w-4 h-4 text-gray-400" />
               Cor da Categoria
             </label>
