@@ -214,8 +214,9 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
               {isRecurrent && (
                 <div className="grid grid-cols-2 gap-4 mt-4 animate-in slide-in-from-top-2 duration-200">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Frequência</label>
+                    <label htmlFor="frequency" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Frequência</label>
                     <select
+                      id="frequency"
                       {...register('frequency')}
                       className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:outline-none transition-all text-sm font-medium"
                     >
@@ -225,8 +226,9 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Ocorrências</label>
+                    <label htmlFor="installments" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Ocorrências</label>
                     <input
+                      id="installments"
                       type="number"
                       min="1"
                       max="60"
