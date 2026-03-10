@@ -5,5 +5,10 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     clearMocks: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['lcov', 'text'],
+      exclude: ['src/index.ts', '**/*.test.*']
+    }
   },
 });

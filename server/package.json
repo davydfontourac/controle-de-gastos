@@ -7,7 +7,8 @@
     "start": "ts-node src/index.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.2",
     "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
