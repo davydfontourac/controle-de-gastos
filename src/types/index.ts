@@ -24,6 +24,9 @@ export interface Transaction {
   date: string;
   category_id?: string | null;
   categories?: Pick<Category, 'name' | 'icon' | 'color'> | null;
+  is_recurrent?: boolean;
+  frequency?: 'weekly' | 'monthly' | 'yearly' | null;
+  parent_id?: string | null;
   user_id: string;
   created_at: string;
 }

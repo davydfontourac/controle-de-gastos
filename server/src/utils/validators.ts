@@ -13,8 +13,20 @@ export const createTransactionSchema = z.object({
   type: z.enum(['income', 'expense']),
   description: z.string().min(1, 'A descrição é obrigatória.').max(255),
   date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Data inválida.' }),
-  category_id: z.string().uuid('ID de categoria inválido.').optional().nullable()
+  category_id: z.string().uuid('ID de categoria inválido.').optional().nullable(),
+  is_recurrent: z.boolean().optional().default(false),
+  frequency: z.enum(['weekly', 'monthly', 'yearly']).optional().nullable(),
+  installments: z.number().int().min(1).max(60).optional().default(1),
 });
 
-// Validação para Atualização de Transações (todos os campos opcionais)
-export const updateTransactionSchema = createTransactionSchema.partial();
+// Validação para Atualização de Transações
+export const updateTransactionSchema = z.object({
+  amount: z.number().positive('O valor da transação deve ser positivo e numérico.').optional(),
+  type: z.enum(['income', 'expense']).optional(),
+  description: z.string().min(1, 'A descrição é obrigatória.').max(255).optional(),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Data inválida.' }).optional(),
+  category_id: z.string().uuid('ID de categoria inválido.').optional().nullable(),
+  is_recurrent: z.boolean().optional(),
+  frequency: z.enum(['weekly', 'monthly', 'yearly']).optional().nullable(),
+  parent_id: z.string().uuid().optional().nullable(),
+});

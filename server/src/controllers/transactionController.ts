@@ -44,27 +44,85 @@ export const transactionController = {
     }
   },
 
+  // Helper para gerar datas de recorrência
+  _generateRecurringTransactions(parsedBody: any, userId: string) {
+    const { frequency, installments = 1, date: startDateStr, ...rest } = parsedBody;
+    const baseDate = new Date(startDateStr);
+    
+    return Array.from({ length: installments }).map((_, i) => {
+      const currentDate = new Date(baseDate);
+      
+      if (frequency === 'weekly') currentDate.setUTCDate(baseDate.getUTCDate() + (i * 7));
+      if (frequency === 'monthly') currentDate.setUTCMonth(baseDate.getUTCMonth() + i);
+      if (frequency === 'yearly') currentDate.setUTCFullYear(baseDate.getUTCFullYear() + i);
+
+      return {
+        ...rest,
+        date: currentDate.toISOString(),
+        user_id: userId,
+        is_recurrent: true,
+        frequency,
+      };
+    });
+  },
+
   // POST /transactions
   async create(req: AuthRequest, res: Response) {
     try {
       const userId = req.user.id;
-      
-      // Validações pesadas no momento em que os dados batem
       const parsedBody = createTransactionSchema.parse(req.body);
+      
+      const { is_recurrent, frequency, installments = 1 } = parsedBody;
 
-      const { data, error } = await supabaseAdmin
+      // Caso 1: Transação Única
+      if (!is_recurrent || !frequency || installments <= 1) {
+        const { data, error } = await supabaseAdmin
+          .from('transactions')
+          .insert([{ ...parsedBody, user_id: userId }])
+          .select('*, categories(name, icon, color)')
+          .single();
+
+        if (error) throw error;
+        return res.status(201).json(data);
+      }
+
+      // Caso 2: Transações Recorrentes (Materialização)
+      const transactionsToInsert = transactionController._generateRecurringTransactions(parsedBody, userId);
+
+      const { data: firstRecord, error: firstError } = await supabaseAdmin
         .from('transactions')
-        .insert([{ ...parsedBody, user_id: userId }])
-        .select('*, categories(name, icon, color)')
+        .insert([transactionsToInsert[0]])
+        .select()
         .single();
 
-      if (error) throw error;
-      res.status(201).json(data);
+      if (firstError) throw firstError;
+
+      // Inserir parcelas restantes vinculadas ao parent_id
+      const otherTransactions = transactionsToInsert.slice(1).map(t => ({
+        ...t,
+        parent_id: firstRecord.id
+      }));
+
+      const { error: othersError } = await supabaseAdmin
+        .from('transactions')
+        .insert(otherTransactions);
+
+      if (othersError) throw othersError;
+
+      // Retornar a primeira com categorias
+      const { data: finalData, error: finalError } = await supabaseAdmin
+        .from('transactions')
+        .select('*, categories(name, icon, color)')
+        .eq('id', firstRecord.id)
+        .single();
+
+      if (finalError) throw finalError;
+      return res.status(201).json(finalData);
+
     } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: error.message });
+      const status = error.name === 'ZodError' ? 400 : 500;
+      const message = error.name === 'ZodError' ? error.errors : error.message;
+      res.status(status).json({ error: message });
     }
   },
 

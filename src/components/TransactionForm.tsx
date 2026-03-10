@@ -13,6 +13,9 @@ const formSchema = z.object({
   date: z.string().min(1, 'A data é obrigatória.'),
   type: z.enum(['income', 'expense']),
   category_id: z.string().nullable().optional(),
+  is_recurrent: z.boolean(),
+  frequency: z.enum(['weekly', 'monthly', 'yearly']).nullable().optional(),
+  installments: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -38,10 +41,14 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       type: 'expense',
       date: new Date().toISOString().split('T')[0],
       category_id: null,
+      is_recurrent: false,
+      frequency: 'monthly',
+      installments: '1',
     }
   });
 
   const selectedType = watch('type');
+  const isRecurrent = watch('is_recurrent');
 
   // Carrega categorias ao abrir
   useEffect(() => {
@@ -59,6 +66,9 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
         date: new Date(transaction.date).toISOString().split('T')[0],
         type: transaction.type,
         category_id: transaction.category_id ? String(transaction.category_id) : null,
+        is_recurrent: transaction.is_recurrent || false,
+        frequency: transaction.frequency || 'monthly',
+        installments: '1', // Edição não gera parcelas novas
       });
     } else if (!transaction && isOpen) {
       reset({
@@ -67,6 +77,9 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
         date: new Date().toISOString().split('T')[0],
         type: 'expense',
         category_id: null,
+        is_recurrent: false,
+        frequency: 'monthly',
+        installments: '1',
       });
     }
   }, [transaction, isOpen, reset]);
@@ -79,6 +92,7 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
         ...data,
         amount: Number(data.amount),
         category_id: data.category_id || null, // UUID é string
+        installments: Number(data.installments),
       };
 
       if (transaction) {
@@ -185,9 +199,50 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  {...register('is_recurrent')}
+                  className="w-5 h-5 rounded-md border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer"
+                />
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                  Repetir transação (Recorrência)
+                </span>
+              </label>
+
+              {isRecurrent && (
+                <div className="grid grid-cols-2 gap-4 mt-4 animate-in slide-in-from-top-2 duration-200">
+                  <div>
+                    <label htmlFor="frequency" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Frequência</label>
+                    <select
+                      id="frequency"
+                      {...register('frequency')}
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:outline-none transition-all text-sm font-medium"
+                    >
+                      <option value="monthly">Mensal</option>
+                      <option value="weekly">Semanal</option>
+                      <option value="yearly">Anual</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="installments" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Ocorrências</label>
+                    <input
+                      id="installments"
+                      type="number"
+                      min="1"
+                      max="60"
+                      {...register('installments')}
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:outline-none transition-all text-sm font-medium"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 pt-2">
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Data</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Data da primeira</label>
                 <input
                   type="date"
                   {...register('date')}

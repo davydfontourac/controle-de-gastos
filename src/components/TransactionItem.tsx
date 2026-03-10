@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, Tag, Trash2, Edit2 } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Tag, Trash2, Edit2, Repeat } from 'lucide-react';
 import type { Transaction } from '@/types';
 import { useState } from 'react';
 import { api } from '@/services/api';
@@ -56,7 +56,12 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Props
 
           {/* Detalhes de Texto */}
           <div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-100">{transaction.description}</h3>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              {transaction.description}
+              {transaction.is_recurrent && (
+                <Repeat className="w-3.5 h-3.5 text-blue-500" />
+              )}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {transaction.categories?.name || 'Sem categoria'} • {formattedDate}
             </p>
