@@ -11,7 +11,7 @@ import PageTransition from '@/components/PageTransition';
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
