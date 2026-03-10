@@ -22,6 +22,18 @@ app.use(express.json()); // Permite ler JSON no req.body
 app.use('/api', routes);
 
 // Escuta a porta definida
-app.listen(PORT, () => {
+const server = app.listen(PORT, (err?: any) => {
+  if (err) {
+    console.error(`❌ Erro ao iniciar o servidor na porta ${PORT}:`, err.message || err);
+    process.exit(1);
+  }
   console.log(`🚀 Server rodando em http://localhost:${PORT}`);
+});
+
+server.on('error', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ A porta ${PORT} já está em uso!`);
+    console.error(`O servidor do back-end já deve estar rodando em outro terminal ou processo.`);
+    process.exit(1);
+  }
 });

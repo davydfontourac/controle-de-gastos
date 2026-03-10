@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Wallet, KeyRound, AlertCircle } from 'lucide-react';
 import { supabase } from '@/services/supabase';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition'; // Added this import
 
 const resetPasswordSchema = z
   .object({
@@ -53,52 +55,55 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <PageTransition className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/20">
             <Wallet className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Nova Senha</h1>
-          <p className="text-gray-500 text-sm mt-1 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Nova Senha</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 text-center">
             Digite sua nova senha abaixo para acessar sua conta
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-3 text-sm">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-3 text-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <p>{error}</p>
           </div>
         )}
 
         {isSuccess ? (
-          <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg text-center font-medium">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-lg text-center font-medium">
             Senha atualizada com sucesso! Redirecionando...
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nova Senha</label>
               <input
                 type="password"
                 {...register('password')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="••••••"
               />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar Nova Senha</label>
               <input
                 type="password"
                 {...register('confirmPassword')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="••••••"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
               )}
             </div>
 
@@ -119,6 +124,6 @@ export default function ResetPassword() {
           </form>
         )}
       </div>
-    </div>
+    </PageTransition>
   );
 }

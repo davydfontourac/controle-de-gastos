@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { Wallet, LogIn } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition';
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -67,43 +69,46 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <PageTransition className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 transition-colors">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/20">
             <Wallet className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Bem-vindo de volta</h1>
-          <p className="text-gray-500 text-sm mt-1">Faça login para gerenciar seus gastos</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Bem-vindo de volta</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Faça login para gerenciar seus gastos</p>
         </div>
 
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
             <input
               type="email"
               {...register('email')}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
               placeholder="seu@email.com"
             />
-            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+            {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
           </div>
 
           <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700">Senha</label>
-                <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                <Link to="/forgot-password" className="text-sm font-medium text-blue-600 dark:text-blue-500 hover:text-blue-500 dark:hover:text-blue-400">
                   Esqueceu a senha?
                 </Link>
               </div>
             <input
               type="password"
               {...register('password')}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
               placeholder="••••••"
             />
-            {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+            {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
           </div>
 
           <button
@@ -123,9 +128,9 @@ export default function Login() {
         </form>
 
         <div className="mt-6 flex items-center justify-center space-x-4">
-          <div className="h-px w-full bg-gray-200"></div>
-          <span className="text-sm text-gray-400">ou</span>
-          <div className="h-px w-full bg-gray-200"></div>
+          <div className="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+          <span className="text-sm text-gray-400 dark:text-gray-500">ou</span>
+          <div className="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
         </div>
 
         <div className="mt-6">
@@ -133,7 +138,7 @@ export default function Login() {
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
             type="button"
-            className="w-full bg-white text-gray-700 font-medium py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isGoogleLoading ? (
               <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
@@ -164,13 +169,13 @@ export default function Login() {
           </button>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Não tem uma conta?{' '}
-          <Link to="/register" className="text-blue-600 font-medium hover:underline">
+          <Link to="/register" className="text-blue-600 dark:text-blue-500 font-medium hover:underline">
             Cadastre-se grátis
           </Link>
         </p>
       </div>
-    </div>
+    </PageTransition>
   );
 }

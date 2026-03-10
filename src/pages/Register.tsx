@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { Wallet, UserPlus } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition';
 
 const registerSchema = z
   .object({
@@ -85,13 +87,16 @@ export default function Register() {
 
   if (isRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center">
-          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 text-center transition-colors">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-2xl">📧</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifique seu e-mail</h1>
-          <p className="text-gray-500 mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Verifique seu e-mail</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">
             Enviamos um link de confirmação para o seu e-mail. Por favor, acesse sua caixa de entrada para ativar sua conta.
           </p>
           <Link 
@@ -106,63 +111,66 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <PageTransition className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/20">
             <Wallet className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Crie sua conta</h1>
-          <p className="text-gray-500 text-sm mt-1">Comece a ter controle do seu dinheiro</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Crie sua conta</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Comece a ter controle do seu dinheiro</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome Completo</label>
               <input
                 type="text"
                 {...register('fullName')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Seu nome"
               />
-              {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>}
+              {errors.fullName && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fullName.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
               <input
                 type="email"
                 {...register('email')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="seu@email.com"
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+              {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Senha</label>
               <input
                 type="password"
                 {...register('password')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="••••••••"
               />
-              <p className="text-[10px] text-gray-400 mt-1 leading-tight">
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-tight">
                 Mínimo 8 caracteres, com maiúsculas, minúsculas, números e símbolos
               </p>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar Senha</label>
               <input
                 type="password"
                 {...register('confirmPassword')}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="••••••••"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
               )}
             </div>
 
@@ -183,9 +191,9 @@ export default function Register() {
           </form>
 
         <div className="mt-6 flex items-center justify-center space-x-4">
-          <div className="h-px w-full bg-gray-200"></div>
-          <span className="text-sm text-gray-400">ou</span>
-          <div className="h-px w-full bg-gray-200"></div>
+          <div className="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+          <span className="text-sm text-gray-400 dark:text-gray-500">ou</span>
+          <div className="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
         </div>
 
         <div className="mt-6">
@@ -193,7 +201,7 @@ export default function Register() {
             onClick={handleGoogleRegister}
             disabled={isGoogleLoading || isLoading}
             type="button"
-            className="w-full bg-white text-gray-700 font-medium py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isGoogleLoading ? (
               <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
@@ -224,13 +232,13 @@ export default function Register() {
           </button>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Já tem uma conta?{' '}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">
+          <Link to="/login" className="text-blue-600 dark:text-blue-500 font-medium hover:underline">
             Faça login
           </Link>
         </p>
       </div>
-    </div>
+    </PageTransition>
   );
 }

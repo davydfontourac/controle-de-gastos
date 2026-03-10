@@ -92,24 +92,24 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
 
   return (
     <div className="fixed inset-0 z-60s flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-transparent dark:border-gray-800 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {category ? 'Editar Categoria' : 'Nova Categoria'}
           </h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X className="w-5 h-5 text-gray-400 dark:text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           {/* Nome */}
           <div>
-            <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-              <Tag className="w-4 h-4 text-gray-400" />
+            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+              <Tag className="w-4 h-4 text-gray-400 dark:text-gray-500" />
               Nome da Categoria
             </label>
             <input
@@ -117,8 +117,8 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
               type="text"
               placeholder="Ex: Alimentação, Lazer..."
               className={cn(
-                "w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300",
-                errors.name && "border-red-300 focus:ring-red-500/10 focus:border-red-500"
+                "w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600",
+                errors.name && "border-red-300 focus:ring-red-500/10 focus:border-red-500 dark:border-red-500/50 dark:focus:ring-red-500/20"
               )}
             />
             {errors.name && <p className="mt-2 text-xs font-bold text-red-500">{errors.name.message}</p>}
@@ -126,8 +126,8 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
 
           {/* Cor */}
           <div>
-            <label className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-              <Palette className="w-4 h-4 text-gray-400" />
+            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-gray-400 dark:text-gray-500" />
               Cor da Categoria
             </label>
             <div className="flex flex-wrap gap-3">
@@ -157,14 +157,14 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: P
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 text-gray-500 font-bold hover:bg-gray-50 rounded-2xl transition-colors"
+              className="flex-1 py-3 px-4 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 bg-gray-900 text-white font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95 disabled:opacity-50"
+              className="flex-1 py-3 px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-gray-100 transition-all shadow-lg active:scale-95 disabled:opacity-50"
             >
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Salvar Categoria'}
             </button>

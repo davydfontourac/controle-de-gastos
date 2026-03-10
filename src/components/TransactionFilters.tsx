@@ -46,25 +46,25 @@ export default function TransactionFilters({
       <div className="flex flex-col md:flex-row gap-4">
         {/* Busca por Descrição */}
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Buscar por descrição..."
             value={filters.search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500 focus:outline-none transition-all"
           />
         </div>
 
         {/* Filtro por Tipo */}
-        <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-xl">
+        <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
           {['all', 'income', 'expense'].map((t) => (
             <button
               key={t}
               onClick={() => onTypeChange(t)}
               className={cn(
                 "px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                filters.type === t ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                filters.type === t ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               )}
             >
               {t === 'all' ? 'Todos' : t === 'income' ? 'Receitas' : 'Despesas'}
@@ -82,7 +82,7 @@ export default function TransactionFilters({
         <select
           value={filters.month}
           onChange={(e) => onMonthChange(e.target.value)}
-          className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all cursor-pointer"
         >
           {MONTHS.map(m => (
             <option key={m.value} value={m.value}>{m.label}</option>
@@ -92,7 +92,7 @@ export default function TransactionFilters({
         <select
           value={filters.year}
           onChange={(e) => onYearChange(e.target.value)}
-          className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all cursor-pointer"
         >
           {YEARS.map(y => (
             <option key={y.value} value={y.value}>{y.label}</option>

@@ -17,15 +17,15 @@ interface Props {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 min-w-[150px]">
-        <p className="font-bold text-gray-800 mb-2">{label}</p>
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 min-w-[150px]">
+        <p className="font-bold text-gray-800 dark:text-gray-200 mb-2">{label}</p>
         <div className="space-y-1">
           {payload.map((item: any) => (
             <div key={item.dataKey} className="flex items-center justify-between gap-4">
               <span className="text-sm font-medium" style={{ color: item.color }}>
                 {item.name}:
               </span>
-              <span className="text-sm font-bold text-gray-700">
+              <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.value)}
               </span>
             </div>
@@ -48,16 +48,16 @@ export default function MonthlyChart({ data, isLoading }: Props) {
 
   if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-[400px] flex flex-col animate-pulse">
-        <div className="h-6 w-48 bg-gray-100 rounded mb-8" />
-        <div className="flex-1 bg-gray-50 rounded-xl" />
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-[400px] flex flex-col animate-pulse transition-colors">
+        <div className="h-6 w-48 bg-gray-100 dark:bg-gray-800 rounded mb-8" />
+        <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-[400px] flex flex-col">
-      <h3 className="text-lg font-bold text-gray-800 mb-6 px-2">Evolução Mensal</h3>
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-[400px] flex flex-col transition-colors">
+      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 px-2">Evolução Mensal</h3>
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

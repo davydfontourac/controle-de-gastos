@@ -14,29 +14,29 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, descri
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-transparent dark:border-gray-800 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="p-6">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center shrink-0">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-              <p className="text-sm text-gray-500 mt-1">{description}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <button
               onClick={onClose}
-              className="flex-1 py-2.5 px-4 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
+              className="flex-1 py-2.5 px-4 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700"
             >
               Cancelar
             </button>
             <button
               onClick={onConfirm}
               disabled={isLoading}
-              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Excluir'}
             </button>
