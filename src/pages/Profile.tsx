@@ -15,7 +15,7 @@ import {
   Loader2,
   CheckCircle2
 } from 'lucide-react';
-
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Profile() {
   const { user, profile, isLoading: isAuthLoading, refreshProfile, signOut } = useAuth();
@@ -117,40 +117,43 @@ export default function Profile() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50/50 dark:bg-gray-950 transition-colors">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-          <p className="text-gray-500 font-medium">Carregando seu perfil...</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">Carregando seu perfil...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
       {/* Header Premium */}
-      <nav className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
+      <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center gap-4">
               <Link 
                 to="/dashboard" 
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
-              <h1 className="text-xl font-bold text-gray-900 border-l border-gray-100 pl-4">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-l border-gray-100 dark:border-gray-800 pl-4">
                 Meu Perfil
               </h1>
             </div>
-            <button
-              onClick={updateProfile}
-              disabled={isSaving || uploading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70"
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              <span>Salvar Alterações</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <button
+                onClick={updateProfile}
+                disabled={isSaving || uploading}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 dark:shadow-blue-900/20 active:scale-95 disabled:opacity-70"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                <span className="hidden sm:inline">Salvar Alterações</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -158,18 +161,18 @@ export default function Profile() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="space-y-8">
           {/* Sessão de Avatar */}
-          <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
+          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center text-center transition-colors">
             <div className="relative">
-              <div className="w-32 h-32 bg-gray-100 rounded-full overflow-hidden border-4 border-white shadow-lg flex items-center justify-center">
+              <div className="w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border-4 border-white dark:border-gray-900 shadow-lg flex items-center justify-center">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-16 h-16 text-gray-400" />
+                  <User className="w-16 h-16 text-gray-400 dark:text-gray-500" />
                 )}
               </div>
               <label 
                 htmlFor="avatar-upload" 
-                className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-blue-700 transition-colors border-4 border-white active:scale-90 disabled:opacity-50"
+                className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-blue-700 transition-colors border-4 border-white dark:border-gray-900 active:scale-90 disabled:opacity-50"
               >
                 {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
                 <input 
@@ -183,23 +186,23 @@ export default function Profile() {
               </label>
             </div>
             <div className="mt-4">
-              <h2 className="text-xl font-bold text-gray-900">{fullName || 'Seu Nome'}</h2>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{fullName || 'Seu Nome'}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
             </div>
           </section>
 
           {/* Dados Pessoais */}
-          <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm space-y-6 transition-colors">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <div className="p-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Informações Pessoais</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Informações Pessoais</h3>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5 ml-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
                   Nome Completo
                 </label>
                 <div className="relative">
@@ -210,25 +213,25 @@ export default function Profile() {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Como você prefere ser chamado?"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1.5 ml-1 select-none">
+                <label className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none">
                   E-mail (Não editável)
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
                     <Mail className="w-5 h-5" />
                   </div>
                   <input
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full pl-11 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 dark:text-gray-400 cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -236,39 +239,39 @@ export default function Profile() {
           </section>
 
           {/* Informações da Conta (Segurança/Futuro) */}
-          <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between">
+          <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between transition-colors">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
+              <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Status da Conta</h4>
-                <p className="text-xs text-green-600 font-semibold uppercase tracking-wider">Ativa e Verificada</p>
+                <h4 className="font-bold text-gray-900 dark:text-gray-100">Status da Conta</h4>
+                <p className="text-xs text-green-600 dark:text-green-500 font-semibold uppercase tracking-wider">Ativa e Verificada</p>
               </div>
             </div>
-            <div className="text-xs text-gray-400 font-medium">
+            <div className="text-xs text-gray-400 dark:text-gray-500 font-medium">
               ID: {user?.id.slice(0, 8)}...
             </div>
           </section>
 
           {/* Zona de Perigo */}
-          <section className="bg-white p-8 rounded-3xl border border-red-100 shadow-sm space-y-6">
+          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-sm space-y-6 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-50 text-red-600 rounded-lg">
+              <div className="p-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg">
                 <AlertTriangle className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Zona de Perigo</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Zona de Perigo</h3>
             </div>
 
-            <div className="p-4 bg-red-50/50 rounded-2xl border border-red-100">
-              <p className="text-sm text-red-800 font-medium">
+            <div className="p-4 bg-red-50/50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-900/20">
+              <p className="text-sm text-red-800 dark:text-red-400 font-medium">
                 Ao excluir sua conta, todos os seus dados (transações, categorias e perfil) serão removidos permanentemente. Esta ação não pode ser desfeita.
               </p>
             </div>
 
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-red-100 text-red-600 font-bold rounded-xl hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-gray-800 border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-900/50 transition-all flex items-center justify-center gap-2"
             >
               <Trash2 className="w-5 h-5" />
               Excluir Minha Conta
@@ -280,13 +283,13 @@ export default function Profile() {
       {/* Modal de Confirmação de Exclusão */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-transparent dark:border-gray-800">
             <div className="p-8 text-center">
-              <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
                 <AlertTriangle className="w-10 h-10" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Tem certeza absoluta?</h3>
-              <p className="text-gray-500 mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Tem certeza absoluta?</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-8">
                 Esta ação é irreversível. Todos os seus dados de gastos e categorias serão perdidos para sempre.
               </p>
               
@@ -294,14 +297,14 @@ export default function Profile() {
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   disabled={isDeleting}
-                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all disabled:opacity-50"
+                  className="px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={deleteAccount}
                   disabled={isDeleting}
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2 disabled:opacity-70"
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-200 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-70"
                 >
                   {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                   <span>Sim, excluir</span>

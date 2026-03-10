@@ -35,11 +35,11 @@ export default function CategoryPieChart({ transactions }: Props) {
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl border border-gray-100 h-full min-h-[400px]">
-        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-          <PieChart className="w-8 h-8 text-gray-300" />
+      <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 h-full min-h-[400px] transition-colors">
+        <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+          <PieChart className="w-8 h-8 text-gray-300 dark:text-gray-600" />
         </div>
-        <p className="text-gray-500 font-medium text-center">Nenhuma despesa registrada<br/>neste período para exibir o gráfico.</p>
+        <p className="text-gray-500 dark:text-gray-400 font-medium text-center">Nenhuma despesa registrada<br/>neste período para exibir o gráfico.</p>
       </div>
     );
   }
@@ -51,10 +51,10 @@ export default function CategoryPieChart({ transactions }: Props) {
   }).format(totalExpenses);
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-full min-h-[400px] flex flex-col relative overflow-hidden group">
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-full min-h-[400px] flex flex-col relative overflow-hidden group transition-colors">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-bold text-gray-800 px-2">Distribuição de Gastos</h3>
-        <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-lg uppercase tracking-wider">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 px-2">Distribuição de Gastos</h3>
+        <span className="text-xs font-bold text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-lg uppercase tracking-wider">
           Total: {formattedTotal}
         </span>
       </div>
@@ -101,8 +101,8 @@ export default function CategoryPieChart({ transactions }: Props) {
           
           {/* Valor Central */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Total Gasto</span>
-            <span className="text-gray-900 text-2xl font-black tracking-tight">{formattedTotal}</span>
+            <span className="text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Total Gasto</span>
+            <span className="text-gray-900 dark:text-white text-2xl font-black tracking-tight">{formattedTotal}</span>
           </div>
         </div>
 
@@ -115,11 +115,11 @@ export default function CategoryPieChart({ transactions }: Props) {
                   className="w-3 h-3 rounded-full shadow-sm"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm font-bold text-gray-600 truncate max-w-[100px] group-hover/item:text-gray-900 transition-colors">
+                <span className="text-sm font-bold text-gray-600 dark:text-gray-300 truncate max-w-[100px] group-hover/item:text-gray-900 dark:group-hover/item:text-white transition-colors">
                   {item.name}
                 </span>
               </div>
-              <span className="text-xs font-black text-gray-400 tabular-nums">
+              <span className="text-xs font-black text-gray-400 dark:text-gray-500 tabular-nums">
                 {Math.round((item.value / totalExpenses) * 100)}%
               </span>
             </div>

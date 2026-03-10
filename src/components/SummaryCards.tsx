@@ -53,42 +53,42 @@ export default function SummaryCards({ summary, isLoading }: Props) {
         return (
           <div 
             key={card.title}
-            className="relative bg-white p-6 rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all"
+            className="relative bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden group hover:shadow-md transition-all"
           >
             {/* Background Accent */}
             <div className={cn(
               "absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity",
-              card.color === 'blue' ? "bg-blue-600" : card.color === 'emerald' ? "bg-emerald-600" : "bg-red-600"
+              card.color === 'blue' ? "bg-blue-600 dark:bg-blue-400" : card.color === 'emerald' ? "bg-emerald-600 dark:bg-emerald-400" : "bg-red-600 dark:bg-red-400"
             )} />
 
             <div className="flex items-start justify-between mb-4">
               <div className={cn(
                 "p-3 rounded-2xl",
-                card.color === 'blue' ? "bg-blue-50 text-blue-600" : card.color === 'emerald' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                card.color === 'blue' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" : card.color === 'emerald' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
               )}>
                 <Icon className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{card.title}</span>
+              <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{card.title}</span>
             </div>
 
             <div>
               {isLoading ? (
-                <div className="h-8 w-32 bg-gray-100 animate-pulse rounded-lg mb-1" />
+                <div className="h-8 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg mb-1" />
               ) : (
                 <h2 className={cn(
                   "text-2xl font-bold mb-1",
-                  card.color === 'blue' ? "text-gray-900" : card.color === 'emerald' ? "text-emerald-600" : "text-red-500"
+                  card.color === 'blue' ? "text-gray-900 dark:text-white" : card.color === 'emerald' ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
                 )}>
                   {formatCurrency(card.amount)}
                 </h2>
               )}
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {card.description}
                 {card.subValue !== undefined && (
                   <span className="block mt-1 text-[10px] font-bold uppercase tracking-tight">
                     {card.subDescription}: {' '}
                     <span className={cn(
-                      card.subValue >= 0 ? "text-emerald-500" : "text-red-500"
+                      card.subValue >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
                     )}>
                       {formatCurrency(card.subValue)}
                     </span>
