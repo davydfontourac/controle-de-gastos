@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 12 */3 * *' # a cada 3 dias ao meio-dia UTC
+  workflow_dispatch: # permite rodar manualmente pela UI do GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -X GET "https://opxmevzhrjuqjslhbsov.supabase.co/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            --fail --silent --show-error
+          echo "✅ Supabase pinged successfully"
