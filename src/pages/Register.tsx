@@ -117,9 +117,7 @@ export default function Register() {
       </div>
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/20">
-            <Wallet className="w-6 h-6 text-white" />
-          </div>
+          <img src="/wallet.png" alt="Controle de Gastos Logo" className="w-14 h-14 mb-4 drop-shadow-lg object-contain" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Crie sua conta</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Comece a ter controle do seu dinheiro</p>
         </div>
