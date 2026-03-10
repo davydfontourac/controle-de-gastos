@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { Wallet, KeyRound, AlertCircle } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition'; // Added this import
 
 const resetPasswordSchema = z
   .object({
@@ -54,7 +55,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
+    <PageTransition className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
@@ -123,6 +124,6 @@ export default function ResetPassword() {
           </form>
         )}
       </div>
-    </div>
+    </PageTransition>
   );
 }

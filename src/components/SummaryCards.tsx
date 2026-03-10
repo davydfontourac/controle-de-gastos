@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { Skeleton } from './ui/Skeleton';
 
 interface Props {
   summary: {
@@ -73,7 +74,11 @@ export default function SummaryCards({ summary, isLoading }: Props) {
 
             <div>
               {isLoading ? (
-                <div className="h-8 w-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg mb-1" />
+                <div className="space-y-2 mt-4">
+                  <Skeleton className="h-8 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
+                  {card.subValue !== undefined && <Skeleton className="h-3 w-1/3 mt-2" />}
+                </div>
               ) : (
                 <h2 className={cn(
                   "text-2xl font-bold mb-1",

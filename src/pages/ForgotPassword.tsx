@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Wallet, KeyRound, AlertCircle, ArrowLeft, MailCheck } from 'lucide-react';
+import { ArrowLeft, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -46,14 +47,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
+    <PageTransition className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/20">
-            <Wallet className="w-6 h-6 text-white" />
+            <Mail className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recuperar senha</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 text-center">
@@ -63,7 +64,7 @@ export default function ForgotPassword() {
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-3 text-sm">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+            <Loader2 className="w-5 h-5 shrink-0" />
             <p>{error}</p>
           </div>
         )}
@@ -72,7 +73,7 @@ export default function ForgotPassword() {
           <div className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-green-100 dark:bg-green-500/10 rounded-full flex items-center justify-center">
-                <MailCheck className="w-8 h-8 text-green-600 dark:text-green-500" />
+                <Mail className="w-8 h-8 text-green-600 dark:text-green-500" />
               </div>
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">E-mail enviado!</h3>
@@ -110,7 +111,7 @@ export default function ForgotPassword() {
               ) : (
                 <>
                   Enviar link de recuperação
-                  <KeyRound className="w-4 h-4" />
+                  <Mail className="w-4 h-4" />
                 </>
               )}
             </button>
@@ -124,6 +125,6 @@ export default function ForgotPassword() {
           </form>
         )}
       </div>
-    </div>
+    </PageTransition>
   );
 }

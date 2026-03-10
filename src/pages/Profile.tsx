@@ -18,6 +18,7 @@ import {
 import ConfirmModal from '@/components/ConfirmModal';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import BottomNavigation from '@/components/BottomNavigation';
+import PageTransition from '@/components/PageTransition';
 
 export default function Profile() {
   const { user, profile, isLoading: isAuthLoading, refreshProfile, signOut } = useAuth();
@@ -129,7 +130,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
+    <PageTransition className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
       {/* Header Premium */}
       <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,6 +291,6 @@ export default function Profile() {
       />
 
       <BottomNavigation />
-    </div>
+    </PageTransition>
   );
 }

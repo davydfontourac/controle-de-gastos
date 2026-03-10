@@ -7,6 +7,7 @@ import { Wallet, UserPlus } from 'lucide-react';
 import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransition from '@/components/PageTransition';
 
 const registerSchema = z
   .object({
@@ -110,7 +111,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50/50 dark:bg-gray-950 transition-colors">
+    <PageTransition className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
@@ -238,6 +239,6 @@ export default function Register() {
           </Link>
         </p>
       </div>
-    </div>
+    </PageTransition>
   );
 }

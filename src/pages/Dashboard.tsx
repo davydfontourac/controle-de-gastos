@@ -12,6 +12,7 @@ import MonthlyChart from '@/components/MonthlyChart';
 import { api } from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import BottomNavigation from '@/components/BottomNavigation';
+import PageTransition from '@/components/PageTransition';
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth();
@@ -89,7 +90,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
+    <PageTransition className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
       {/* Header Premium */}
       <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -224,6 +225,6 @@ export default function Dashboard() {
       </main>
 
       <BottomNavigation />
-    </div>
+    </PageTransition>
   );
 }
