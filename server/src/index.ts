@@ -11,12 +11,29 @@ export const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configuração dos Middlewares
-app.use(helmet()); // Reforça segurança dos HTTP Headers
+app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Permite o Vite acessar o back-end
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      process.env.CORS_ORIGIN,
+    ].filter(Boolean);
+    // Permite requisições sem origin (Postman, CI) ou origins permitidas
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS bloqueado para: ${origin}`));
+    }
+  },
   credentials: true,
 }));
-app.use(express.json()); // Permite ler JSON no req.body
+app.use(express.json());
+
+// Health check para Railway/Render
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Aplica as Rotas importadas da pasta "routes"
 app.use('/api', routes);
