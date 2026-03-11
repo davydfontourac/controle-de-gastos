@@ -115,7 +115,7 @@ describe('TransactionList', () => {
   });
 
   it('deve renderizar o ícone SearchX quando há filtro de tipo ativo', () => {
-    const { container } = render(
+    render(
       <TransactionList
         transactions={[]}
         isLoading={false}
