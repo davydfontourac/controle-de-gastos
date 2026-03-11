@@ -33,8 +33,9 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
       await api.delete(`/transactions/${transaction.id}`);
       toast.success('Transação excluída com sucesso!');
       onDelete();
-    } catch (err: any) {
-      toast.error('Erro ao excluir transação.');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error ?? 'Erro ao excluir transação.');
     } finally {
       setIsDeleting(false);
       setIsModalOpen(false);
