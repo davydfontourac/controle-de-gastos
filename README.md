@@ -1,10 +1,15 @@
+<p align="right">
+  <a href="./README.md"><img alt="README in English" src="https://img.shields.io/badge/English-blue?style=flat-square&logo=googletranslate&logoColor=white"></a>
+  <a href="./README.pt-BR.md"><img alt="README em Português" src="https://img.shields.io/badge/Português-gray?style=flat-square&logo=googletranslate&logoColor=white"></a>
+</p>
+
 <div align="center">
-  <img src="public/wallet.png" alt="Controle de Gastos" width="80" />
-  <h1>💰 Controle de Gastos</h1>
-  <p>Gerenciamento pessoal de finanças com dashboard inteligente, gráficos e categorias customizáveis.</p>
+  <img src="public/wallet.png" alt="Expense Tracker" width="80" />
+  <h1>💰 Expense Tracker</h1>
+  <p>Personal finance management with a smart dashboard, charts, and customizable categories.</p>
 
   <div align="center">
-  <img src="./demo.gif" alt="Demo do Controle de Gastos" width="800"/>
+    <img src="./demo.gif" alt="Demo Expense Tracker" width="800"/>
   </div>
 
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
@@ -15,191 +20,191 @@
   ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
   [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_controle-de-gastos&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_controle-de-gastos)
 
-  [🌐 Ver Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/controle-de-gastos/issues)
+  [🌐 Live Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/controle-de-gastos/issues)
 </div>
 
 ---
 
-## ✨ Funcionalidades
+## ✨ Features
 
-- **🔐 Autenticação completa** — Login, registro, recuperação de senha e OAuth via Supabase Auth
-- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa), data e busca
-- **📊 Dashboard** — Resumo mensal com saldo total, receitas, despesas e histórico anual
-- **🗂️ Categorias** — Categorias nativas + criação de categorias personalizadas com cor e emoji
-- **👤 Perfil** — Atualização de nome, avatar e senha do usuário
-- **🌑 Dark Mode** — Alternância entre tema claro e escuro
-- **📱 Responsivo** — Layout mobile-first com navegação inferior em telas pequenas
-- **🎭 Animações** — Transições de página e microanimações com Framer Motion
+- **🔐 Full Authentication** — Login, registration, password recovery, and OAuth via Supabase Auth
+- **💳 Transactions** — Full CRUD with categories, type (income/expense), date, and search
+- **📊 Dashboard** — Monthly summary with total balance, income, expenses, and yearly history
+- **🗂️ Categories** — Built-in categories + creation of custom categories with color and emoji
+- **👤 Profile** — Update username, avatar, and password
+- **🌑 Dark Mode** — Toggle between light and dark themes
+- **📱 Responsive** — Mobile-first layout with bottom navigation on small screens
+- **🎭 Animations** — Page transitions and micro-animations with Framer Motion
 
 ---
 
-## 🛠️ Tecnologias
+## 🛠️ Tech Stack
 
 ### Frontend
-| Tecnologia | Uso |
+| Technology | Usage |
 |---|---|
-| React 19 + TypeScript | Interface e tipagem |
-| Vite | Build tool e dev server |
-| Tailwind CSS 4 | Estilização |
-| Framer Motion | Animações e transições |
-| Recharts | Gráficos de dashboard |
-| React Hook Form + Zod | Formulários com validação |
-| React Router DOM | Roteamento |
-| Sonner | Notificações toast |
-| Supabase JS | Auth e banco de dados |
+| React 19 + TypeScript | UI and type safety |
+| Vite | Build tool and dev server |
+| Tailwind CSS 4 | Styling |
+| Framer Motion | Animations and transitions |
+| Recharts | Dashboard charts |
+| React Hook Form + Zod | Forms with validation |
+| React Router DOM | Routing |
+| Sonner | Toast notifications |
+| Supabase JS | Auth and database |
 
 ### Backend
-| Tecnologia | Uso |
+| Technology | Usage |
 |---|---|
-| Node.js + Express 5 | API REST |
-| TypeScript | Tipagem |
-| Supabase Admin | Acesso privilegiado ao banco |
-| Zod | Validação de payload das rotas |
-| Helmet + CORS | Segurança |
+| Node.js + Express 5 | REST API |
+| TypeScript | Type safety |
+| Supabase Admin | Privileged database access |
+| Zod | Route payload validation |
+| Helmet + CORS | Security |
 
-### Infraestrutura
-| Serviço | Uso |
+### Infrastructure
+| Service | Usage |
 |---|---|
 | Supabase | Auth + PostgreSQL |
-| Vercel | Deploy e hospedagem do frontend |
-| Railway | Deploy da API backend |
-| GitHub Actions | CI/CD com testes e análise de código |
-| SonarCloud | Análise estática e cobertura de código |
-| Vitest + Supertest | Testes unitários e de integração |
+| Vercel | Frontend deploy and hosting |
+| Railway | Backend API deploy |
+| GitHub Actions | CI/CD with tests and code analysis |
+| SonarCloud | Static analysis and code coverage |
+| Vitest + Supertest | Unit and integration tests |
 
 ---
 
-## 🚀 Como rodar localmente
+## 🚀 Running Locally
 
-### Pré-requisitos
+### Prerequisites
 - Node.js 20+
-- Conta no [Supabase](https://supabase.com)
+- A [Supabase](https://supabase.com) account
 
-### 1. Clone o repositório
+### 1. Clone the repository
 ```bash
 git clone https://github.com/davydfontourac/controle-de-gastos.git
 cd controle-de-gastos
 ```
 
-### 2. Configure o Frontend
+### 2. Set up the Frontend
 ```bash
-# Instale as dependências
+# Install dependencies
 npm install
 
-# Crie o arquivo de variáveis de ambiente
+# Create the environment variables file
 cp .env.example .env.local
 ```
 
-Preencha o `.env.local`:
+Fill in `.env.local`:
 ```env
-VITE_SUPABASE_URL=https://SEU_PROJETO.supabase.co
-VITE_SUPABASE_ANON_KEY=sua_anon_key_aqui
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
 VITE_API_URL=http://localhost:3000
 ```
 
 ```bash
-# Inicie o frontend
+# Start the frontend
 npm run dev
 ```
 
-### 3. Configure o Backend
+### 3. Set up the Backend
 ```bash
 cd server
 
-# Instale as dependências
+# Install dependencies
 npm install
 
-# Crie o arquivo de variáveis de ambiente
+# Create the environment variables file
 cp .env.example .env
 ```
 
-Preencha o `server/.env`:
+Fill in `server/.env`:
 ```env
-SUPABASE_URL=https://SEU_PROJETO.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_aqui
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 PORT=3000
 NODE_ENV=development
 ```
 
 ```bash
-# Inicie o backend
+# Start the backend
 npm run dev
 ```
 
 ---
 
-## 🧪 Testes
+## 🧪 Tests
 
 ```bash
-# Frontend — testes unitários
+# Frontend — unit tests
 npm run test:run
 
-# Frontend — com interface visual
+# Frontend — with visual UI
 npm run test:ui
 
-# Frontend — com cobertura
+# Frontend — with coverage
 npm run test:coverage
 
-# Backend — testes de integração
+# Backend — integration tests
 cd server && npm run test
 ```
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 controle-de-gastos/
 ├── src/
-│   ├── components/     # Componentes reutilizáveis
+│   ├── components/     # Reusable components
 │   ├── context/        # AuthContext, ThemeContext
 │   ├── hooks/          # useTransactions, useCategories
-│   ├── pages/          # Dashboard, Login, Registro, Perfil...
+│   ├── pages/          # Dashboard, Login, Register, Profile...
 │   ├── services/       # api.ts, supabase.ts
-│   └── types/          # Tipos globais TypeScript
+│   └── types/          # Global TypeScript types
 ├── server/
 │   └── src/
-│       ├── controllers/ # lógica das rotas
+│       ├── controllers/ # Route logic
 │       ├── middlewares/ # authMiddleware
-│       ├── routes/      # endpoints da API
-│       └── utils/       # validators (Zod)
+│       ├── routes/      # API endpoints
+│       └── utils/       # Validators (Zod)
 ├── .github/workflows/  # CI/CD Pipeline
-└── public/             # Assets estáticos
+└── public/             # Static assets
 ```
 
 ---
 
-## 🔁 Fluxo CI/CD
+## 🔁 CI/CD Flow
 
 ```
-Push / PR → develop ou main
+Push / PR → develop or main
      │
-     ├── 🧪 Testes Frontend  (Vitest + Coverage)
-     ├── 🧪 Testes Backend   (Vitest + Supertest)
+     ├── 🧪 Frontend Tests  (Vitest + Coverage)
+     ├── 🧪 Backend Tests   (Vitest + Supertest)
      │           │
-     │     (ambos passam)
+     │     (both pass)
      │
      ├── 📊 SonarCloud Analysis
-     ├── 🏗️  Build Vite
-     └── 🚀 Deploy Vercel
+     ├── 🏗️  Vite Build
+     └── 🚀 Vercel Deploy
               │
        develop → preview
-       main    → produção
+       main    → production
 ```
 
 ---
 
 ## 🛣️ Roadmap
 
-- [ ] Metas de economia por categoria
-- [ ] Exportação de relatórios em PDF/CSV
-- [ ] Transações recorrentes
-- [ ] Múltiplas carteiras/contas
-- [ ] Notificações de limite de gastos
-- [ ] App mobile (React Native)
+- [ ] Savings goals per category
+- [ ] PDF/CSV report export
+- [ ] Recurring transactions
+- [ ] Multiple wallets/accounts
+- [ ] Spending limit notifications
+- [ ] Mobile app (React Native)
 
 ---
 
 <div align="center">
-  Feito com ❤️ por <a href="https://github.com/davydfontourac">Davyd Fontoura</a>
+  Made with ❤️ by <a href="https://github.com/davydfontourac">Davyd Fontoura</a>
 </div>
