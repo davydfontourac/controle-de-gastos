@@ -3,6 +3,10 @@
   <h1>💰 Controle de Gastos</h1>
   <p>Gerenciamento pessoal de finanças com dashboard inteligente, gráficos e categorias customizáveis.</p>
 
+  <div align="center">
+  <img src="./demo.gif" alt="Demo do Controle de Gastos" width="800"/>
+  </div>
+
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript)
   ![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite)
