@@ -9,7 +9,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title, description, isLoading }: Props) {
+export default function ConfirmModal({ isOpen, onClose, onConfirm, title, description, isLoading }: Readonly<Props>) {
   if (!isOpen) return null;
 
   return (

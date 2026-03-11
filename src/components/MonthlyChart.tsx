@@ -41,7 +41,7 @@ const renderLegendText = (value: string) => (
   <span className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{value}</span>
 );
 
-export default function MonthlyChart({ data, isLoading }: Props) {
+export default function MonthlyChart({ data, isLoading }: Readonly<Props>) {
   // Ordenar cronologicamente garantido
   const sortedData = useMemo(() => {
     return [...data].sort((a, b) => {

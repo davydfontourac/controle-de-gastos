@@ -36,7 +36,7 @@ const PRESET_COLORS = [
   '#8B5CF6', '#EC4899', '#06B6D4', '#71717A'
 ];
 
-export default function CategoryForm({ isOpen, onClose, onSuccess, category }: Props) {
+export default function CategoryForm({ isOpen, onClose, onSuccess, category }: Readonly<Props>) {
   const { 
     register, 
     handleSubmit, 

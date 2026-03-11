@@ -32,7 +32,7 @@ interface Props {
   transaction?: any; // Para carregar dados na edição
 }
 
-export default function TransactionForm({ isOpen, onClose, onSuccess, transaction }: Props) {
+export default function TransactionForm({ isOpen, onClose, onSuccess, transaction }: Readonly<Props>) {
   const [categories, setCategories] = useState<Category[]>([]);
   
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, reset } = useForm<FormValues>({
@@ -114,8 +114,9 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       
       onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Erro ao salvar transação.');
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      toast.error(axiosError.response?.data?.error ?? 'Erro ao salvar transação.');
     }
   }
 

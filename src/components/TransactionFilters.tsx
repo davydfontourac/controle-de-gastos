@@ -46,7 +46,7 @@ export default function TransactionFilters({
   onMonthChange,
   onYearChange,
   filters
-}: Props) {
+}: Readonly<Props>) {
   return (
     <div className="space-y-4 mb-8">
       <div className="flex flex-col md:flex-row gap-4">
