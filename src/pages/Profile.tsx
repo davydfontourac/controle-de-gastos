@@ -92,7 +92,7 @@ export default function Profile() {
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
