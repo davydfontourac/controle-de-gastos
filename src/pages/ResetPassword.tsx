@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { KeyRound, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { KeyRound, AlertCircle } from 'lucide-react';
+import { PasswordInput } from '@/components/PasswordInput';
 import { supabase } from '@/services/supabase';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import PageTransition from '@/components/PageTransition'; // Added this import
@@ -25,8 +26,6 @@ export default function ResetPassword() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -83,51 +82,21 @@ export default function ResetPassword() {
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div>
-              <label htmlFor="reset-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nova Senha</label>
-              <div className="relative">
-                <input
-                  id="reset-password"
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password')}
-                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-11"
-                  placeholder="••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1"
-                  aria-label={showPassword ? 'Esconder senha' : 'Mostrar senha'}
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
-            </div>
+            <PasswordInput
+              id="reset-password"
+              label="Nova Senha"
+              {...register('password')}
+              placeholder="••••••"
+              error={errors.password?.message}
+            />
 
-            <div>
-              <label htmlFor="reset-confirm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar Nova Senha</label>
-              <div className="relative">
-                <input
-                  id="reset-confirm"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  {...register('confirmPassword')}
-                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-11"
-                  placeholder="••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1"
-                  aria-label={showConfirmPassword ? 'Esconder senha' : 'Mostrar senha'}
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
-              )}
-            </div>
+            <PasswordInput
+              id="reset-confirm"
+              label="Confirmar Nova Senha"
+              {...register('confirmPassword')}
+              placeholder="••••••"
+              error={errors.confirmPassword?.message}
+            />
 
             <button
               type="submit"
