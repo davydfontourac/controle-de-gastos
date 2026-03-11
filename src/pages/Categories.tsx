@@ -54,6 +54,100 @@ export default function Categories() {
     setIsFormOpen(true);
   };
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={`cat-skeleton-${i}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (categories.length === 0) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white dark:bg-gray-900 p-12 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 text-center transition-colors"
+        >
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+            <Tag className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Nenhuma categoria</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+            Crie categorias para organizar melhor suas finanças e ver relatórios por tipo de gasto.
+          </p>
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl hover:bg-black dark:hover:bg-white transition-colors"
+          >
+            Criar Primeira Categoria
+          </button>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+      >
+        <AnimatePresence>
+          {categories.map((category, index) => (
+            <motion.div
+              layout
+              key={category.id}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm"
+                  style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                >
+                  <Tag className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">{category.name}</h3>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">{category.color}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => handleEdit(category)}
+                  className="p-2 text-blue-600 sm:text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 rounded-lg transition-colors"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setDeletingCategory(category)}
+                  className="p-2 text-red-500 sm:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+    );
+  };
+
   return (
     <PageTransition className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
       <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors">
@@ -99,89 +193,7 @@ export default function Categories() {
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24 lg:pb-10">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Skeleton className="w-12 h-12 rounded-xl" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-20" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : categories.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-900 p-12 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 text-center transition-colors"
-          >
-            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <Tag className="w-8 h-8" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Nenhuma categoria</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-              Crie categorias para organizar melhor suas finanças e ver relatórios por tipo de gasto.
-            </p>
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl hover:bg-black dark:hover:bg-white transition-colors"
-            >
-              Criar Primeira Categoria
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
-            <AnimatePresence>
-              {categories.map((category, index) => (
-                <motion.div 
-                  layout
-                  key={category.id}
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group hover:shadow-md transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm"
-                      style={{ backgroundColor: `${category.color}20`, color: category.color }}
-                    >
-                      <Tag className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100">{category.name}</h3>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">{category.color}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="p-2 text-blue-600 sm:text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setDeletingCategory(category)}
-                      className="p-2 text-red-500 sm:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+        {renderContent()}
       </main>
 
       {/* Modais */}

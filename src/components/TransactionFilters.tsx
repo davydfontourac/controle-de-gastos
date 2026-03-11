@@ -34,6 +34,12 @@ const YEARS = Array.from({ length: 5 }, (_, i) => {
   return { value: String(year), label: String(year) };
 });
 
+function getTypeLabel(type: string): string {
+  if (type === 'all') return 'Todos';
+  if (type === 'income') return 'Receitas';
+  return 'Despesas';
+}
+
 export default function TransactionFilters({
   onSearchChange,
   onTypeChange,
@@ -67,7 +73,7 @@ export default function TransactionFilters({
                 filters.type === t ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               )}
             >
-              {t === 'all' ? 'Todos' : t === 'income' ? 'Receitas' : 'Despesas'}
+              {getTypeLabel(t)}
             </button>
           ))}
         </div>

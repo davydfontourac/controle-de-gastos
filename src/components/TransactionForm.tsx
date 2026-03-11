@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
   description: z.string().min(1, 'A descrição é obrigatória.'),
-  amount: z.string().min(1, 'O valor é obrigatório.').refine(v => !isNaN(Number(v)) && Number(v) > 0, 'O valor deve ser maior que zero.'),
+  amount: z.string().min(1, 'O valor é obrigatório.').refine(v => !Number.isNaN(Number(v)) && Number(v) > 0, 'O valor deve ser maior que zero.'),
   date: z.string().min(1, 'A data é obrigatória.'),
   type: z.enum(['income', 'expense']),
   category_id: z.string().nullable().optional(),

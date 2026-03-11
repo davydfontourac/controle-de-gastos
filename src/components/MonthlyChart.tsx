@@ -15,7 +15,7 @@ interface Props {
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 min-w-[150px]">
         <p className="font-bold text-gray-800 dark:text-gray-200 mb-2">{label}</p>
@@ -36,6 +36,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null;
 };
+
+const renderLegendText = (value: string) => (
+  <span className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{value}</span>
+);
 
 export default function MonthlyChart({ data, isLoading }: Props) {
   // Ordenar cronologicamente garantido
@@ -85,7 +89,7 @@ export default function MonthlyChart({ data, isLoading }: Props) {
               iconType="circle"
               iconSize={8}
               wrapperStyle={{ paddingBottom: '20px' }}
-              formatter={(value) => <span className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{value}</span>}
+              formatter={renderLegendText}
             />
             <Bar 
               dataKey="expense" 

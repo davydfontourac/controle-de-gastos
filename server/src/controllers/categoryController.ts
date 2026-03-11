@@ -43,7 +43,7 @@ export const categoryController = {
     ];
 
     // Só insere categorias padrão se o usuário não tiver NENHUMA categoria cadastrada
-    if (existingCategories && existingCategories.length === 0) {
+    if (existingCategories?.length === 0) {
       const { error: seedError } = await supabaseAdmin
         .from('categories')
         .insert(defaultCategories);

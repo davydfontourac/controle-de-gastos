@@ -205,7 +205,7 @@ export default function Profile() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
+                <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
                   Nome Completo
                 </label>
                 <div className="relative">
@@ -213,6 +213,7 @@ export default function Profile() {
                     <User className="w-5 h-5" />
                   </div>
                   <input
+                    id="profile-name"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -223,7 +224,7 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none">
+                <label htmlFor="profile-email" className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none">
                   E-mail (Não editável)
                 </label>
                 <div className="relative">
@@ -231,6 +232,7 @@ export default function Profile() {
                     <Mail className="w-5 h-5" />
                   </div>
                   <input
+                    id="profile-email"
                     type="email"
                     value={user?.email || ''}
                     disabled

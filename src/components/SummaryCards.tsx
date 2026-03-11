@@ -51,6 +51,27 @@ export default function SummaryCards({ summary, isLoading }: Props) {
       {cards.map((card) => {
         const Icon = card.icon;
         
+        const bgAccentClass =
+          card.color === 'blue'
+            ? 'bg-blue-600 dark:bg-blue-400'
+            : card.color === 'emerald'
+            ? 'bg-emerald-600 dark:bg-emerald-400'
+            : 'bg-red-600 dark:bg-red-400';
+
+        const iconClass =
+          card.color === 'blue'
+            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+            : card.color === 'emerald'
+            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+            : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400';
+
+        const amountClass =
+          card.color === 'blue'
+            ? 'text-gray-900 dark:text-white'
+            : card.color === 'emerald'
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : 'text-red-500 dark:text-red-400';
+
         return (
           <div 
             key={card.title}
@@ -59,13 +80,13 @@ export default function SummaryCards({ summary, isLoading }: Props) {
             {/* Background Accent */}
             <div className={cn(
               "absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity",
-              card.color === 'blue' ? "bg-blue-600 dark:bg-blue-400" : card.color === 'emerald' ? "bg-emerald-600 dark:bg-emerald-400" : "bg-red-600 dark:bg-red-400"
+              bgAccentClass
             )} />
 
             <div className="flex items-start justify-between mb-4">
               <div className={cn(
                 "p-3 rounded-2xl",
-                card.color === 'blue' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" : card.color === 'emerald' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
+                iconClass
               )}>
                 <Icon className="w-6 h-6" />
               </div>
@@ -82,7 +103,7 @@ export default function SummaryCards({ summary, isLoading }: Props) {
               ) : (
                 <h2 className={cn(
                   "text-2xl font-bold mb-1",
-                  card.color === 'blue' ? "text-gray-900 dark:text-white" : card.color === 'emerald' ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+                  amountClass
                 )}>
                   {formatCurrency(card.amount)}
                 </h2>

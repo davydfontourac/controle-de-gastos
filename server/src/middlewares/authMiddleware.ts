@@ -14,7 +14,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Nenhum token Bearer fornecido no cabeçalho Authorization.' });
     }
 

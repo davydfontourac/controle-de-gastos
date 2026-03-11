@@ -83,8 +83,9 @@ export default function Login() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
+            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
             <input
+              id="login-email"
               type="email"
               {...register('email')}
               className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
@@ -95,12 +96,13 @@ export default function Login() {
 
           <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
                 <Link to="/forgot-password" className="text-sm font-medium text-blue-600 dark:text-blue-500 hover:text-blue-500 dark:hover:text-blue-400">
                   Esqueceu a senha?
                 </Link>
               </div>
             <input
+              id="login-password"
               type="password"
               {...register('password')}
               className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"

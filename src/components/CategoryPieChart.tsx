@@ -75,9 +75,9 @@ export default function CategoryPieChart({ transactions }: Props) {
                 animationBegin={0}
                 animationDuration={1200}
               >
-                {data.map((entry, index) => (
+                {data.map((entry) => (
                   <Cell 
-                    key={`cell-${index}`} 
+                    key={`cell-${entry.name}`} 
                     fill={entry.color} 
                     className="hover:opacity-80 transition-opacity cursor-pointer outline-none"
                   />
@@ -92,7 +92,7 @@ export default function CategoryPieChart({ transactions }: Props) {
                 }}
                 itemStyle={{ fontWeight: 'bold', fontSize: '14px' }}
                 formatter={(value: any) => {
-                  const numericValue = typeof value === 'string' ? parseFloat(value) : (value as number);
+                  const numericValue = typeof value === 'string' ? Number.parseFloat(value) : (value as number);
                   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue || 0);
                 }}
               />
@@ -108,8 +108,8 @@ export default function CategoryPieChart({ transactions }: Props) {
 
         {/* Legenda Customizada Premium */}
         <div className="w-full sm:w-48 flex flex-col gap-2 mt-4 sm:mt-0 sm:pl-4 max-h-[160px] overflow-y-auto no-scrollbar">
-          {data.map((item, index) => (
-            <div key={index} className="flex items-center justify-between group/item cursor-default">
+          {data.map((item) => (
+            <div key={item.name} className="flex items-center justify-between group/item cursor-default">
               <div className="flex items-center gap-2">
                 <div 
                   className="w-3 h-3 rounded-full shadow-sm"
