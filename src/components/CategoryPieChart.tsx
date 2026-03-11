@@ -8,7 +8,7 @@ interface Props {
 
 const COLORS = ['#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#06B6D4'];
 
-export default function CategoryPieChart({ transactions }: Props) {
+export default function CategoryPieChart({ transactions }: Readonly<Props>) {
   const { data, totalExpenses } = useMemo(() => {
     const expenses = transactions.filter(t => t.type === 'expense');
     const total = expenses.reduce((acc, t) => acc + Number(t.amount), 0);

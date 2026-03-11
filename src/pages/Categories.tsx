@@ -22,6 +22,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCategories } from '@/hooks/useCategories';
 import type { Category } from '@/hooks/useCategories';
 
+const SKELETON_CAT_IDS = ['sk-c-1', 'sk-c-2', 'sk-c-3', 'sk-c-4', 'sk-c-5', 'sk-c-6'];
+
 export default function Categories() {
   const { profile } = useAuth();
   const { categories, isLoading, fetchCategories } = useCategories();
@@ -54,12 +56,14 @@ export default function Categories() {
     setIsFormOpen(true);
   };
 
+
+
   const renderContent = () => {
     if (isLoading) {
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={`cat-skeleton-${i}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+          {SKELETON_CAT_IDS.map((id) => (
+            <div key={id} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Skeleton className="w-12 h-12 rounded-xl" />
                 <div className="space-y-2">

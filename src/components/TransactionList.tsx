@@ -17,7 +17,9 @@ interface Props {
   onEdit: (transaction: Transaction) => void;
 }
 
-export default function TransactionList({ transactions, isLoading, filters, onDelete, onEdit }: Props) {
+const SKELETON_IDS = ['sk-t-1', 'sk-t-2', 'sk-t-3', 'sk-t-4'];
+
+export default function TransactionList({ transactions, isLoading, filters, onDelete, onEdit }: Readonly<Props>) {
   if (isLoading) {
     return (
       <div className="mt-2 text-left w-full">
@@ -25,8 +27,8 @@ export default function TransactionList({ transactions, isLoading, filters, onDe
           <span className="sr-only">Carregando transações...</span>
         </h2>
         <div className="flex flex-col space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={`skeleton-transaction-${i}`} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm gap-4 sm:gap-0">
+          {SKELETON_IDS.map((id) => (
+            <div key={id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm gap-4 sm:gap-0">
               <div className="flex items-center gap-4">
                 <Skeleton className="w-12 h-12 rounded-xl" />
                 <div className="space-y-2">

@@ -12,7 +12,25 @@ interface Props {
   isLoading?: boolean;
 }
 
-export default function SummaryCards({ summary, isLoading }: Props) {
+const COLOR_CLASSES: Record<string, { bg: string; icon: string; amount: string }> = {
+  blue: {
+    bg: 'bg-blue-600 dark:bg-blue-400',
+    icon: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    amount: 'text-gray-900 dark:text-white',
+  },
+  emerald: {
+    bg: 'bg-emerald-600 dark:bg-emerald-400',
+    icon: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    amount: 'text-emerald-600 dark:text-emerald-400',
+  },
+  red: {
+    bg: 'bg-red-600 dark:bg-red-400',
+    icon: 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400',
+    amount: 'text-red-500 dark:text-red-400',
+  },
+};
+
+export default function SummaryCards({ summary, isLoading }: Readonly<Props>) {
   const cards = [
     {
       title: 'Saldo Total',
@@ -51,26 +69,7 @@ export default function SummaryCards({ summary, isLoading }: Props) {
       {cards.map((card) => {
         const Icon = card.icon;
         
-        const bgAccentClass =
-          card.color === 'blue'
-            ? 'bg-blue-600 dark:bg-blue-400'
-            : card.color === 'emerald'
-            ? 'bg-emerald-600 dark:bg-emerald-400'
-            : 'bg-red-600 dark:bg-red-400';
-
-        const iconClass =
-          card.color === 'blue'
-            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
-            : card.color === 'emerald'
-            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-            : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400';
-
-        const amountClass =
-          card.color === 'blue'
-            ? 'text-gray-900 dark:text-white'
-            : card.color === 'emerald'
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-red-500 dark:text-red-400';
+        const colors = COLOR_CLASSES[card.color] ?? COLOR_CLASSES.red;
 
         return (
           <div 
@@ -80,13 +79,13 @@ export default function SummaryCards({ summary, isLoading }: Props) {
             {/* Background Accent */}
             <div className={cn(
               "absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity",
-              bgAccentClass
+              colors.bg
             )} />
 
             <div className="flex items-start justify-between mb-4">
               <div className={cn(
                 "p-3 rounded-2xl",
-                iconClass
+                colors.icon
               )}>
                 <Icon className="w-6 h-6" />
               </div>
@@ -103,7 +102,7 @@ export default function SummaryCards({ summary, isLoading }: Props) {
               ) : (
                 <h2 className={cn(
                   "text-2xl font-bold mb-1",
-                  amountClass
+                  colors.amount
                 )}>
                   {formatCurrency(card.amount)}
                 </h2>

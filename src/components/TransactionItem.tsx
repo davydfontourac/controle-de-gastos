@@ -11,7 +11,7 @@ interface Props {
   onEdit: (transaction: Transaction) => void;
 }
 
-export default function TransactionItem({ transaction, onDelete, onEdit }: Props) {
+export default function TransactionItem({ transaction, onDelete, onEdit }: Readonly<Props>) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isIncome = transaction.type === 'income';
