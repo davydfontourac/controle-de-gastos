@@ -7,7 +7,7 @@ const router = Router();
 
 // Simple Healthcheck route to verify if the API is online
 router.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Controle de Gastos API is running!' });
+  res.json({ status: 'ok', message: 'Expense Tracker API is running!' });
 });
 
 router.use('/categories', categoryRoutes);
