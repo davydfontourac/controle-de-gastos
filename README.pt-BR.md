@@ -4,12 +4,12 @@
 </p>
 
 <div align="center">
-  <img src="public/wallet.png" alt="Controle de Gastos" width="80" />
-  <h1>💰 Controle de Gastos</h1>
+  <img src="public/wallet.png" alt="Expense Tracker" width="80" />
+  <h1>💰 Expense Tracker</h1>
   <p>Gerenciamento pessoal de finanças com dashboard inteligente, gráficos e categorias customizáveis.</p>
 
   <div align="center">
-    <img src="./demo.gif" alt="Demo Controle de Gastos" width="800"/>
+    <img src="./demo.gif" alt="Demo Expense Tracker" width="800"/>
   </div>
 
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
