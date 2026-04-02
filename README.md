@@ -4,7 +4,7 @@
 </p>
 
 <div align="center">
-  <img src="public/wallet.png" alt="Expense Tracker" width="80" />
+  <img src="public/logo-expense-tracker.png" alt="Expense Tracker" width="120" />
   <h1>💰 Expense Tracker</h1>
   <p>Personal finance management with a smart dashboard, charts, and customizable categories.</p>
 
