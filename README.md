@@ -18,9 +18,9 @@
   ![Express](https://img.shields.io/badge/Express-5-000?style=flat-square&logo=express)
   ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?style=flat-square&logo=supabase)
   ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
-  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_controle-de-gastos&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_controle-de-gastos)
+  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_expense-tracker&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_expense-tracker)
 
-  [🌐 Live Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/controle-de-gastos/issues)
+  [🌐 Live Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/expense-tracker/issues)
 </div>
 
 ---
@@ -82,8 +82,8 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/davydfontourac/controle-de-gastos.git
-cd controle-de-gastos
+git clone https://github.com/davydfontourac/expense-tracker.git
+cd expense-tracker
 ```
 
 ### 2. Set up the Frontend
@@ -154,7 +154,7 @@ cd server && npm run test
 ## 📁 Project Structure
 
 ```
-controle-de-gastos/
+expense-tracker/
 ├── src/
 │   ├── components/     # Reusable components
 │   ├── context/        # AuthContext, ThemeContext
