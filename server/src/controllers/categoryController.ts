@@ -21,18 +21,18 @@ export const categoryController = {
     if (error) throw error;
 
     const defaultCategories = [
-      // Receitas
+      // Income
       { name: 'Salário', icon: 'banknote', color: '#10B981', user_id: userId },
       { name: 'Investimentos', icon: 'trending-up', color: '#059669', user_id: userId },
       
-      // Essenciais
+      // Basics
       { name: 'Moradia', icon: 'home', color: '#3B82F6', user_id: userId },
       { name: 'Conta de Luz', icon: 'zap', color: '#F59E0B', user_id: userId },
       { name: 'Conta de Água', icon: 'droplets', color: '#06B6D4', user_id: userId },
       { name: 'Internet', icon: 'wifi', color: '#6366F1', user_id: userId },
       { name: 'Supermercado', icon: 'shopping-cart', color: '#8B5CF6', user_id: userId },
       
-      // Estilo de Vida
+      // Lifestyle
       { name: 'Alimentação', icon: 'utensils', color: '#EF4444', user_id: userId },
       { name: 'Transporte', icon: 'car', color: '#6B7280', user_id: userId },
       { name: 'Lazer', icon: 'clapperboard', color: '#F472B6', user_id: userId },
@@ -42,7 +42,7 @@ export const categoryController = {
       { name: 'Vestuário', icon: 'shirt', color: '#D946EF', user_id: userId },
     ];
 
-    // Só insere categorias padrão se o usuário não tiver NENHUMA categoria cadastrada
+    // Only inserts default categories if the user has NO registered categories
     if (existingCategories?.length === 0) {
       const { error: seedError } = await supabaseAdmin
         .from('categories')
@@ -50,7 +50,7 @@ export const categoryController = {
 
       if (seedError) throw seedError;
 
-      // Buscar novamente após a inserção para retornar a lista inicial
+      // Fetch again after insertion to return the initial list
       const { data: newData, error: fetchError } = await supabaseAdmin
         .from('categories')
         .select('*')
@@ -72,7 +72,7 @@ export const categoryController = {
     try {
       const userId = req.user.id;
       
-      // Validação ZOD
+      // ZOD Validation
       const parsedBody = categorySchema.parse(req.body);
 
       const { data, error } = await supabaseAdmin

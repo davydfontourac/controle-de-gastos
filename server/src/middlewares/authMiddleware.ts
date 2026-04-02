@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabaseAdmin } from '../lib/supabase';
 
-// Extender a tipagem do Request para injetar o usuário
+// Extended Request type to inject user
 declare global {
   namespace Express {
     interface Request {
-      user?: any; // Usar 'any' provisoriamente ou User type do Supabase
+      user?: any; // Use 'any' temporarily or Supabase User type
     }
   }
 }
@@ -20,14 +20,14 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     const token = authHeader.split(' ')[1];
 
-    // Verificar se o JWT é autêntico com as secretas do Supabase
+    // Verify if JWT is authentic with Supabase backend secret
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
       return res.status(401).json({ error: 'Token inválido ou expirado.' });
     }
 
-    // Injeta o ID e dados do usuário logado DENTRO da requisição para frente
+    // Injects the logged user data INSIDE the request moving forward
     req.user = user;
     next();
   } catch (err) {

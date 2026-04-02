@@ -20,7 +20,7 @@ export default function Dashboard() {
   const { transactions, summary, history, isLoading, fetchTransactions } = useTransactions();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   
-  // Estado Global de Filtros (Compartilhado entre Resumo e Lista)
+  // Global Filters State (Shared between Summary and List)
   const [filters, setFilters] = useState({
     search: '',
     type: 'all',
@@ -33,7 +33,7 @@ export default function Dashboard() {
   }, [filters, fetchTransactions]);
 
   useEffect(() => {
-    // Debounce apenas para a busca por texto
+    // Debounce only for text search
     const timer = setTimeout(() => {
       fetchData();
     }, filters.search ? 400 : 0);

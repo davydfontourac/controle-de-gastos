@@ -29,7 +29,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  transaction?: any; // Para carregar dados na edição
+  transaction?: any; // To load data when editing
 }
 
 export default function TransactionForm({ isOpen, onClose, onSuccess, transaction }: Readonly<Props>) {
@@ -50,14 +50,14 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
   const selectedType = watch('type');
   const isRecurrent = watch('is_recurrent');
 
-  // Carrega categorias ao abrir
+  // Load categories when opening
   useEffect(() => {
     if (isOpen) {
       api.get('/categories').then(res => setCategories(res.data)).catch(console.error);
     }
   }, [isOpen]);
 
-  // Carrega dados se estiver editando
+  // Load data if editing
   useEffect(() => {
     if (isOpen) {
       if (transaction) {
@@ -86,7 +86,7 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
     }
   }, [transaction, isOpen, reset]);
 
-  // Garante que o valor da categoria seja aplicado quando as categorias carregarem
+  // Ensures the category value is applied when categories are loaded
   useEffect(() => {
     if (transaction && isOpen && categories.length > 0) {
       setValue('category_id', transaction.category_id ? String(transaction.category_id) : null);
@@ -100,7 +100,7 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       const payload = {
         ...data,
         amount: Number(data.amount),
-        category_id: data.category_id || null, // UUID é string
+        category_id: data.category_id || null, // UUID is string
         installments: Number(data.installments),
       };
 

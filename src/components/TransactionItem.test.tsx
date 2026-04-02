@@ -98,10 +98,10 @@ describe('TransactionItem', () => {
     const onDelete = vi.fn();
     render(<TransactionItem transaction={transaction} onDelete={onDelete} onEdit={() => {}} />);
     
-    // Abrir modal
+    // Open modal
     fireEvent.click(screen.getByTitle('Excluir transação'));
     
-    // Confirmar
+    // Confirm
     const confirmButton = screen.getByText('Confirmar');
     fireEvent.click(confirmButton);
     

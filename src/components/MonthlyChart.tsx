@@ -42,7 +42,7 @@ const renderLegendText = (value: string) => (
 );
 
 export default function MonthlyChart({ data, isLoading }: Readonly<Props>) {
-  // Ordenar cronologicamente garantido
+  // Guaranteed chronological sorting
   const sortedData = useMemo(() => {
     return [...data].sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;

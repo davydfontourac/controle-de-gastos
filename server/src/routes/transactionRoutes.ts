@@ -4,7 +4,7 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-// Aplica a Barreira do JWT em todas as rotas deste arquivo
+// Appies JWT Barrier in all routes of this file
 router.use(authMiddleware as any);
 
 router.get('/summary', transactionController.getSummary as any);

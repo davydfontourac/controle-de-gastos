@@ -30,7 +30,7 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  // Sincroniza campos locais com o perfil global quando carregado
+  // Sync local fields with global profile when loaded
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');

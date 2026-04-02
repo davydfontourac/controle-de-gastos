@@ -32,7 +32,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
         .from('profiles')
         .select('full_name, avatar_url')
         .eq('id', userId)
-        .maybeSingle(); // Usar maybeSingle para evitar erro caso não exista
+        .maybeSingle(); // Use maybeSingle to avoid error if it doesn't exist
       
       if (error) throw error;
       setProfile(data);
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   useEffect(() => {
     let isMounted = true;
 
-    // Failsafe: Força o fim do loading após 5 segundos, independente de qualquer erro
+    // Failsafe: Forces end of loading after 5 seconds, regardless of any error
     const timeout = setTimeout(() => {
       if (isMounted && isLoading) {
         console.warn('Auth initialization timed out, forcing loading to false');
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
-// Hook customizado para usar o contexto mais facilmente
+// Custom hook to use context more easily
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

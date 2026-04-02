@@ -4,13 +4,13 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import routes from './routes';
 
-// Carreaga as as variáveis do .env (se existir localmente)
+// Load .env variables (if exists locally)
 dotenv.config();
 
 export const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuração dos Middlewares
+// Middleware Configuration
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
@@ -19,7 +19,7 @@ app.use(cors({
       'http://localhost:5174',
       process.env.CORS_ORIGIN,
     ].filter(Boolean);
-    // Permite requisições sem origin (Postman, CI) ou origins permitidas
+    // Allows no-origin requests (Postman, CI) or allowed origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -30,22 +30,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health check para Railway/Render
+// Health check for Railway/Render
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Aplica as Rotas importadas da pasta "routes"
+// Apply imported routes from "routes" folder
 app.use('/api', routes);
 
 if (process.env.NODE_ENV !== 'test') {
-  // Escuta a porta definida
+  // Listen to defined port
   const server = app.listen(PORT, (err?: any) => {
     if (err) {
       console.error(`❌ Erro ao iniciar o servidor na porta ${PORT}:`, err.message || err);
       process.exit(1);
     }
-    console.log(`🚀 Server rodando em http://localhost:${PORT}`);
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 
   server.on('error', (err: any) => {

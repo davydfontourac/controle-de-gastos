@@ -11,7 +11,7 @@ vi.mock('../middlewares/authMiddleware', () => ({
   }
 }));
 
-// Mock Robusto para o Supabase
+// Robust Mock for Supabase
 vi.mock('../lib/supabase', () => {
   const mockChain: any = {};
   
@@ -37,7 +37,7 @@ describe('Recurring Transactions Logic', () => {
     
     expect(results).toHaveLength(3);
     expect(results[0].date).toBe('2026-01-01T12:00:00.000Z');
-    expect(new Date(results[1].date).getUTCMonth()).toBe(1); // Fev
+    expect(new Date(results[1].date).getUTCMonth()).toBe(1); // Feb
     expect(new Date(results[2].date).getUTCMonth()).toBe(2); // Mar
   });
 });
@@ -75,7 +75,7 @@ describe('Recurring Transactions Integration', () => {
     
     const otherInserts = insertCalls[1][0];
     expect(otherInserts).toHaveLength(2);
-    expect(new Date(otherInserts[0].date).getUTCMonth()).toBe(1); // Fev
+    expect(new Date(otherInserts[0].date).getUTCMonth()).toBe(1); // Feb
     expect(otherInserts[0].parent_id).toBe('first-id');
   });
 
@@ -151,7 +151,7 @@ describe('Recurring Transactions Integration', () => {
     mockAdmin.single.mockResolvedValueOnce({ data: { id: 'ok-id' }, error: null });
     
     mockAdmin.insert
-      .mockReturnValueOnce(mockAdmin) // primeira ok
+      .mockReturnValueOnce(mockAdmin) // first ok
       .mockResolvedValueOnce({ error: { message: 'Database Failure' } }); 
 
     const response = await request(app).post('/api/transactions').send(payload);
@@ -172,8 +172,8 @@ describe('Recurring Transactions Integration', () => {
     };
 
     mockAdmin.single
-      .mockResolvedValueOnce({ data: { id: 'ok-id' }, error: null }) // insert inicial
-      .mockResolvedValueOnce({ data: null, error: { message: 'Final Fetch Error' } }); // select final
+      .mockResolvedValueOnce({ data: { id: 'ok-id' }, error: null }) // initial insert
+      .mockResolvedValueOnce({ data: null, error: { message: 'Final Fetch Error' } }); // final select
     
     mockAdmin.insert.mockReturnValue(mockAdmin);
 

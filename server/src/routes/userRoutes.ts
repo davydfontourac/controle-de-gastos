@@ -4,7 +4,7 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-// Rota protegida para excluir o próprio usuário
+// Protected route to delete the user itself
 router.delete('/', authMiddleware, deleteUser);
 
 export default router;

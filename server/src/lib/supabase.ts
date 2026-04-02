@@ -9,5 +9,5 @@ if (!supabaseUrl || !supabaseServiceKey) {
   throw new Error('Supabase URL ou Service Role Key ausentes no .env do servidor.');
 }
 
-// Cliente Supabase "Admin" que sobrepõe RLS apenas para chamadas controladas pelo backend
+// "Admin" Supabase client that overrides RLS only for calls explicitly controlled by the backend
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);

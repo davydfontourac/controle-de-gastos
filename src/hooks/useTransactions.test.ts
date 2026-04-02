@@ -34,7 +34,7 @@ describe('useTransactions', () => {
     const mockSummary = { income: 100, expense: 0, totalBalance: 100, yearBalance: 100 };
     const mockHistory = [{ month: 'Jan', value: 100 }];
 
-    // Simula chamadas via Promise.all
+    // Simulates Promise.all calls
     (api.get as any)
       .mockResolvedValueOnce({ data: mockTransactions }) // transRes
       .mockResolvedValueOnce({ data: mockSummary })      // sumRes
@@ -46,7 +46,7 @@ describe('useTransactions', () => {
       await result.current.fetchTransactions({ type: 'income', month: '10', year: '2023', search: 'teste' });
     });
 
-    // Validar parâmetros query montados
+    // Validate assembled query parameters
     expect(api.get).toHaveBeenNthCalledWith(1, '/transactions?type=income&month=10&year=2023&search=teste');
     expect(api.get).toHaveBeenNthCalledWith(2, '/transactions/summary?month=10&year=2023');
     expect(api.get).toHaveBeenNthCalledWith(3, '/transactions/history');
@@ -58,7 +58,7 @@ describe('useTransactions', () => {
   });
 
   it('lida com falhas da api no meio do paralelismo', async () => {
-    (api.get as any).mockRejectedValueOnce(new Error('Network error')); // Força falha no Promise.all
+    (api.get as any).mockRejectedValueOnce(new Error('Network error')); // Forces failure on Promise.all
 
     const { result } = renderHook(() => useTransactions());
 

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabaseAdmin } from '../lib/supabase';
 import { createTransactionSchema, updateTransactionSchema } from '../utils/validators';
 
-// Helper tipado
+// Typed helper
 interface AuthRequest extends Request {
   user?: any;
 }
@@ -28,7 +28,7 @@ export const transactionController = {
         query = query.ilike('description', `%${search}%`);
       }
 
-      // Filtros básicos de mês/ano
+      // Basic month/year filters
       if (month && year) {
         const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString();
         const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59).toISOString();
@@ -44,7 +44,7 @@ export const transactionController = {
     }
   },
 
-  // Helper para gerar datas de recorrência
+  // Helper to generate recurrence dates
   _generateRecurringTransactions(parsedBody: any, userId: string) {
     const { frequency, installments = 1, date: startDateStr, ...rest } = parsedBody;
     const baseDate = new Date(startDateStr);
@@ -74,7 +74,7 @@ export const transactionController = {
       
       const { is_recurrent, frequency, installments = 1 } = parsedBody;
 
-      // Caso 1: Transação Única
+      // Case 1: Single Transaction
       if (!is_recurrent || !frequency || installments <= 1) {
         const { installments: _installments, ...insertData } = parsedBody;
         const { data, error } = await supabaseAdmin
@@ -87,7 +87,7 @@ export const transactionController = {
         return res.status(201).json(data);
       }
 
-      // Caso 2: Transações Recorrentes (Materialização)
+      // Case 2: Recurring Transactions (Materialization)
       const transactionsToInsert = transactionController._generateRecurringTransactions(parsedBody, userId);
 
       const { data: firstRecord, error: firstError } = await supabaseAdmin
@@ -98,7 +98,7 @@ export const transactionController = {
 
       if (firstError) throw firstError;
 
-      // Inserir parcelas restantes vinculadas ao parent_id
+      // Insert remaining installments linked to parent_id
       const otherTransactions = transactionsToInsert.slice(1).map(t => ({
         ...t,
         parent_id: firstRecord.id
@@ -110,7 +110,7 @@ export const transactionController = {
 
       if (othersError) throw othersError;
 
-      // Retornar a primeira com categorias
+      // Return the first one with categories
       const { data: finalData, error: finalError } = await supabaseAdmin
         .from('transactions')
         .select('*, categories(name, icon, color)')
@@ -133,10 +133,10 @@ export const transactionController = {
       const { id } = req.params;
       const userId = req.user.id;
       
-      // Validação Zod com campos opcionais
+      // Zod Validation with optional fields
       const parsedUpdates = updateTransactionSchema.parse(req.body);
 
-      // Importante: garante edição APENAS se o userID bater com o token
+      // Important: ensures edition ONLY if userID matches the token
       const { data, error } = await supabaseAdmin
         .from('transactions')
         .update(parsedUpdates)
@@ -182,7 +182,7 @@ async getSummary(req: AuthRequest, res: Response) {
     const { month, year } = req.query;
     const userId = req.user.id;
 
-    // 1. Saldo Acumulado (All-time)
+    // 1. Accumulated Balance (All-time)
     const todayISO = new Date().toISOString();
     const { data: allData, error: allError } = await supabaseAdmin
       .from('transactions')
@@ -198,7 +198,7 @@ async getSummary(req: AuthRequest, res: Response) {
       if (t.type === 'expense') totalBalance -= Number(t.amount);
     });
 
-    // 2. Saldo do Ano Selecionado
+    // 2. Selected Year Balance
     let yearBalance = 0;
     if (year) {
       const yearStart = new Date(Date.UTC(Number(year), 0, 1)).toISOString();
@@ -219,7 +219,7 @@ async getSummary(req: AuthRequest, res: Response) {
       });
     }
 
-    // 3. Resumo Mensal (Filtrado)
+    // 3. Monthly Summary (Filtered)
     let income = 0;
     let expense = 0;
     if (month && year) {
@@ -246,7 +246,7 @@ async getSummary(req: AuthRequest, res: Response) {
       expense, 
       totalBalance,
       yearBalance,
-      balance: totalBalance // Compatibilidade com frontend anterior
+      balance: totalBalance // Compatibility with previous frontend
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -263,11 +263,11 @@ async getSummary(req: AuthRequest, res: Response) {
       const today = new Date();
       const currentYear = today.getFullYear();
 
-      // Loop de Janeiro até Dezembro
+      // Loop from January to December
       for (let i = 0; i <= 11; i++) {
         const month = i + 1;
         
-        // Datas em UTC para evitar problemas de fuso horário
+        // Dates in UTC to avoid timezone issues
         const startDate = new Date(Date.UTC(currentYear, i, 1)).toISOString();
         const endDate = new Date(Date.UTC(currentYear, i + 1, 0, 23, 59, 59)).toISOString();
 

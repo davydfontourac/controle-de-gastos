@@ -5,7 +5,7 @@ import userRoutes from './userRoutes';
 
 const router = Router();
 
-// Rota de Healthcheck simples para verificar se a API está online
+// Simple Healthcheck route to verify if the API is online
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Controle de Gastos API is running!' });
 });

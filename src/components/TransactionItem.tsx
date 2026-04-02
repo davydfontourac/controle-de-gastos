@@ -16,13 +16,13 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isIncome = transaction.type === 'income';
 
-  // Formata dinamicamente R$ com base no local BRL
+  // Dynamically formats R$ based on BRL locale
   const formattedAmount = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(transaction.amount);
 
-  // Formata D/M/Y via browser padrão
+  // Formats D/M/Y using standard browser locale
   const formattedDate = new Date(transaction.date).toLocaleDateString('pt-BR', {
     timeZone: 'UTC'
   });

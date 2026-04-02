@@ -2,8 +2,8 @@ import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
-// Mocka o Supabase antes de qualquer importação do App para evitar
-// o erro de "Supabase URL or Anon Key is missing" no ambiente de CI
+// Mocks Supabase before any App import to avoid
+// the "Supabase URL or Anon Key is missing" error in the CI environment
 vi.mock('@/services/supabase', () => ({
   supabase: {
     auth: {
@@ -41,7 +41,7 @@ Object.defineProperty(window, 'matchMedia', {
 
 describe('App', () => {
   it('renders without crashing (Smoke Test)', () => {
-    // Renderezia o app dentro de um MemoryRouter para os AuthRoutes e AppRoutes funcionarem
+    // Renders the app inside a MemoryRouter for AuthRoutes and AppRoutes to work
     render(
       <MemoryRouter>
         <AuthProvider>
@@ -50,8 +50,8 @@ describe('App', () => {
       </MemoryRouter>
     );
 
-    // Na nossa estrutura principal não logada, o <App> nos levará para a rota ou Login ou Splash de Carregamento
-    // Verifica apenas se os elementos principais da div ou root existiram sem estourar.
+    // In our unlogged main structure, <App> will take us to either Login or Loading Splash routes
+    // Only check if the main elements of div or root existed without crashing.
     const mainElement = document.querySelector('div');
     expect(mainElement).toBeInTheDocument();
   });

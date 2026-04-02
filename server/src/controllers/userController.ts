@@ -9,8 +9,8 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
 
-    // Deleta o usuário do Supabase Auth
-    // Isso disparará o ON DELETE CASCADE nas tabelas vinculadas (profiles, categories, transactions)
+    // Deletes the user from Supabase Auth
+    // This will trigger the ON DELETE CASCADE in linked tables (profiles, categories, transactions)
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (error) {

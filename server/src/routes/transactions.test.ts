@@ -5,7 +5,7 @@ import { supabaseAdmin } from '../lib/supabase';
 
 vi.mock('../middlewares/authMiddleware', () => ({
   authMiddleware: (req: any, res: any, next: any) => {
-    // Injeta usuário fake contornando a validação de JWT para focar nas rotas
+    // Injects fake user bypassing JWT validation to focus on routes
     req.user = { id: 'user-123' };
     next();
   }
@@ -82,7 +82,7 @@ describe('Transactions API', () => {
     });
 
     it('retorna 400 Bad Request se a validação Zod falhar', async () => {
-      const invalidPayload = { amount: 500 }; // faltando chaves obrigatórias como type, req, etc.
+      const invalidPayload = { amount: 500 }; // missing required keys like type, req, etc.
       
       const response = await request(app).post('/api/transactions').send(invalidPayload);
       
@@ -117,7 +117,7 @@ describe('Transactions API', () => {
 
   describe('DELETE /api/transactions/:id', () => {
     it('deleta transação com sucesso', async () => {
-      // Mock para DELETE com exact count success
+      // Mock for DELETE with exact count success
       mockChain.match.mockResolvedValue({ error: null, count: 1 });
 
       const response = await request(app).delete('/api/transactions/1');

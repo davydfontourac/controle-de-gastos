@@ -13,7 +13,7 @@ export default function CategoryPieChart({ transactions }: Readonly<Props>) {
     const expenses = transactions.filter(t => t.type === 'expense');
     const total = expenses.reduce((acc, t) => acc + Number(t.amount), 0);
     
-    // Agrupa por categoria
+    // Group by category
     const groups: Record<string, { value: number; color?: string }> = {};
     
     expenses.forEach(t => {

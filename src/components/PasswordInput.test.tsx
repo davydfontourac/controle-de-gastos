@@ -15,12 +15,12 @@ describe('PasswordInput', () => {
     const input = screen.getByLabelText('Senha');
     const button = screen.getByRole('button', { name: /mostrar senha/i });
 
-    // Mostrar
+    // Show
     fireEvent.click(button);
     expect(input).toHaveAttribute('type', 'text');
     expect(screen.getByRole('button', { name: /esconder senha/i })).toBeInTheDocument();
 
-    // Esconder
+    // Hide
     fireEvent.click(screen.getByRole('button', { name: /esconder senha/i }));
     expect(input).toHaveAttribute('type', 'password');
     expect(screen.getByRole('button', { name: /mostrar senha/i })).toBeInTheDocument();

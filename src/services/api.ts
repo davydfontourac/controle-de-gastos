@@ -8,7 +8,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor para injetar o Token Bearer magico em TODAS as chamadas
+// Interceptor to inject the magic Bearer Token into ALL requests
 api.interceptors.request.use(async (config) => {
   const { data: { session } } = await supabase.auth.getSession();
   

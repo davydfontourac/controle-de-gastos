@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
-// Bloqueia acesso de anônimos às páginas secretas (Dashboard)
+// Blocks anonymous access to secret pages (Dashboard)
 export function PrivateRoute() {
   const { user, isLoading } = useAuth();
 
-  // Enquanto descobre se está logado ou não, mostra tela branca ou um spinner
+  // While figuring out if logged in or not, shows white screen or a spinner
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -14,16 +14,16 @@ export function PrivateRoute() {
     );
   }
 
-  // Se não tem usuário logado, chuta pra tela de login
+  // If there's no logged in user, kick to login screen
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Se passou por tudo, permite que o app renderize a rota
+  // If passed everything, allows the app to render the route
   return <Outlet />;
 }
 
-// Impede que usuários logados visitem a tela de Login ou Cadastro novamente
+// Prevents logged in users from visiting Login or Register screen again
 export function PublicRoute() {
   const { user, isLoading } = useAuth();
 
@@ -35,7 +35,7 @@ export function PublicRoute() {
     );
   }
 
-  // Se está logado, arremessa direto pro Dashboard
+  // If logged in, throw straight to Dashboard
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }

@@ -24,7 +24,7 @@ vi.mock('@/services/supabase', () => {
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
 
-// Setup mock do matchMedia para o Framer Motion
+// Setup matchMedia mock for Framer Motion
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -82,7 +82,7 @@ describe('AuthContext', () => {
 
     const mockProfile = { full_name: 'Usuário de Teste', avatar_url: null };
     
-    // Configura a response do .from('profiles').select().eq().maybeSingle()
+    // Sets up response for .from('profiles').select().eq().maybeSingle()
     (supabase.from as any).mockReturnValue({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -108,7 +108,7 @@ describe('AuthContext', () => {
   });
 
   it('chama signOut corretamente no Supabase', async () => {
-    // Mesma lógica de inicialização nula
+    // Same logic for null initialization
     (supabase.auth.getSession as any).mockResolvedValue({
       data: { session: null },
       error: null

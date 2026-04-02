@@ -33,19 +33,19 @@ describe('TransactionForm', () => {
   it('deve mostrar campos de recorrência apenas quando o checkbox está marcado', () => {
     render(<TransactionForm isOpen={true} onClose={() => {}} onSuccess={() => {}} />);
     
-    // Checkbox de recorrência
+    // Recurrence checkbox
     const checkbox = screen.getByLabelText(/Repetir transação/);
     expect(checkbox).not.toBeChecked();
     
-    // Campos de frequência e parcelas não devem estar visíveis
+    // Frequency and installments fields should not be visible
     expect(screen.queryByText('Frequência')).not.toBeInTheDocument();
     expect(screen.queryByText('Ocorrências')).not.toBeInTheDocument();
 
-    // Marcar checkbox
+    // Check it
     fireEvent.click(checkbox);
     expect(checkbox).toBeChecked();
 
-    // Agora campos devem estar visíveis
+    // Now fields should be visible
     expect(screen.getByText('Frequência')).toBeInTheDocument();
     expect(screen.getByText('Ocorrências')).toBeInTheDocument();
   });
@@ -91,7 +91,7 @@ describe('TransactionForm', () => {
     expect(screen.getByPlaceholderText(/Ex: Freela/)).toHaveValue('Teste Edição');
     expect(screen.getByLabelText(/Repetir transação/)).toBeChecked();
     
-    // Frequência deve estar setada como weekly
+    // Frequency must be set as weekly
     const freqSelect = screen.getByRole('combobox', { name: /Frequência/i }) as HTMLSelectElement;
     expect(freqSelect.value).toBe('weekly');
   });
@@ -104,7 +104,7 @@ describe('TransactionForm', () => {
     fireEvent.change(screen.getByPlaceholderText(/Ex: Freela/), { target: { value: 'Compra Recorrente' } });
     fireEvent.change(screen.getByPlaceholderText('0,00'), { target: { value: '150' } });
     
-    // Abrir recorrência
+    // Open recurrence
     fireEvent.click(screen.getByLabelText(/Repetir transação/));
     
     // Selecionar frequência e parcelas
