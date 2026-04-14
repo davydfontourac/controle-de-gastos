@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: expense-tracker-api-davyd
+    name: expense-tracker-backend
     env: node
-    plan: free
     rootDir: server
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -12,8 +11,8 @@ services:
       - key: PORT
         value: 3000
       - key: CORS_ORIGIN
-        placeholder: "Ex: https://seu-app.vercel.app"
+        generateValue: false
       - key: SUPABASE_URL
-        placeholder: "Sua URL do Supabase"
+        generateValue: false
       - key: SUPABASE_SERVICE_ROLE_KEY
-        placeholder: "Sua Service Role Key do Supabase"
+        generateValue: false
