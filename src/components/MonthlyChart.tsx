@@ -62,7 +62,7 @@ export default function MonthlyChart({ data, isLoading }: Readonly<Props>) {
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-[400px] flex flex-col transition-colors">
       <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 px-2">Evolução Mensal</h3>
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={sortedData}

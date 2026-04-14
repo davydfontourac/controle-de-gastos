@@ -59,7 +59,7 @@ export default function CategoryPieChart({ transactions }: Readonly<Props>) {
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col sm:flex-row items-center">
+      <div className="flex-1 min-h-0 flex flex-col sm:flex-row items-center">
         <div className="relative w-full h-[240px] sm:h-full sm:flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

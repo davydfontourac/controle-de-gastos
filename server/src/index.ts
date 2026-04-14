@@ -14,11 +14,13 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
+    const originsFromEnv = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5174',
-      process.env.CORS_ORIGIN,
-    ].filter(Boolean);
+      ...originsFromEnv,
+    ].filter(Boolean).map(o => o.trim());
+
     // Allows no-origin requests (Postman, CI) or allowed origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
