@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: expense-tracker-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: CORS_ORIGIN
+        sync: false # Set this in Render Dashboard
+      - key: SUPABASE_URL
+        sync: false # Set this in Render Dashboard
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Set this in Render Dashboard
