@@ -48,11 +48,11 @@ export const transactionController = {
   _generateRecurringTransactions(parsedBody: any, userId: string) {
     const { frequency, installments = 1, date: startDateStr, ...rest } = parsedBody;
     const baseDate = new Date(startDateStr);
-    
+
     return Array.from({ length: installments }).map((_, i) => {
       const currentDate = new Date(baseDate);
-      
-      if (frequency === 'weekly') currentDate.setUTCDate(baseDate.getUTCDate() + (i * 7));
+
+      if (frequency === 'weekly') currentDate.setUTCDate(baseDate.getUTCDate() + i * 7);
       if (frequency === 'monthly') currentDate.setUTCMonth(baseDate.getUTCMonth() + i);
       if (frequency === 'yearly') currentDate.setUTCFullYear(baseDate.getUTCFullYear() + i);
 
@@ -71,7 +71,7 @@ export const transactionController = {
     try {
       const userId = req.user.id;
       const parsedBody = createTransactionSchema.parse(req.body);
-      
+
       const { is_recurrent, frequency, installments = 1 } = parsedBody;
 
       // Case 1: Single Transaction
@@ -88,7 +88,10 @@ export const transactionController = {
       }
 
       // Case 2: Recurring Transactions (Materialization)
-      const transactionsToInsert = transactionController._generateRecurringTransactions(parsedBody, userId);
+      const transactionsToInsert = transactionController._generateRecurringTransactions(
+        parsedBody,
+        userId,
+      );
 
       const { data: firstRecord, error: firstError } = await supabaseAdmin
         .from('transactions')
@@ -99,9 +102,9 @@ export const transactionController = {
       if (firstError) throw firstError;
 
       // Insert remaining installments linked to parent_id
-      const otherTransactions = transactionsToInsert.slice(1).map(t => ({
+      const otherTransactions = transactionsToInsert.slice(1).map((t) => ({
         ...t,
-        parent_id: firstRecord.id
+        parent_id: firstRecord.id,
       }));
 
       const { error: othersError } = await supabaseAdmin
@@ -119,7 +122,6 @@ export const transactionController = {
 
       if (finalError) throw finalError;
       return res.status(201).json(finalData);
-
     } catch (error: any) {
       const status = error.name === 'ZodError' ? 400 : 500;
       const message = error.name === 'ZodError' ? error.errors : error.message;
@@ -132,7 +134,7 @@ export const transactionController = {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      
+
       // Zod Validation with optional fields
       const parsedUpdates = updateTransactionSchema.parse(req.body);
 
@@ -145,7 +147,8 @@ export const transactionController = {
         .single();
 
       if (error) throw error;
-      if (!data) return res.status(404).json({ error: 'Transação não encontrada ou sem permissão.' });
+      if (!data)
+        return res.status(404).json({ error: 'Transação não encontrada ou sem permissão.' });
 
       res.json(data);
     } catch (error: any) {
@@ -168,7 +171,8 @@ export const transactionController = {
         .match({ id, user_id: userId });
 
       if (error) throw error;
-      if (count === 0) return res.status(404).json({ error: 'Transação não encontrada ou sem permissão.' });
+      if (count === 0)
+        return res.status(404).json({ error: 'Transação não encontrada ou sem permissão.' });
 
       res.status(204).send();
     } catch (error: any) {
@@ -177,96 +181,111 @@ export const transactionController = {
   },
 
   // GET /transactions/summary?month=X&year=Y
-async getSummary(req: AuthRequest, res: Response) {
-  try {
-    const { month, year } = req.query;
-    const userId = req.user.id;
+  async getSummary(req: AuthRequest, res: Response) {
+    try {
+      const { month, year } = req.query;
+      const userId = req.user.id;
 
-    // 1. Accumulated Balance (All-time)
-    const todayISO = new Date().toISOString();
-    const { data: allData, error: allError } = await supabaseAdmin
-      .from('transactions')
-      .select('amount, type')
-      .eq('user_id', userId)
-      .lte('date', todayISO);
-
-    if (allError) throw allError;
-
-    let totalBalance = 0;
-    allData.forEach(t => {
-      if (t.type === 'income') totalBalance += Number(t.amount);
-      if (t.type === 'expense') totalBalance -= Number(t.amount);
-    });
-
-    // 2. Selected Year Balance
-    let yearBalance = 0;
-    if (year) {
-      const yearStart = new Date(Date.UTC(Number(year), 0, 1)).toISOString();
-      const yearEnd = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59)).toISOString();
-      
-      const { data: yearData, error: yearError } = await supabaseAdmin
+      // 1. Accumulated Balance (All-time)
+      const todayISO = new Date().toISOString();
+      const { data: allData, error: allError } = await supabaseAdmin
         .from('transactions')
         .select('amount, type')
         .eq('user_id', userId)
-        .gte('date', yearStart)
-        .lte('date', yearEnd);
+        .lte('date', todayISO);
 
-      if (yearError) throw yearError;
-      
-      yearData.forEach(t => {
-        if (t.type === 'income') yearBalance += Number(t.amount);
-        if (t.type === 'expense') yearBalance -= Number(t.amount);
+      if (allError) throw allError;
+
+      let totalBalance = 0;
+      allData.forEach((t) => {
+        if (t.type === 'income') totalBalance += Number(t.amount);
+        if (t.type === 'expense') totalBalance -= Number(t.amount);
       });
-    }
 
-    // 3. Monthly Summary (Filtered)
-    let income = 0;
-    let expense = 0;
-    if (month && year) {
-      const startDate = new Date(Date.UTC(Number(year), Number(month) - 1, 1)).toISOString();
-      const endDate = new Date(Date.UTC(Number(year), Number(month), 0, 23, 59, 59)).toISOString();
-      
-      const { data: monthData, error: monthError } = await supabaseAdmin
-        .from('transactions')
-        .select('amount, type')
-        .eq('user_id', userId)
-        .gte('date', startDate)
-        .lte('date', endDate);
+      // 2. Selected Year Balance
+      let yearBalance = 0;
+      if (year) {
+        const yearStart = new Date(Date.UTC(Number(year), 0, 1)).toISOString();
+        const yearEnd = new Date(Date.UTC(Number(year), 11, 31, 23, 59, 59)).toISOString();
 
-      if (monthError) throw monthError;
+        const { data: yearData, error: yearError } = await supabaseAdmin
+          .from('transactions')
+          .select('amount, type')
+          .eq('user_id', userId)
+          .gte('date', yearStart)
+          .lte('date', yearEnd);
 
-      monthData.forEach(t => {
-        if (t.type === 'income') income += Number(t.amount);
-        if (t.type === 'expense') expense += Number(t.amount);
+        if (yearError) throw yearError;
+
+        yearData.forEach((t) => {
+          if (t.type === 'income') yearBalance += Number(t.amount);
+          if (t.type === 'expense') yearBalance -= Number(t.amount);
+        });
+      }
+
+      // 3. Monthly Summary (Filtered)
+      let income = 0;
+      let expense = 0;
+      if (month && year) {
+        const startDate = new Date(Date.UTC(Number(year), Number(month) - 1, 1)).toISOString();
+        const endDate = new Date(
+          Date.UTC(Number(year), Number(month), 0, 23, 59, 59),
+        ).toISOString();
+
+        const { data: monthData, error: monthError } = await supabaseAdmin
+          .from('transactions')
+          .select('amount, type')
+          .eq('user_id', userId)
+          .gte('date', startDate)
+          .lte('date', endDate);
+
+        if (monthError) throw monthError;
+
+        monthData.forEach((t) => {
+          if (t.type === 'income') income += Number(t.amount);
+          if (t.type === 'expense') expense += Number(t.amount);
+        });
+      }
+
+      res.json({
+        income,
+        expense,
+        totalBalance,
+        yearBalance,
+        balance: totalBalance, // Compatibility with previous frontend
       });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
-
-    res.json({ 
-      income, 
-      expense, 
-      totalBalance,
-      yearBalance,
-      balance: totalBalance // Compatibility with previous frontend
-    });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-},
+  },
 
   // GET /transactions/history
   async getHistory(req: AuthRequest, res: Response) {
     try {
       const userId = req.user.id;
       const history = [];
-      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-      
+      const monthNames = [
+        'Jan',
+        'Fev',
+        'Mar',
+        'Abr',
+        'Mai',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Set',
+        'Out',
+        'Nov',
+        'Dez',
+      ];
+
       const today = new Date();
       const currentYear = today.getFullYear();
 
       // Loop from January to December
       for (let i = 0; i <= 11; i++) {
         const month = i + 1;
-        
+
         // Dates in UTC to avoid timezone issues
         const startDate = new Date(Date.UTC(currentYear, i, 1)).toISOString();
         const endDate = new Date(Date.UTC(currentYear, i + 1, 0, 23, 59, 59)).toISOString();
@@ -283,7 +302,7 @@ async getSummary(req: AuthRequest, res: Response) {
         let income = 0;
         let expense = 0;
 
-        data.forEach(t => {
+        data.forEach((t) => {
           if (t.type === 'income') income += Number(t.amount);
           if (t.type === 'expense') expense += Number(t.amount);
         });
@@ -293,7 +312,7 @@ async getSummary(req: AuthRequest, res: Response) {
           income: Number(income.toFixed(2)),
           expense: Number(expense.toFixed(2)),
           fullMonth: month,
-          year: currentYear
+          year: currentYear,
         });
       }
 
@@ -301,5 +320,5 @@ async getSummary(req: AuthRequest, res: Response) {
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 };

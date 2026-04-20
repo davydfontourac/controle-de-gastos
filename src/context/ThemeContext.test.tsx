@@ -46,7 +46,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     expect(screen.getByTestId('theme').textContent).toBe('system');
   });
@@ -55,7 +55,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider defaultTheme="dark">
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     expect(screen.getByTestId('theme').textContent).toBe('dark');
   });
@@ -65,7 +65,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     expect(screen.getByTestId('theme').textContent).toBe('light');
   });
@@ -75,7 +75,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     await act(async () => {
       await user.click(screen.getByText('dark'));
@@ -89,7 +89,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     await act(async () => {
       await user.click(screen.getByText('dark'));
@@ -102,7 +102,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     await act(async () => {
       await user.click(screen.getByText('light'));
@@ -115,12 +115,11 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider storageKey="my-theme-key">
         <ThemeConsumer />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     await act(async () => {
       await user.click(screen.getByText('light'));
     });
     expect(localStorage.getItem('my-theme-key')).toBe('light');
   });
-
 });

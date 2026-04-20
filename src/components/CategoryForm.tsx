@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { cn } from '@/utils/cn';
 import { X, Loader2, Palette, Tag } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 const categorySchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   icon: z.string().min(1, 'Ícone é obrigatório'),
-  color: z.string().min(4, 'Selecione uma cor').max(7)
+  color: z.string().min(4, 'Selecione uma cor').max(7),
 });
 
 type CategoryFormData = {
@@ -32,25 +32,31 @@ interface Props {
 }
 
 const PRESET_COLORS = [
-  '#3B82F6', '#10B981', '#EF4444', '#F59E0B', 
-  '#8B5CF6', '#EC4899', '#06B6D4', '#71717A'
+  '#3B82F6',
+  '#10B981',
+  '#EF4444',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#71717A',
 ];
 
 export default function CategoryForm({ isOpen, onClose, onSuccess, category }: Readonly<Props>) {
-  const { 
-    register, 
-    handleSubmit, 
-    reset, 
+  const {
+    register,
+    handleSubmit,
+    reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting } 
+    formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: '',
       icon: 'tag',
-      color: '#3B82F6'
-    }
+      color: '#3B82F6',
+    },
   });
 
   const selectedColor = watch('color');
@@ -60,13 +66,13 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: R
       reset({
         name: category.name,
         icon: category.icon,
-        color: category.color
+        color: category.color,
       });
     } else {
       reset({
         name: '',
         icon: 'tag',
-        color: '#3B82F6'
+        color: '#3B82F6',
       });
     }
   }, [category, reset, isOpen]);
@@ -75,10 +81,17 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: R
     try {
       const data = formData as any;
       if (category) {
-        await api.put(`/categories/${category.id}`, data);
+        const { error } = await supabase.from('categories').update(data).eq('id', category.id);
+        if (error) throw error;
         toast.success('Categoria atualizada!');
       } else {
-        await api.post('/categories', data);
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+        const finalPayload = { ...data, user_id: user.id };
+        const { error } = await supabase.from('categories').insert([finalPayload]);
+        if (error) throw error;
         toast.success('Categoria criada!');
       }
       onSuccess();
@@ -97,7 +110,7 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: R
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {category ? 'Editar Categoria' : 'Nova Categoria'}
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
           >
@@ -117,11 +130,14 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: R
               type="text"
               placeholder="Ex: Alimentação, Lazer..."
               className={cn(
-                "w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600",
-                errors.name && "border-red-300 focus:ring-red-500/10 focus:border-red-500 dark:border-red-500/50 dark:focus:ring-red-500/20"
+                'w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600',
+                errors.name &&
+                  'border-red-300 focus:ring-red-500/10 focus:border-red-500 dark:border-red-500/50 dark:focus:ring-red-500/20',
               )}
             />
-            {errors.name && <p className="mt-2 text-xs font-bold text-red-500">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="mt-2 text-xs font-bold text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Cor */}
@@ -131,25 +147,29 @@ export default function CategoryForm({ isOpen, onClose, onSuccess, category }: R
               Cor da Categoria
             </label>
             <div className="flex flex-wrap gap-3">
-              {PRESET_COLORS.map(color => (
+              {PRESET_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => setValue('color', color)}
                   className={cn(
-                    "w-10 h-10 rounded-full border-4 transition-all hover:scale-110",
-                    selectedColor === color ? "border-white shadow-lg ring-2 ring-gray-900" : "border-transparent"
+                    'w-10 h-10 rounded-full border-4 transition-all hover:scale-110',
+                    selectedColor === color
+                      ? 'border-white shadow-lg ring-2 ring-gray-900'
+                      : 'border-transparent',
                   )}
                   style={{ backgroundColor: color }}
                 />
               ))}
-              <input 
-                type="color" 
+              <input
+                type="color"
                 {...register('color')}
                 className="w-10 h-10 rounded-full border-none p-0 bg-transparent cursor-pointer overflow-hidden"
               />
             </div>
-            {errors.color && <p className="mt-2 text-xs font-bold text-red-500">{errors.color.message}</p>}
+            {errors.color && (
+              <p className="mt-2 text-xs font-bold text-red-500">{errors.color.message}</p>
+            )}
           </div>
 
           {/* Actions */}

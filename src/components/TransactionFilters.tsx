@@ -45,7 +45,7 @@ export default function TransactionFilters({
   onTypeChange,
   onMonthChange,
   onYearChange,
-  filters
+  filters,
 }: Readonly<Props>) {
   return (
     <div className="space-y-4 mb-8">
@@ -69,8 +69,10 @@ export default function TransactionFilters({
               key={t}
               onClick={() => onTypeChange(t)}
               className={cn(
-                "px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                filters.type === t ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                'px-4 py-2 text-sm font-medium rounded-lg transition-all',
+                filters.type === t
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
               )}
             >
               {getTypeLabel(t)}
@@ -84,14 +86,16 @@ export default function TransactionFilters({
           <Calendar className="w-4 h-4" />
           Período:
         </div>
-        
+
         <select
           value={filters.month}
           onChange={(e) => onMonthChange(e.target.value)}
           className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all cursor-pointer"
         >
-          {MONTHS.map(m => (
-            <option key={m.value} value={m.value}>{m.label}</option>
+          {MONTHS.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
+            </option>
           ))}
         </select>
 
@@ -100,8 +104,10 @@ export default function TransactionFilters({
           onChange={(e) => onYearChange(e.target.value)}
           className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all cursor-pointer"
         >
-          {YEARS.map(y => (
-            <option key={y.value} value={y.value}>{y.label}</option>
+          {YEARS.map((y) => (
+            <option key={y.value} value={y.value}>
+              {y.label}
+            </option>
           ))}
         </select>
 

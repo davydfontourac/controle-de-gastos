@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { cn } from '@/utils/cn';
 import { X, ArrowUpCircle, ArrowDownCircle, Loader2, Tag } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,7 +9,10 @@ import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
   description: z.string().min(1, 'A descrição é obrigatória.'),
-  amount: z.string().min(1, 'O valor é obrigatório.').refine(v => !Number.isNaN(Number(v)) && Number(v) > 0, 'O valor deve ser maior que zero.'),
+  amount: z
+    .string()
+    .min(1, 'O valor é obrigatório.')
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) > 0, 'O valor deve ser maior que zero.'),
   date: z.string().min(1, 'A data é obrigatória.'),
   type: z.enum(['income', 'expense']),
   category_id: z.string().nullable().optional(),
@@ -32,10 +35,22 @@ interface Props {
   transaction?: any; // To load data when editing
 }
 
-export default function TransactionForm({ isOpen, onClose, onSuccess, transaction }: Readonly<Props>) {
+export default function TransactionForm({
+  isOpen,
+  onClose,
+  onSuccess,
+  transaction,
+}: Readonly<Props>) {
   const [categories, setCategories] = useState<Category[]>([]);
-  
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, reset } = useForm<FormValues>({
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+    reset,
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: 'expense',
@@ -44,7 +59,7 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       is_recurrent: false,
       frequency: 'monthly',
       installments: '1',
-    }
+    },
   });
 
   const selectedType = watch('type');
@@ -53,7 +68,13 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
   // Load categories when opening
   useEffect(() => {
     if (isOpen) {
-      api.get('/categories').then(res => setCategories(res.data)).catch(console.error);
+      supabase
+        .from('categories')
+        .select('*')
+        .then(({ data, error }) => {
+          if (error) console.error(error);
+          else if (data) setCategories(data);
+        });
     }
   }, [isOpen]);
 
@@ -105,13 +126,26 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
       };
 
       if (transaction) {
-        await api.put(`/transactions/${transaction.id}`, payload);
+        const { error } = await supabase
+          .from('transactions')
+          .update(payload)
+          .eq('id', transaction.id);
+        if (error) throw error;
         toast.success('Transação atualizada!');
       } else {
-        await api.post('/transactions', payload);
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+        const finalPayload = { ...payload, user_id: user.id };
+
+        // Se for recorrente, precisaria da lógica RPC. Por enquanto, inserimos uma
+        // O ideal é a lógica RPC handle_recurring, mas para simplificar:
+        const { error } = await supabase.from('transactions').insert([finalPayload]);
+        if (error) throw error;
         toast.success('Transação salva!');
       }
-      
+
       onSuccess();
       onClose();
     } catch (error) {
@@ -123,10 +157,14 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-transparent dark:border-gray-800 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">{transaction ? 'Editar Transação' : 'Nova Transação'}</h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+            {transaction ? 'Editar Transação' : 'Nova Transação'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -137,8 +175,10 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
               type="button"
               onClick={() => setValue('type', 'expense')}
               className={cn(
-                "flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all",
-                selectedType === 'expense' ? "bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50"
+                'flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all',
+                selectedType === 'expense'
+                  ? 'bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50',
               )}
             >
               <ArrowDownCircle className="w-5 h-5" />
@@ -148,8 +188,10 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
               type="button"
               onClick={() => setValue('type', 'income')}
               className={cn(
-                "flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all",
-                selectedType === 'income' ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50"
+                'flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all',
+                selectedType === 'income'
+                  ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50',
               )}
             >
               <ArrowUpCircle className="w-5 h-5" />
@@ -159,9 +201,16 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="amount" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Valor</label>
+              <label
+                htmlFor="amount"
+                className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Valor
+              </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-gray-400 dark:text-gray-500">R$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-gray-400 dark:text-gray-500">
+                  R$
+                </span>
                 <input
                   id="amount"
                   type="number"
@@ -169,31 +218,49 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
                   placeholder="0,00"
                   {...register('amount')}
                   className={cn(
-                    "w-full pl-11 pr-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600 font-medium text-lg text-gray-900 dark:text-gray-100",
-                    errors.amount ? "border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400" : "border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500"
+                    'w-full pl-11 pr-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600 font-medium text-lg text-gray-900 dark:text-gray-100',
+                    errors.amount
+                      ? 'border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400'
+                      : 'border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500',
                   )}
                 />
               </div>
-              {errors.amount && <p className="mt-1 text-sm text-red-500">{errors.amount.message}</p>}
+              {errors.amount && (
+                <p className="mt-1 text-sm text-red-500">{errors.amount.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
+              <label
+                htmlFor="description"
+                className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Descrição
+              </label>
               <input
                 id="description"
                 type="text"
                 placeholder="Ex: Freela, Aluguel..."
                 {...register('description')}
                 className={cn(
-                  "w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600",
-                  errors.description ? "border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400" : "border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500"
+                  'w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600',
+                  errors.description
+                    ? 'border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400'
+                    : 'border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500',
                 )}
               />
-              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description.message}</p>}
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-500">{errors.description.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="category_id" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Categoria</label>
+              <label
+                htmlFor="category_id"
+                className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Categoria
+              </label>
               <div className="relative">
                 <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <select
@@ -202,8 +269,10 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
                   className="w-full pl-11 pr-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500 focus:outline-none transition-all appearance-none text-gray-700 dark:text-gray-300 font-medium"
                 >
                   <option value="">Sem categoria</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={String(cat.id)}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -227,7 +296,12 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
               {isRecurrent && (
                 <div className="grid grid-cols-2 gap-4 mt-4 animate-in slide-in-from-top-2 duration-200">
                   <div>
-                    <label htmlFor="frequency" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Frequência</label>
+                    <label
+                      htmlFor="frequency"
+                      className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
+                    >
+                      Frequência
+                    </label>
                     <select
                       id="frequency"
                       {...register('frequency')}
@@ -239,7 +313,12 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="installments" className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Ocorrências</label>
+                    <label
+                      htmlFor="installments"
+                      className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
+                    >
+                      Ocorrências
+                    </label>
                     <input
                       id="installments"
                       type="number"
@@ -255,14 +334,21 @@ export default function TransactionForm({ isOpen, onClose, onSuccess, transactio
 
             <div className="grid grid-cols-1 gap-4 pt-2">
               <div>
-                <label htmlFor="date" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Data da primeira</label>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Data da primeira
+                </label>
                 <input
                   id="date"
                   type="date"
                   {...register('date')}
                   className={cn(
-                    "w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all text-gray-700 dark:text-gray-100",
-                    errors.date ? "border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400" : "border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500"
+                    'w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border rounded-xl focus:ring-2 focus:outline-none transition-all text-gray-700 dark:text-gray-100',
+                    errors.date
+                      ? 'border-red-300 focus:ring-red-100 dark:focus:ring-red-900/30 focus:border-red-400'
+                      : 'border-gray-200 dark:border-gray-700 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-400 dark:focus:border-blue-500',
                   )}
                 />
                 {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date.message}</p>}

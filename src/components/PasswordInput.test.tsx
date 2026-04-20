@@ -50,7 +50,14 @@ describe('PasswordInput', () => {
   });
 
   it('deve aceitar props adicionais de input', () => {
-    render(<PasswordInput id="password" label="Senha" placeholder="Digite sua senha" data-testid="custom-input" />);
+    render(
+      <PasswordInput
+        id="password"
+        label="Senha"
+        placeholder="Digite sua senha"
+        data-testid="custom-input"
+      />,
+    );
     const input = screen.getByTestId('custom-input');
     expect(input).toHaveAttribute('placeholder', 'Digite sua senha');
   });

@@ -3,7 +3,6 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { api } from '@/services/api';
 import {
   Trash2,
   AlertTriangle,
@@ -13,7 +12,7 @@ import {
   ArrowLeft,
   Save,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 import ConfirmModal from '@/components/ConfirmModal';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -66,9 +65,9 @@ export default function Profile() {
   async function deleteAccount() {
     try {
       setIsDeleting(true);
-      const response = await api.delete('/users');
+      const { error } = await supabase.rpc('delete_user');
 
-      if (response.status === 200) {
+      if (!error) {
         toast.success('Sua conta foi excluída permanentemente.');
         await signOut();
         navigate('/');
@@ -95,17 +94,15 @@ export default function Profile() {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
 
       if (uploadError) {
         throw uploadError;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
       setAvatarUrl(publicUrl);
       await refreshProfile();
@@ -153,7 +150,11 @@ export default function Profile() {
                 disabled={isSaving || uploading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 dark:shadow-blue-900/20 active:scale-95 disabled:opacity-70"
               >
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 <span className="hidden sm:inline">Salvar Alterações</span>
               </button>
             </div>
@@ -177,7 +178,11 @@ export default function Profile() {
                 htmlFor="avatar-upload"
                 className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-blue-700 transition-colors border-4 border-white dark:border-gray-900 active:scale-90 disabled:opacity-50"
               >
-                {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
+                {uploading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Camera className="w-5 h-5" />
+                )}
                 <input
                   type="file"
                   id="avatar-upload"
@@ -189,7 +194,9 @@ export default function Profile() {
               </label>
             </div>
             <div className="mt-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{fullName || 'Seu Nome'}</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {fullName || 'Seu Nome'}
+              </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
             </div>
           </section>
@@ -200,12 +207,17 @@ export default function Profile() {
               <div className="p-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Informações Pessoais</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                Informações Pessoais
+              </h3>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
+                <label
+                  htmlFor="profile-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1"
+                >
                   Nome Completo
                 </label>
                 <div className="relative">
@@ -224,7 +236,10 @@ export default function Profile() {
               </div>
 
               <div>
-                <label htmlFor="profile-email" className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none">
+                <label
+                  htmlFor="profile-email"
+                  className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none"
+                >
                   E-mail (Não editável)
                 </label>
                 <div className="relative">
@@ -251,7 +266,9 @@ export default function Profile() {
               </div>
               <div>
                 <h4 className="font-bold text-gray-900 dark:text-gray-100">Status da Conta</h4>
-                <p className="text-xs text-green-600 dark:text-green-500 font-semibold uppercase tracking-wider">Ativa e Verificada</p>
+                <p className="text-xs text-green-600 dark:text-green-500 font-semibold uppercase tracking-wider">
+                  Ativa e Verificada
+                </p>
               </div>
             </div>
             <div className="text-xs text-gray-400 dark:text-gray-500 font-medium">
@@ -269,7 +286,8 @@ export default function Profile() {
 
             <div className="p-4 bg-red-50/50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-900/20">
               <p className="text-sm text-red-800 dark:text-red-400 font-medium mb-4">
-                Ao excluir sua conta, todos os seus dados (transações, categorias e perfil) serão removidos permanentemente. Esta ação não pode ser desfeita.
+                Ao excluir sua conta, todos os seus dados (transações, categorias e perfil) serão
+                removidos permanentemente. Esta ação não pode ser desfeita.
               </p>
               <button
                 onClick={() => setShowDeleteModal(true)}

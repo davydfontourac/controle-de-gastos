@@ -23,11 +23,10 @@ vi.mock('@/services/supabase', () => ({
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 
-
 // Mocks the matchMedia API that framer-motion might use or other UI tools
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -47,7 +46,7 @@ describe('App', () => {
         <AuthProvider>
           <App />
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // In our unlogged main structure, <App> will take us to either Login or Loading Splash routes

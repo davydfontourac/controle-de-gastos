@@ -12,10 +12,19 @@ vi.mock('recharts', () => ({
   Tooltip: ({ content }: any) => {
     // Render tooltip content with mock payload to cover CustomTooltip
     const MockContent = content?.type ?? (() => null);
-    return <MockContent active={true} payload={[{ dataKey: 'income', name: 'Receitas', value: 1000, color: '#10B981' }]} label="Mar" />;
+    return (
+      <MockContent
+        active={true}
+        payload={[{ dataKey: 'income', name: 'Receitas', value: 1000, color: '#10B981' }]}
+        label="Mar"
+      />
+    );
   },
   Legend: ({ formatter }: any) => (
-    <div data-testid="legend">{formatter?.('Receitas')}{formatter?.('Despesas')}</div>
+    <div data-testid="legend">
+      {formatter?.('Receitas')}
+      {formatter?.('Despesas')}
+    </div>
   ),
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
 }));

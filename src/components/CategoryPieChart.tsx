@@ -6,17 +6,26 @@ interface Props {
   transactions: Transaction[];
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#06B6D4'];
+const COLORS = [
+  '#3B82F6',
+  '#10B981',
+  '#EF4444',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#6B7280',
+  '#06B6D4',
+];
 
 export default function CategoryPieChart({ transactions }: Readonly<Props>) {
   const { data, totalExpenses } = useMemo(() => {
-    const expenses = transactions.filter(t => t.type === 'expense');
+    const expenses = transactions.filter((t) => t.type === 'expense');
     const total = expenses.reduce((acc, t) => acc + Number(t.amount), 0);
-    
+
     // Group by category
     const groups: Record<string, { value: number; color?: string }> = {};
-    
-    expenses.forEach(t => {
+
+    expenses.forEach((t) => {
       const categoryName = t.categories?.name || 'Sem categoria';
       if (!groups[categoryName]) {
         groups[categoryName] = { value: 0, color: t.categories?.color };
@@ -24,11 +33,13 @@ export default function CategoryPieChart({ transactions }: Readonly<Props>) {
       groups[categoryName].value += Number(t.amount);
     });
 
-    const chartData = Object.entries(groups).map(([name, { value, color }], index) => ({
-      name,
-      value: Number(value.toFixed(2)),
-      color: color || COLORS[index % COLORS.length]
-    })).sort((a, b) => b.value - a.value);
+    const chartData = Object.entries(groups)
+      .map(([name, { value, color }], index) => ({
+        name,
+        value: Number(value.toFixed(2)),
+        color: color || COLORS[index % COLORS.length],
+      }))
+      .sort((a, b) => b.value - a.value);
 
     return { data: chartData, totalExpenses: total };
   }, [transactions]);
@@ -39,21 +50,27 @@ export default function CategoryPieChart({ transactions }: Readonly<Props>) {
         <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
           <PieChart className="w-8 h-8 text-gray-300 dark:text-gray-600" />
         </div>
-        <p className="text-gray-500 dark:text-gray-400 font-medium text-center">Nenhuma despesa registrada<br/>neste período para exibir o gráfico.</p>
+        <p className="text-gray-500 dark:text-gray-400 font-medium text-center">
+          Nenhuma despesa registrada
+          <br />
+          neste período para exibir o gráfico.
+        </p>
       </div>
     );
   }
 
-  const formattedTotal = new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
+  const formattedTotal = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
     currency: 'BRL',
-    maximumFractionDigits: 0 
+    maximumFractionDigits: 0,
   }).format(totalExpenses);
 
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-full min-h-[400px] flex flex-col relative overflow-hidden group transition-colors">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 px-2">Distribuição de Gastos</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 px-2">
+          Distribuição de Gastos
+        </h3>
         <span className="text-xs font-bold text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-lg uppercase tracking-wider">
           Total: {formattedTotal}
         </span>
@@ -76,42 +93,53 @@ export default function CategoryPieChart({ transactions }: Readonly<Props>) {
                 animationDuration={1200}
               >
                 {data.map((entry) => (
-                  <Cell 
-                    key={`cell-${entry.name}`} 
-                    fill={entry.color} 
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={entry.color}
                     className="hover:opacity-80 transition-opacity cursor-pointer outline-none"
                   />
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ 
-                  borderRadius: '16px', 
-                  border: 'none', 
+                contentStyle={{
+                  borderRadius: '16px',
+                  border: 'none',
                   boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                  padding: '12px'
+                  padding: '12px',
                 }}
                 itemStyle={{ fontWeight: 'bold', fontSize: '14px' }}
                 formatter={(value: any) => {
-                  const numericValue = typeof value === 'string' ? Number.parseFloat(value) : (value as number);
-                  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue || 0);
+                  const numericValue =
+                    typeof value === 'string' ? Number.parseFloat(value) : (value as number);
+                  return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(numericValue || 0);
                 }}
               />
             </PieChart>
           </ResponsiveContainer>
-          
+
           {/* Valor Central */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Total Gasto</span>
-            <span className="text-gray-900 dark:text-white text-2xl font-black tracking-tight">{formattedTotal}</span>
+            <span className="text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">
+              Total Gasto
+            </span>
+            <span className="text-gray-900 dark:text-white text-2xl font-black tracking-tight">
+              {formattedTotal}
+            </span>
           </div>
         </div>
 
         {/* Legenda Customizada Premium */}
         <div className="w-full sm:w-48 flex flex-col gap-2 mt-4 sm:mt-0 sm:pl-4 max-h-[160px] overflow-y-auto no-scrollbar">
           {data.map((item) => (
-            <div key={item.name} className="flex items-center justify-between group/item cursor-default">
+            <div
+              key={item.name}
+              className="flex items-center justify-between group/item cursor-default"
+            >
               <div className="flex items-center gap-2">
-                <div 
+                <div
                   className="w-3 h-3 rounded-full shadow-sm"
                   style={{ backgroundColor: item.color }}
                 />

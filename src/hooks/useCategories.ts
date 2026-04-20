@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 
 export interface Category {
@@ -16,8 +16,13 @@ export function useCategories() {
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await api.get<Category[]>('/categories');
-      setCategories(response.data);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
     } catch (err) {
       console.error(err);
       toast.error('Erro ao carregar categorias');

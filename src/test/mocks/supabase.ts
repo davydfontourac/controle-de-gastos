@@ -11,15 +11,15 @@ export const mockSupabase = {
     signInWithOAuth: vi.fn(),
     signOut: vi.fn(),
     updateUser: vi.fn(),
-    resetPasswordForEmail: vi.fn()
+    resetPasswordForEmail: vi.fn(),
   },
   from: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
-    maybeSingle: vi.fn()
-  }))
+    maybeSingle: vi.fn(),
+  })),
 };
 
 vi.mock('@/services/supabase', () => ({
-  supabase: mockSupabase
+  supabase: mockSupabase,
 }));

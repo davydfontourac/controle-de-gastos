@@ -15,13 +15,18 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Nenhum token Bearer fornecido no cabeçalho Authorization.' });
+      return res
+        .status(401)
+        .json({ error: 'Nenhum token Bearer fornecido no cabeçalho Authorization.' });
     }
 
     const token = authHeader.split(' ')[1];
 
     // Verify if JWT is authentic with Supabase backend secret
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    const {
+      data: { user },
+      error,
+    } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
       return res.status(401).json({ error: 'Token inválido ou expirado.' });

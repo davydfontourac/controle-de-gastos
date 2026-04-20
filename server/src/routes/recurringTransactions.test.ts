@@ -8,16 +8,29 @@ vi.mock('../middlewares/authMiddleware', () => ({
   authMiddleware: (req: any, res: any, next: any) => {
     req.user = { id: 'user-123' };
     next();
-  }
+  },
 }));
 
 // Robust Mock for Supabase
 vi.mock('../lib/supabase', () => {
   const mockChain: any = {};
-  
-  const methods = ['from', 'select', 'eq', 'insert', 'single', 'match', 'delete', 'order', 'ilike', 'gte', 'lte', 'update'];
-  
-  methods.forEach(method => {
+
+  const methods = [
+    'from',
+    'select',
+    'eq',
+    'insert',
+    'single',
+    'match',
+    'delete',
+    'order',
+    'ilike',
+    'gte',
+    'lte',
+    'update',
+  ];
+
+  methods.forEach((method) => {
     mockChain[method] = vi.fn().mockReturnValue(mockChain);
   });
 
@@ -30,11 +43,11 @@ describe('Recurring Transactions Logic', () => {
       frequency: 'monthly',
       installments: 3,
       date: '2026-01-01T12:00:00.000Z',
-      description: 'Teste'
+      description: 'Teste',
     };
-    
+
     const results = transactionController._generateRecurringTransactions(body, 'u1');
-    
+
     expect(results).toHaveLength(3);
     expect(results[0].date).toBe('2026-01-01T12:00:00.000Z');
     expect(new Date(results[1].date).getUTCMonth()).toBe(1); // Feb
@@ -47,8 +60,20 @@ describe('Recurring Transactions Integration', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const methods = ['from', 'select', 'eq', 'insert', 'match', 'delete', 'order', 'ilike', 'gte', 'lte', 'update'];
-    methods.forEach(method => mockAdmin[method].mockReturnValue(mockAdmin));
+    const methods = [
+      'from',
+      'select',
+      'eq',
+      'insert',
+      'match',
+      'delete',
+      'order',
+      'ilike',
+      'gte',
+      'lte',
+      'update',
+    ];
+    methods.forEach((method) => mockAdmin[method].mockReturnValue(mockAdmin));
   });
 
   it('deve gerar 3 parcelas mensais corretamente', async () => {
@@ -59,7 +84,7 @@ describe('Recurring Transactions Integration', () => {
       type: 'expense',
       is_recurrent: true,
       frequency: 'monthly',
-      installments: 3
+      installments: 3,
     };
 
     mockAdmin.single
@@ -69,10 +94,10 @@ describe('Recurring Transactions Integration', () => {
     const response = await request(app).post('/api/transactions').send(payload);
 
     expect(response.status).toBe(201);
-    
+
     const insertCalls = mockAdmin.insert.mock.calls;
     expect(insertCalls[0][0][0].description).toBe('Aluguel');
-    
+
     const otherInserts = insertCalls[1][0];
     expect(otherInserts).toHaveLength(2);
     expect(new Date(otherInserts[0].date).getUTCMonth()).toBe(1); // Feb
@@ -87,11 +112,11 @@ describe('Recurring Transactions Integration', () => {
       type: 'expense',
       is_recurrent: true,
       frequency: 'weekly',
-      installments: 2
+      installments: 2,
     };
 
     mockAdmin.single.mockResolvedValue({ data: { id: 'w1' }, error: null });
-    
+
     await request(app).post('/api/transactions').send(payload);
 
     const otherInserts = mockAdmin.insert.mock.calls[1][0];
@@ -109,11 +134,11 @@ describe('Recurring Transactions Integration', () => {
       type: 'expense',
       is_recurrent: true,
       frequency: 'yearly',
-      installments: 2
+      installments: 2,
     };
 
     mockAdmin.single.mockResolvedValue({ data: { id: 'y1' }, error: null });
-    
+
     await request(app).post('/api/transactions').send(payload);
 
     const otherInserts = mockAdmin.insert.mock.calls[1][0];
@@ -125,16 +150,18 @@ describe('Recurring Transactions Integration', () => {
       description: 'Unico',
       amount: 100,
       date: '2026-01-01T12:00:00.000Z',
-      type: 'expense'
+      type: 'expense',
     };
 
     mockAdmin.single.mockResolvedValue({ data: { id: 'single-id', ...payload }, error: null });
-    
+
     const response = await request(app).post('/api/transactions').send(payload);
 
     expect(response.status).toBe(201);
     expect(mockAdmin.insert).toHaveBeenCalledTimes(1);
-    expect(mockAdmin.insert).toHaveBeenCalledWith([{ ...payload, user_id: 'user-123', is_recurrent: false }]);
+    expect(mockAdmin.insert).toHaveBeenCalledWith([
+      { ...payload, user_id: 'user-123', is_recurrent: false },
+    ]);
   });
 
   it('deve lidar com erro de banco de dados no passo secundário', async () => {
@@ -145,14 +172,14 @@ describe('Recurring Transactions Integration', () => {
       type: 'expense',
       is_recurrent: true,
       frequency: 'monthly',
-      installments: 2
+      installments: 2,
     };
 
     mockAdmin.single.mockResolvedValueOnce({ data: { id: 'ok-id' }, error: null });
-    
+
     mockAdmin.insert
       .mockReturnValueOnce(mockAdmin) // first ok
-      .mockResolvedValueOnce({ error: { message: 'Database Failure' } }); 
+      .mockResolvedValueOnce({ error: { message: 'Database Failure' } });
 
     const response = await request(app).post('/api/transactions').send(payload);
 
@@ -168,13 +195,13 @@ describe('Recurring Transactions Integration', () => {
       type: 'expense',
       is_recurrent: true,
       frequency: 'monthly',
-      installments: 2
+      installments: 2,
     };
 
     mockAdmin.single
       .mockResolvedValueOnce({ data: { id: 'ok-id' }, error: null }) // initial insert
       .mockResolvedValueOnce({ data: null, error: { message: 'Final Fetch Error' } }); // final select
-    
+
     mockAdmin.insert.mockReturnValue(mockAdmin);
 
     const response = await request(app).post('/api/transactions').send(payload);
@@ -199,7 +226,7 @@ describe('Recurring Transactions Integration', () => {
   it('deve retornar 400 se a validação Zod falhar no update', async () => {
     const invalidUpdate = { date: 'data-invalida' };
     mockAdmin.single.mockResolvedValue({ data: { id: '1' }, error: null });
-    
+
     const response = await request(app).put('/api/transactions/1').send(invalidUpdate);
     expect(response.status).toBe(400);
   });

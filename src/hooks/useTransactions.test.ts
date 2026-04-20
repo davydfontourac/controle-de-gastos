@@ -1,19 +1,30 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTransactions } from './useTransactions';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 
-vi.mock('@/services/api', () => ({
-  api: {
-    get: vi.fn(),
-  }
+const mockQuery = {
+  select: vi.fn().mockReturnThis(),
+  order: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  ilike: vi.fn().mockReturnThis(),
+  gte: vi.fn().mockReturnThis(),
+  lte: vi.fn().mockReturnThis(),
+  then: vi.fn(),
+};
+
+vi.mock('@/services/supabase', () => ({
+  supabase: {
+    from: vi.fn(() => mockQuery),
+    rpc: vi.fn(),
+  },
 }));
 
 vi.mock('sonner', () => ({
   toast: {
     error: vi.fn(),
-  }
+  },
 }));
 
 describe('useTransactions', () => {
@@ -34,22 +45,28 @@ describe('useTransactions', () => {
     const mockSummary = { income: 100, expense: 0, totalBalance: 100, yearBalance: 100 };
     const mockHistory = [{ month: 'Jan', value: 100 }];
 
-    // Simulates Promise.all calls
-    (api.get as any)
-      .mockResolvedValueOnce({ data: mockTransactions }) // transRes
-      .mockResolvedValueOnce({ data: mockSummary })      // sumRes
-      .mockResolvedValueOnce({ data: mockHistory });     // historyRes
+    // Resolves the promise from the mockQuery object for the 'transactions' fetch
+    mockQuery.then.mockImplementationOnce((callback) => callback({ data: mockTransactions, error: null }));
+
+    // Simulates rpc calls
+    (supabase.rpc as any)
+      .mockResolvedValueOnce({ data: mockSummary, error: null }) // sumRes
+      .mockResolvedValueOnce({ data: mockHistory, error: null }); // historyRes
 
     const { result } = renderHook(() => useTransactions());
 
     await act(async () => {
-      await result.current.fetchTransactions({ type: 'income', month: '10', year: '2023', search: 'teste' });
+      await result.current.fetchTransactions({
+        type: 'income',
+        month: '10',
+        year: '2023',
+        search: 'teste',
+      });
     });
 
-    // Validate assembled query parameters
-    expect(api.get).toHaveBeenNthCalledWith(1, '/transactions?type=income&month=10&year=2023&search=teste');
-    expect(api.get).toHaveBeenNthCalledWith(2, '/transactions/summary?month=10&year=2023');
-    expect(api.get).toHaveBeenNthCalledWith(3, '/transactions/history');
+    expect(supabase.from).toHaveBeenCalledWith('transactions');
+    expect(supabase.rpc).toHaveBeenCalledWith('get_dashboard_summary', { p_month: 10, p_year: 2023 });
+    expect(supabase.rpc).toHaveBeenCalledWith('get_monthly_history', { p_year: 2023 });
 
     expect(result.current.transactions).toEqual(mockTransactions);
     expect(result.current.summary.balance).toBe(100);
@@ -57,13 +74,18 @@ describe('useTransactions', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('lida com falhas da api no meio do paralelismo', async () => {
-    (api.get as any).mockRejectedValueOnce(new Error('Network error')); // Forces failure on Promise.all
+  it('lida com falhas no meio do paralelismo', async () => {
+    mockQuery.then.mockImplementationOnce((callback) => callback({ data: null, error: new Error('Network error') }));
 
     const { result } = renderHook(() => useTransactions());
 
     await act(async () => {
-      await result.current.fetchTransactions({ type: 'all', month: '10', year: '2023', search: '' });
+      await result.current.fetchTransactions({
+        type: 'all',
+        month: '10',
+        year: '2023',
+        search: '',
+      });
     });
 
     expect(toast.error).toHaveBeenCalledWith('Erro ao carregar transações');

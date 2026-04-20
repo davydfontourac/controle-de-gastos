@@ -1,7 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, Tag, Trash2, Edit2, Repeat } from 'lucide-react';
 import type { Transaction } from '@/types';
 import { useState } from 'react';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 import ConfirmModal from './ConfirmModal';
 
@@ -24,18 +24,20 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
 
   // Formats D/M/Y using standard browser locale
   const formattedDate = new Date(transaction.date).toLocaleDateString('pt-BR', {
-    timeZone: 'UTC'
+    timeZone: 'UTC',
   });
 
   async function handleDelete() {
     try {
       setIsDeleting(true);
-      await api.delete(`/transactions/${transaction.id}`);
+      const { error } = await supabase.from('transactions').delete().eq('id', transaction.id);
+
+      if (error) throw error;
+
       toast.success('Transação excluída com sucesso!');
       onDelete();
     } catch (error) {
-      const axiosError = error as { response?: { data?: { error?: string } } };
-      toast.error(axiosError.response?.data?.error ?? 'Erro ao excluir transação.');
+      toast.error('Erro ao excluir transação.');
     } finally {
       setIsDeleting(false);
       setIsModalOpen(false);
@@ -45,23 +47,27 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
   return (
     <>
       <div className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 mb-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all gap-4 sm:gap-0">
-        
         <div className="flex items-center gap-4">
           {/* Ícone da Categoria */}
-          <div 
+          <div
             className="w-12 h-12 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105"
-            style={{ backgroundColor: transaction.categories?.color ? `${transaction.categories.color}20` : '#E5E7EB' }}
+            style={{
+              backgroundColor: transaction.categories?.color
+                ? `${transaction.categories.color}20`
+                : '#E5E7EB',
+            }}
           >
-            <Tag className="w-5 h-5" style={{ color: transaction.categories?.color || '#6B7280' }} />
+            <Tag
+              className="w-5 h-5"
+              style={{ color: transaction.categories?.color || '#6B7280' }}
+            />
           </div>
 
           {/* Detalhes de Texto */}
           <div>
             <h3 className="font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               {transaction.description}
-              {transaction.is_recurrent && (
-                <Repeat className="w-3.5 h-3.5 text-blue-500" />
-              )}
+              {transaction.is_recurrent && <Repeat className="w-3.5 h-3.5 text-blue-500" />}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {transaction.categories?.name || 'Sem categoria'} • {formattedDate}
@@ -71,8 +77,14 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
 
         <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-gray-100 dark:border-gray-700 pt-3 sm:pt-0">
           {/* Valor */}
-          <div className={`flex items-center gap-2 font-bold text-lg sm:text-base ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}>
-            {isIncome ? <ArrowUpRight className="w-5 h-5 sm:w-4 sm:h-4" /> : <ArrowDownRight className="w-5 h-5 sm:w-4 sm:h-4" />}
+          <div
+            className={`flex items-center gap-2 font-bold text-lg sm:text-base ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}
+          >
+            {isIncome ? (
+              <ArrowUpRight className="w-5 h-5 sm:w-4 sm:h-4" />
+            ) : (
+              <ArrowDownRight className="w-5 h-5 sm:w-4 sm:h-4" />
+            )}
             {isIncome ? '+' : '-'} {formattedAmount.replace('R$', '').trim()}
           </div>
 

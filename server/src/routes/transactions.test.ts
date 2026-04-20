@@ -8,13 +8,13 @@ vi.mock('../middlewares/authMiddleware', () => ({
     // Injects fake user bypassing JWT validation to focus on routes
     req.user = { id: 'user-123' };
     next();
-  }
+  },
 }));
 
 vi.mock('../lib/supabase', () => ({
   supabaseAdmin: {
     from: vi.fn(),
-  }
+  },
 }));
 
 describe('Transactions API', () => {
@@ -44,7 +44,7 @@ describe('Transactions API', () => {
       mockChain.order.mockResolvedValue({ data: mockData, error: null });
 
       const response = await request(app).get('/api/transactions');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockData);
       expect(supabaseAdmin.from).toHaveBeenCalledWith('transactions');
@@ -55,7 +55,7 @@ describe('Transactions API', () => {
       mockChain.order.mockResolvedValue({ data: null, error: { message: 'DB Error' } });
 
       const response = await request(app).get('/api/transactions');
-      
+
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: 'DB Error' });
     });
@@ -63,19 +63,19 @@ describe('Transactions API', () => {
 
   describe('POST /api/transactions', () => {
     it('cria transação com payload válido (validação Zod passa)', async () => {
-      const payload = { 
-        description: 'Venda', 
-        amount: 500, 
-        date: new Date().toISOString(), 
-        category_id: '35ec8fb8-2287-4aa7-94d5-fb40bb5fa324', 
-        type: 'income' 
+      const payload = {
+        description: 'Venda',
+        amount: 500,
+        date: new Date().toISOString(),
+        category_id: '35ec8fb8-2287-4aa7-94d5-fb40bb5fa324',
+        type: 'income',
       };
       const createdRecord = { id: '2', ...payload, user_id: 'user-123' };
-      
+
       mockChain.single.mockResolvedValue({ data: createdRecord, error: null });
 
       const response = await request(app).post('/api/transactions').send(payload);
-      
+
       expect(response.status).toBe(201);
       expect(response.body).toEqual(createdRecord);
       expect(mockChain.insert).toHaveBeenCalled();
@@ -83,9 +83,9 @@ describe('Transactions API', () => {
 
     it('retorna 400 Bad Request se a validação Zod falhar', async () => {
       const invalidPayload = { amount: 500 }; // missing required keys like type, req, etc.
-      
+
       const response = await request(app).post('/api/transactions').send(invalidPayload);
-      
+
       expect(response.status).toBe(400);
       expect(mockChain.insert).not.toHaveBeenCalled();
     });
@@ -107,9 +107,9 @@ describe('Transactions API', () => {
 
     it('retorna 404 caso transação não exista ou seja de outro usuário', async () => {
       mockChain.single.mockResolvedValue({ data: null, error: null }); // Single returns null if not found
-      
+
       const response = await request(app).put('/api/transactions/1').send({ description: 'Ghost' });
-      
+
       expect(response.status).toBe(404);
       expect(response.body.error).toMatch(/não encontrada/);
     });

@@ -259,3 +259,11 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 COMMENT ON FUNCTION public.get_dashboard_summary(int, int) IS 'Retorna o resumo financeiro de um mês/ano específico e o saldo acumulado.';
 COMMENT ON FUNCTION public.get_monthly_history(int) IS 'Retorna o histórico de receitas e despesas de todos os meses de um ano específico.';
+
+-- 3. RPC para Deletar Conta
+CREATE OR REPLACE FUNCTION public.delete_user()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

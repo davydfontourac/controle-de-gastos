@@ -15,10 +15,10 @@ vi.mock('@/services/supabase', () => {
       from: vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        maybeSingle: vi.fn()
-      }))
-    }
-  }
+        maybeSingle: vi.fn(),
+      })),
+    },
+  };
 });
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
@@ -28,7 +28,7 @@ import { supabase } from '@/services/supabase';
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation(query => ({
+    value: vi.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -49,7 +49,7 @@ describe('AuthContext', () => {
   it('inicia com loading e sem usuário se getSession falhar ou retornar nulo', async () => {
     (supabase.auth.getSession as any).mockResolvedValue({
       data: { session: null },
-      error: null
+      error: null,
     });
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -77,19 +77,19 @@ describe('AuthContext', () => {
 
     (supabase.auth.getSession as any).mockResolvedValue({
       data: { session: mockSession },
-      error: null
+      error: null,
     });
 
     const mockProfile = { full_name: 'Usuário de Teste', avatar_url: null };
-    
+
     // Sets up response for .from('profiles').select().eq().maybeSingle()
     (supabase.from as any).mockReturnValue({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockResolvedValue({
         data: mockProfile,
-        error: null
-      })
+        error: null,
+      }),
     } as any);
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -111,7 +111,7 @@ describe('AuthContext', () => {
     // Same logic for null initialization
     (supabase.auth.getSession as any).mockResolvedValue({
       data: { session: null },
-      error: null
+      error: null,
     });
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (

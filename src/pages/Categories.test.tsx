@@ -18,8 +18,14 @@ vi.mock('@/context/AuthContext', () => ({
   useAuth: () => ({ profile: null }),
 }));
 
-vi.mock('@/services/api', () => ({
-  api: { delete: vi.fn().mockResolvedValue({}) },
+vi.mock('@/services/supabase', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      then: vi.fn().mockImplementation((cb) => cb({ error: null })),
+    })),
+  },
 }));
 
 vi.mock('sonner', () => ({
@@ -27,7 +33,11 @@ vi.mock('sonner', () => ({
 }));
 
 vi.mock('react-router-dom', () => ({
-  Link: ({ children, to, ...props }: any) => <a href={to} {...props}>{children}</a>,
+  Link: ({ children, to, ...props }: any) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock('@/components/ThemeToggle', () => ({
@@ -53,8 +63,7 @@ vi.mock('@/components/ConfirmModal', () => ({
 }));
 
 vi.mock('@/components/CategoryForm', () => ({
-  default: ({ isOpen }: any) =>
-    isOpen ? <div data-testid="category-form" /> : null,
+  default: ({ isOpen }: any) => (isOpen ? <div data-testid="category-form" /> : null),
 }));
 
 vi.mock('framer-motion', () => ({

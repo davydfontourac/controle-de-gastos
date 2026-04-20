@@ -13,55 +13,55 @@ export const categoryController = {
       const userId = req.user.id;
 
       const { data: existingCategories, error } = await supabaseAdmin
-      .from('categories')
-      .select('*')
-      .eq('user_id', userId)
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-
-    const defaultCategories = [
-      // Income
-      { name: 'Salário', icon: 'banknote', color: '#10B981', user_id: userId },
-      { name: 'Investimentos', icon: 'trending-up', color: '#059669', user_id: userId },
-      
-      // Basics
-      { name: 'Moradia', icon: 'home', color: '#3B82F6', user_id: userId },
-      { name: 'Conta de Luz', icon: 'zap', color: '#F59E0B', user_id: userId },
-      { name: 'Conta de Água', icon: 'droplets', color: '#06B6D4', user_id: userId },
-      { name: 'Internet', icon: 'wifi', color: '#6366F1', user_id: userId },
-      { name: 'Supermercado', icon: 'shopping-cart', color: '#8B5CF6', user_id: userId },
-      
-      // Lifestyle
-      { name: 'Alimentação', icon: 'utensils', color: '#EF4444', user_id: userId },
-      { name: 'Transporte', icon: 'car', color: '#6B7280', user_id: userId },
-      { name: 'Lazer', icon: 'clapperboard', color: '#F472B6', user_id: userId },
-      { name: 'Saúde', icon: 'heart', color: '#10B981', user_id: userId },
-      { name: 'Educação', icon: 'graduation-cap', color: '#4F46E5', user_id: userId },
-      { name: 'Assinaturas', icon: 'tv', color: '#EC4899', user_id: userId },
-      { name: 'Vestuário', icon: 'shirt', color: '#D946EF', user_id: userId },
-    ];
-
-    // Only inserts default categories if the user has NO registered categories
-    if (existingCategories?.length === 0) {
-      const { error: seedError } = await supabaseAdmin
-        .from('categories')
-        .insert(defaultCategories);
-
-      if (seedError) throw seedError;
-
-      // Fetch again after insertion to return the initial list
-      const { data: newData, error: fetchError } = await supabaseAdmin
         .from('categories')
         .select('*')
         .eq('user_id', userId)
         .order('name', { ascending: true });
 
-      if (fetchError) throw fetchError;
-      return res.json(newData || []);
-    }
+      if (error) throw error;
 
-    res.json(existingCategories || []);
+      const defaultCategories = [
+        // Income
+        { name: 'Salário', icon: 'banknote', color: '#10B981', user_id: userId },
+        { name: 'Investimentos', icon: 'trending-up', color: '#059669', user_id: userId },
+
+        // Basics
+        { name: 'Moradia', icon: 'home', color: '#3B82F6', user_id: userId },
+        { name: 'Conta de Luz', icon: 'zap', color: '#F59E0B', user_id: userId },
+        { name: 'Conta de Água', icon: 'droplets', color: '#06B6D4', user_id: userId },
+        { name: 'Internet', icon: 'wifi', color: '#6366F1', user_id: userId },
+        { name: 'Supermercado', icon: 'shopping-cart', color: '#8B5CF6', user_id: userId },
+
+        // Lifestyle
+        { name: 'Alimentação', icon: 'utensils', color: '#EF4444', user_id: userId },
+        { name: 'Transporte', icon: 'car', color: '#6B7280', user_id: userId },
+        { name: 'Lazer', icon: 'clapperboard', color: '#F472B6', user_id: userId },
+        { name: 'Saúde', icon: 'heart', color: '#10B981', user_id: userId },
+        { name: 'Educação', icon: 'graduation-cap', color: '#4F46E5', user_id: userId },
+        { name: 'Assinaturas', icon: 'tv', color: '#EC4899', user_id: userId },
+        { name: 'Vestuário', icon: 'shirt', color: '#D946EF', user_id: userId },
+      ];
+
+      // Only inserts default categories if the user has NO registered categories
+      if (existingCategories?.length === 0) {
+        const { error: seedError } = await supabaseAdmin
+          .from('categories')
+          .insert(defaultCategories);
+
+        if (seedError) throw seedError;
+
+        // Fetch again after insertion to return the initial list
+        const { data: newData, error: fetchError } = await supabaseAdmin
+          .from('categories')
+          .select('*')
+          .eq('user_id', userId)
+          .order('name', { ascending: true });
+
+        if (fetchError) throw fetchError;
+        return res.json(newData || []);
+      }
+
+      res.json(existingCategories || []);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -71,7 +71,7 @@ export const categoryController = {
   async create(req: AuthRequest, res: Response) {
     try {
       const userId = req.user.id;
-      
+
       // ZOD Validation
       const parsedBody = categorySchema.parse(req.body);
 
@@ -103,7 +103,8 @@ export const categoryController = {
         .match({ id, user_id: userId });
 
       if (error) throw error;
-      if (count === 0) return res.status(404).json({ error: 'Categoria não encontrada ou permissão negada.' });
+      if (count === 0)
+        return res.status(404).json({ error: 'Categoria não encontrada ou permissão negada.' });
 
       res.status(204).send();
     } catch (error: any) {
@@ -135,5 +136,5 @@ export const categoryController = {
       }
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 };

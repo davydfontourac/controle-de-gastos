@@ -56,7 +56,7 @@ describe('TransactionList', () => {
         filters={baseFilters}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
@@ -69,7 +69,7 @@ describe('TransactionList', () => {
         filters={baseFilters}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText(/Carregando transações/i)).toBeInTheDocument();
   });
@@ -82,7 +82,7 @@ describe('TransactionList', () => {
         filters={baseFilters}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText(/Nenhuma transação ainda/i)).toBeInTheDocument();
   });
@@ -95,7 +95,7 @@ describe('TransactionList', () => {
         filters={{ ...baseFilters, search: 'xyz' }}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText(/Nenhum resultado encontrado/i)).toBeInTheDocument();
   });
@@ -108,7 +108,7 @@ describe('TransactionList', () => {
         filters={baseFilters}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText('Últimas Transações')).toBeInTheDocument();
     expect(screen.getAllByTestId('transaction-item')).toHaveLength(2);
@@ -122,7 +122,7 @@ describe('TransactionList', () => {
         filters={{ ...baseFilters, type: 'expense' }}
         onDelete={vi.fn()}
         onEdit={vi.fn()}
-      />
+      />,
     );
     // When type != 'all', SearchX icon should be shown
     expect(screen.getByText(/Nenhum resultado encontrado/i)).toBeInTheDocument();

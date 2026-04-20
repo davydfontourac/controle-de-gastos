@@ -1,19 +1,25 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCategories } from './useCategories';
-import { api } from '@/services/api';
+import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 
-vi.mock('@/services/api', () => ({
-  api: {
-    get: vi.fn(),
-  }
+const mockQuery = {
+  select: vi.fn().mockReturnThis(),
+  order: vi.fn().mockReturnThis(),
+  then: vi.fn(),
+};
+
+vi.mock('@/services/supabase', () => ({
+  supabase: {
+    from: vi.fn(() => mockQuery),
+  },
 }));
 
 vi.mock('sonner', () => ({
   toast: {
     error: vi.fn(),
-  }
+  },
 }));
 
 describe('useCategories', () => {
@@ -28,11 +34,9 @@ describe('useCategories', () => {
   });
 
   it('carrega categorias com sucesso', async () => {
-    const mockCategories = [
-      { id: '1', name: 'Alimentação', icon: 'food', color: '#ff0000' }
-    ];
+    const mockCategories = [{ id: '1', name: 'Alimentação', icon: 'food', color: '#ff0000' }];
 
-    (api.get as any).mockResolvedValueOnce({ data: mockCategories });
+    mockQuery.then.mockImplementationOnce((callback) => callback({ data: mockCategories, error: null }));
 
     const { result } = renderHook(() => useCategories());
 
@@ -40,13 +44,13 @@ describe('useCategories', () => {
       await result.current.fetchCategories();
     });
 
-    expect(api.get).toHaveBeenCalledWith('/categories');
+    expect(supabase.from).toHaveBeenCalledWith('categories');
     expect(result.current.isLoading).toBe(false);
     expect(result.current.categories).toEqual(mockCategories);
   });
 
-  it('lida com erro na chamada da api utilizando toast', async () => {
-    (api.get as any).mockRejectedValueOnce(new Error('API Error'));
+  it('lida com erro na chamada do supabase utilizando toast', async () => {
+    mockQuery.then.mockImplementationOnce((callback) => callback({ data: null, error: new Error('API Error') }));
 
     const { result } = renderHook(() => useCategories());
 
