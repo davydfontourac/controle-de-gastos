@@ -139,11 +139,23 @@ export default function TransactionForm({
         if (!user) throw new Error('Usuário não autenticado');
         const finalPayload = { ...payload, user_id: user.id };
 
-        // Se for recorrente, precisaria da lógica RPC. Por enquanto, inserimos uma
-        // O ideal é a lógica RPC handle_recurring, mas para simplificar:
-        const { error } = await supabase.from('transactions').insert([finalPayload]);
-        if (error) throw error;
-        toast.success('Transação salva!');
+        if (data.is_recurrent && Number(data.installments) > 1) {
+          const { error } = await supabase.rpc('handle_recurring_transactions', {
+            p_description: data.description,
+            p_amount: Number(data.amount),
+            p_date: data.date,
+            p_type: data.type,
+            p_category_id: data.category_id || null,
+            p_frequency: data.frequency,
+            p_installments: Number(data.installments),
+          });
+          if (error) throw error;
+          toast.success(`${data.installments} transações geradas com sucesso!`);
+        } else {
+          const { error } = await supabase.from('transactions').insert([finalPayload]);
+          if (error) throw error;
+          toast.success('Transação salva!');
+        }
       }
 
       onSuccess();
