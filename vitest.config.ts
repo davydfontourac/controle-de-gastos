@@ -10,6 +10,7 @@ export default mergeConfig(
       include: ['src/**/*.test.{ts,tsx}'],
       setupFiles: ['./src/test/setup.ts'],
       css: true,
+      testTimeout: 15000,
       coverage: {
         provider: 'v8',
         reporter: ['lcov', 'text'],

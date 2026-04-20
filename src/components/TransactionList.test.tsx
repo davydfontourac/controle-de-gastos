@@ -11,7 +11,9 @@ vi.mock('./TransactionItem', () => ({
 
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, layout, initial, animate, exit, transition, ...props }: any) => (
+      <div {...props}>{children}</div>
+    ),
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));

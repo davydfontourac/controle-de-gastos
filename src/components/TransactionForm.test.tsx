@@ -16,6 +16,7 @@ const mockQuery = {
 vi.mock('@/services/supabase', () => ({
   supabase: {
     from: vi.fn(() => mockQuery),
+    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u-123' } }, error: null }) },
   },
 }));
@@ -129,16 +130,15 @@ describe('TransactionForm', () => {
     fireEvent.click(screen.getByText('Salvar Transação'));
 
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith('transactions');
-      expect(mockQuery.insert).toHaveBeenCalledWith([
-        expect.objectContaining({
-          description: 'Compra Recorrente',
-          amount: 150,
-          is_recurrent: true,
-          frequency: 'monthly',
-          installments: 10,
-        }),
-      ]);
+      expect(supabase.rpc).toHaveBeenCalledWith('handle_recurring_transactions', {
+        p_description: 'Compra Recorrente',
+        p_amount: 150,
+        p_date: expect.any(String),
+        p_type: 'expense',
+        p_category_id: null,
+        p_frequency: 'monthly',
+        p_installments: 10,
+      });
     });
   });
 

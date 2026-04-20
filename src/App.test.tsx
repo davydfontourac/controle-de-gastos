@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -39,7 +39,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 describe('App', () => {
-  it('renders without crashing (Smoke Test)', () => {
+  it('renders without crashing (Smoke Test)', async () => {
     // Renders the app inside a MemoryRouter for AuthRoutes and AppRoutes to work
     render(
       <MemoryRouter>
@@ -48,6 +48,12 @@ describe('App', () => {
         </AuthProvider>
       </MemoryRouter>,
     );
+
+    // Wait for initial loading to finish to avoid "act" warnings from async state updates
+    await waitFor(() => {
+      // The spinner is rendered in RouteGuards while isLoading is true
+      expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
+    });
 
     // In our unlogged main structure, <App> will take us to either Login or Loading Splash routes
     // Only check if the main elements of div or root existed without crashing.
