@@ -15,8 +15,7 @@
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript)
   ![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite)
-  ![Express](https://img.shields.io/badge/Express-5-000?style=flat-square&logo=express)
-  ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?style=flat-square&logo=supabase)
+  ![Supabase](https://img.shields.io/badge/Supabase-Full%20Stack-3ECF8E?style=flat-square&logo=supabase)
   ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
   [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_controle-de-gastos&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_controle-de-gastos)
 
@@ -27,50 +26,31 @@
 
 ## ✨ Funcionalidades
 
-- **🔐 Autenticação completa** — Login, registro, recuperação de senha e OAuth via Supabase Auth
-- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa), data e busca
-- **📊 Dashboard** — Resumo mensal com saldo total, receitas, despesas e histórico anual
-- **🗂️ Categorias** — Categorias nativas + criação de categorias personalizadas com cor e emoji
-- **👤 Perfil** — Atualização de nome, avatar e senha do usuário
-- **🌑 Dark Mode** — Alternância entre tema claro e escuro
-- **📱 Responsivo** — Layout mobile-first com navegação inferior em telas pequenas
-- **🎭 Animações** — Transições de página e microanimações com Framer Motion
+- **🔐 Autenticação completa** — Login, registro, recuperação de senha e OAuth via Supabase Auth.
+- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa), data e busca.
+- **📊 Dashboard** — Resumo mensal com saldo total, receitas, despesas e histórico anual.
+- **🗂️ Categorias** — Categorias nativas + criação de categorias personalizadas com cor e emoji.
+- **👤 Perfil** — Atualização de nome, avatar e senha do usuário.
+- **🌑 Dark Mode** — Alternância entre tema claro e escuro.
+- **📱 Responsivo** — Layout mobile-first com navegação inferior em telas pequenas.
+- **🎭 Animações** — Transições de página e microanimações com Framer Motion.
 
 ---
 
 ## 🛠️ Tecnologias
 
-### Frontend
 | Tecnologia | Uso |
 |---|---|
-| React 19 + TypeScript | Interface e tipagem |
-| Vite | Build tool e dev server |
-| Tailwind CSS 4 | Estilização |
-| Framer Motion | Animações e transições |
-| Recharts | Gráficos de dashboard |
-| React Hook Form + Zod | Formulários com validação |
-| React Router DOM | Roteamento |
-| Sonner | Notificações toast |
-| Supabase JS | Auth e banco de dados |
-
-### Backend
-| Tecnologia | Uso |
-|---|---|
-| Node.js + Express 5 | API REST |
-| TypeScript | Tipagem |
-| Supabase Admin | Acesso privilegiado ao banco |
-| Zod | Validação de payload das rotas |
-| Helmet + CORS | Segurança |
-
-### Infraestrutura
-| Serviço | Uso |
-|---|---|
-| Supabase | Auth + PostgreSQL |
-| Vercel | Deploy e hospedagem do frontend |
-| Render | Deploy da API backend (via Blueprints) |
-| GitHub Actions | CI/CD com testes e análise de código |
-| SonarCloud | Análise estática e cobertura de código |
-| Vitest + Supertest | Testes unitários e de integração |
+| **React 19** | Interface e lógica de UI |
+| **TypeScript** | Tipagem estática |
+| **Vite** | Ferramenta de build e dev server ultra rápido |
+| **Supabase** | Backend-as-a-Service (Autenticação, Banco de Dados, RPCs) |
+| **Tailwind CSS 4** | Estilização utilitária |
+| **Framer Motion** | Animações fluidas |
+| **Recharts** | Gráficos interativos |
+| **React Hook Form** | Gestão de formulários |
+| **Zod** | Validação de esquemas |
+| **Vitest** | Testes unitários e de integração |
 
 ---
 
@@ -86,48 +66,28 @@ git clone https://github.com/davydfontourac/expense-tracker.git
 cd expense-tracker
 ```
 
-### 2. Configure o Frontend
+### 2. Instale as dependências
 ```bash
-# Instale as dependências
 npm install
-
-# Crie o arquivo de variáveis de ambiente
-cp .env.example .env.local
 ```
 
-Preencha o `.env.local`:
-```env
-VITE_SUPABASE_URL=https://SEU_PROJETO.supabase.co
-VITE_SUPABASE_ANON_KEY=sua_anon_key_aqui
-VITE_API_URL=http://localhost:3000
-```
-
+### 3. Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto:
 ```bash
-# Inicie o frontend
-npm run dev
-```
-
-### 3. Configure o Backend
-```bash
-cd server
-
-# Instale as dependências
-npm install
-
-# Crie o arquivo de variáveis de ambiente
 cp .env.example .env
 ```
 
-Preencha o `server/.env`:
+Preencha com suas credenciais do Supabase:
 ```env
-SUPABASE_URL=https://SEU_PROJETO.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_aqui
-PORT=3000
-NODE_ENV=development
+VITE_SUPABASE_URL=https://SEU_PROJETO.supabase.co
+VITE_SUPABASE_ANON_KEY=sua_anon_key_aqui
 ```
 
+### 4. Configuração do Banco de Dados
+O projeto utiliza funções PostgreSQL (RPCs) para cálculos otimizados no dashboard. Execute os scripts SQL encontrados em `supabase/migrations` diretamente no **SQL Editor do Supabase**.
+
+### 5. Inicie o projeto
 ```bash
-# Inicie o backend
 npm run dev
 ```
 
@@ -136,17 +96,14 @@ npm run dev
 ## 🧪 Testes
 
 ```bash
-# Frontend — testes unitários
+# Rodar testes unitários
 npm run test:run
 
-# Frontend — com interface visual
+# Abrir interface visual de testes
 npm run test:ui
 
-# Frontend — com cobertura
+# Gerar relatório de cobertura
 npm run test:coverage
-
-# Backend — testes de integração
-cd server && npm run test
 ```
 
 ---
@@ -156,19 +113,15 @@ cd server && npm run test
 ```
 expense-tracker/
 ├── src/
-│   ├── components/     # Componentes reutilizáveis
-│   ├── context/        # AuthContext, ThemeContext
-│   ├── hooks/          # useTransactions, useCategories
-│   ├── pages/          # Dashboard, Login, Registro, Perfil...
-│   ├── services/       # api.ts, supabase.ts
-│   └── types/          # Tipos globais TypeScript
-├── server/
-│   └── src/
-│       ├── controllers/ # lógica das rotas
-│       ├── middlewares/ # authMiddleware
-│       ├── routes/      # endpoints da API
-│       └── utils/       # validators (Zod)
-├── .github/workflows/  # CI/CD Pipeline
+│   ├── components/     # Componentes de UI reutilizáveis
+│   ├── context/        # Estado global (Auth, Tema)
+│   ├── hooks/          # Lógica de negócio (useTransactions, useCategories)
+│   ├── pages/          # Visualizações principais da aplicação
+│   ├── services/       # Inicialização do cliente Supabase
+│   └── types/          # Interfaces TypeScript
+├── supabase/
+│   └── migrations/     # Scripts SQL para funções e triggers do banco
+├── .github/workflows/  # Pipeline de CI/CD
 └── public/             # Assets estáticos
 ```
 
@@ -179,29 +132,11 @@ expense-tracker/
 ```
 Push / PR → develop ou main
      │
-     ├── 🧪 Testes Frontend  (Vitest + Coverage)
-     ├── 🧪 Testes Backend   (Vitest + Supertest)
-     │           │
-     │     (ambos passam)
-     │
-     ├── 📊 SonarCloud Analysis
+     ├── 🧪 Testes Unitários (Vitest + Coverage)
+     ├── 📊 Análise SonarCloud
      ├── 🏗️  Build Vite
-     └── 🚀 Deploy Vercel
-              │
-       develop → preview
-       main    → produção
+     └── 🚀 Deploy Vercel (Produção/Preview)
 ```
-
----
-
-## 🛣️ Roadmap
-
-- [ ] Metas de economia por categoria
-- [ ] Exportação de relatórios em PDF/CSV
-- [ ] Transações recorrentes
-- [ ] Múltiplas carteiras/contas
-- [ ] Notificações de limite de gastos
-- [ ] App mobile (React Native)
 
 ---
 

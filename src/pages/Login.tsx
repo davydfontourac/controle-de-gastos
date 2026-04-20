@@ -95,12 +95,22 @@ export default function Login() {
             {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
           </div>
 
-            <PasswordInput
-              id="login-password"
-              {...register('password')}
-              placeholder="••••••"
-              error={errors.password?.message}
-            />
+            <div className="relative">
+              <PasswordInput
+                id="login-password"
+                {...register('password')}
+                placeholder="••••••"
+                error={errors.password?.message}
+              />
+              <div className="flex justify-end mt-1">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs text-blue-600 dark:text-blue-500 hover:underline font-medium"
+                >
+                  Esqueceu sua senha?
+                </Link>
+              </div>
+            </div>
 
           <button
             type="submit"

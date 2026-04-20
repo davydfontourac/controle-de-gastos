@@ -9,76 +9,56 @@
   <p>Personal finance management with a smart dashboard, charts, and customizable categories.</p>
 
   <div align="center">
-    <img src="./demo.gif" alt="Demo Expense Tracker" width="800"/>
+    <img src="./demo.gif" alt="Expense Tracker Demo" width="800"/>
   </div>
 
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript)
   ![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite)
-  ![Express](https://img.shields.io/badge/Express-5-000?style=flat-square&logo=express)
-  ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?style=flat-square&logo=supabase)
+  ![Supabase](https://img.shields.io/badge/Supabase-Full%20Stack-3ECF8E?style=flat-square&logo=supabase)
   ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
   [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_controle-de-gastos&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_controle-de-gastos)
 
-  [🌐 Live Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/expense-tracker/issues)
+  [🌐 View Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/expense-tracker/issues)
 </div>
 
 ---
 
 ## ✨ Features
 
-- **🔐 Full Authentication** — Login, registration, password recovery, and OAuth via Supabase Auth
-- **💳 Transactions** — Full CRUD with categories, type (income/expense), date, and search
-- **📊 Dashboard** — Monthly summary with total balance, income, expenses, and yearly history
-- **🗂️ Categories** — Built-in categories + creation of custom categories with color and emoji
-- **👤 Profile** — Update username, avatar, and password
-- **🌑 Dark Mode** — Toggle between light and dark themes
-- **📱 Responsive** — Mobile-first layout with bottom navigation on small screens
-- **🎭 Animations** — Page transitions and micro-animations with Framer Motion
+- **🔐 Full Authentication** — Login, registration, password recovery, and Google OAuth via Supabase Auth.
+- **💳 Transactions** — Complete CRUD with categories, type (income/expense), date, and search.
+- **📊 Dashboard** — Monthly summary with total balance, income, expenses, and annual history.
+- **🗂️ Categories** — Native categories + custom category creation with color and emoji.
+- **👤 Profile** — Update name, avatar, and user password.
+- **🌑 Dark Mode** — Toggle between light and dark themes.
+- **📱 Responsive** — Mobile-first layout with bottom navigation for small screens.
+- **🎭 Animations** — Page transitions and micro-animations with Framer Motion.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technologies
 
-### Frontend
-| Technology | Usage |
+| Technology | Purpose |
 |---|---|
-| React 19 + TypeScript | UI and type safety |
-| Vite | Build tool and dev server |
-| Tailwind CSS 4 | Styling |
-| Framer Motion | Animations and transitions |
-| Recharts | Dashboard charts |
-| React Hook Form + Zod | Forms with validation |
-| React Router DOM | Routing |
-| Sonner | Toast notifications |
-| Supabase JS | Auth and database |
-
-### Backend
-| Technology | Usage |
-|---|---|
-| Node.js + Express 5 | REST API |
-| TypeScript | Type safety |
-| Supabase Admin | Privileged database access |
-| Zod | Route payload validation |
-| Helmet + CORS | Security |
-
-### Infrastructure
-| Service | Usage |
-|---|---|
-| Supabase | Auth + PostgreSQL |
-| Vercel | Frontend deploy and hosting |
-| Render | Backend API deploy (via Blueprints) |
-| GitHub Actions | CI/CD with tests and code analysis |
-| SonarCloud | Static analysis and code coverage |
-| Vitest + Supertest | Unit and integration tests |
+| **React 19** | Modern UI library |
+| **TypeScript** | Type safety |
+| **Vite** | Fast build tool and dev server |
+| **Supabase** | Backend-as-a-Service (Auth, Database, RPCs) |
+| **Tailwind CSS 4** | Utility-first styling |
+| **Framer Motion** | Fluid animations |
+| **Recharts** | Interactive dashboard charts |
+| **React Hook Form** | Efficient form management |
+| **Zod** | Schema validation |
+| **Vitest** | Unit and integration testing |
 
 ---
 
-## 🚀 Running Locally
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 20+
-- A [Supabase](https://supabase.com) account
+- [Supabase](https://supabase.com) account
 
 ### 1. Clone the repository
 ```bash
@@ -86,67 +66,44 @@ git clone https://github.com/davydfontourac/expense-tracker.git
 cd expense-tracker
 ```
 
-### 2. Set up the Frontend
+### 2. Install dependencies
 ```bash
-# Install dependencies
 npm install
-
-# Create the environment variables file
-cp .env.example .env.local
 ```
 
-Fill in `.env.local`:
-```env
-VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
-VITE_API_URL=http://localhost:3000
-```
-
+### 3. Environment Variables
+Create a `.env` file in the root directory:
 ```bash
-# Start the frontend
-npm run dev
-```
-
-### 3. Set up the Backend
-```bash
-cd server
-
-# Install dependencies
-npm install
-
-# Create the environment variables file
 cp .env.example .env
 ```
 
-Fill in `server/.env`:
+Fill in your Supabase credentials:
 ```env
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-PORT=3000
-NODE_ENV=development
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
+### 4. Database Setup
+The project uses PostgreSQL functions (RPCs) for optimized dashboard calculations. Run the SQL scripts found in `supabase/migrations` directly in the **Supabase SQL Editor**.
+
+### 5. Run the app
 ```bash
-# Start the backend
 npm run dev
 ```
 
 ---
 
-## 🧪 Tests
+## 🧪 Testing
 
 ```bash
-# Frontend — unit tests
+# Run unit tests
 npm run test:run
 
-# Frontend — with visual UI
+# Open UI test runner
 npm run test:ui
 
-# Frontend — with coverage
+# Generate coverage report
 npm run test:coverage
-
-# Backend — integration tests
-cd server && npm run test
 ```
 
 ---
@@ -156,18 +113,14 @@ cd server && npm run test
 ```
 expense-tracker/
 ├── src/
-│   ├── components/     # Reusable components
-│   ├── context/        # AuthContext, ThemeContext
-│   ├── hooks/          # useTransactions, useCategories
-│   ├── pages/          # Dashboard, Login, Register, Profile...
-│   ├── services/       # api.ts, supabase.ts
-│   └── types/          # Global TypeScript types
-├── server/
-│   └── src/
-│       ├── controllers/ # Route logic
-│       ├── middlewares/ # authMiddleware
-│       ├── routes/      # API endpoints
-│       └── utils/       # Validators (Zod)
+│   ├── components/     # Reusable UI components
+│   ├── context/        # Global state (Auth, Theme)
+│   ├── hooks/          # Business logic (useTransactions, useCategories)
+│   ├── pages/          # Main application views
+│   ├── services/       # Supabase client initialization
+│   └── types/          # TypeScript interfaces
+├── supabase/
+│   └── migrations/     # SQL scripts for DB functions and triggers
 ├── .github/workflows/  # CI/CD Pipeline
 └── public/             # Static assets
 ```
@@ -179,29 +132,11 @@ expense-tracker/
 ```
 Push / PR → develop or main
      │
-     ├── 🧪 Frontend Tests  (Vitest + Coverage)
-     ├── 🧪 Backend Tests   (Vitest + Supertest)
-     │           │
-     │     (both pass)
-     │
+     ├── 🧪 Unit Tests (Vitest + Coverage)
      ├── 📊 SonarCloud Analysis
      ├── 🏗️  Vite Build
-     └── 🚀 Vercel Deploy
-              │
-       develop → preview
-       main    → production
+     └── 🚀 Vercel Deploy (Production/Preview)
 ```
-
----
-
-## 🛣️ Roadmap
-
-- [ ] Savings goals per category
-- [ ] PDF/CSV report export
-- [ ] Recurring transactions
-- [ ] Multiple wallets/accounts
-- [ ] Spending limit notifications
-- [ ] Mobile app (React Native)
 
 ---
 
