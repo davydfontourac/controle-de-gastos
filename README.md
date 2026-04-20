@@ -67,7 +67,7 @@
 |---|---|
 | Supabase | Auth + PostgreSQL |
 | Vercel | Frontend deploy and hosting |
-| Railway | Backend API deploy |
+| Render | Backend API deploy (via Blueprints) |
 | GitHub Actions | CI/CD with tests and code analysis |
 | SonarCloud | Static analysis and code coverage |
 | Vitest + Supertest | Unit and integration tests |

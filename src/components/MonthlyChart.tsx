@@ -1,13 +1,4 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useMemo } from 'react';
 
 interface HistoryData {
@@ -35,9 +26,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 {item.name}:
               </span>
               <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                  item.value,
-                )}
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.value)}
               </span>
             </div>
           ))}
@@ -72,10 +61,8 @@ export default function MonthlyChart({ data, isLoading }: Readonly<Props>) {
 
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm h-[400px] flex flex-col transition-colors">
-      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 px-2">
-        Evolução Mensal
-      </h3>
-      <div className="flex-1">
+      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 px-2">Evolução Mensal</h3>
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={sortedData}
@@ -83,35 +70,39 @@ export default function MonthlyChart({ data, isLoading }: Readonly<Props>) {
             barGap={8}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-            <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
+            <XAxis 
+              dataKey="month" 
+              axisLine={false} 
+              tickLine={false} 
               tick={{ fill: '#9CA3AF', fontSize: 12, fontWeight: 500 }}
               dy={10}
             />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+            <YAxis 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F9FAFB' }} />
-            <Legend
-              verticalAlign="top"
+            <Legend 
+              verticalAlign="top" 
               align="right"
               iconType="circle"
               iconSize={8}
               wrapperStyle={{ paddingBottom: '20px' }}
               formatter={renderLegendText}
             />
-            <Bar
-              dataKey="expense"
-              fill="#EF4444"
-              radius={[4, 4, 0, 0]}
+            <Bar 
+              dataKey="expense" 
+              fill="#EF4444" 
+              radius={[4, 4, 0, 0]} 
               name="Despesas"
               barSize={20}
               animationDuration={1500}
             />
-            <Bar
-              dataKey="income"
-              fill="#10B981"
-              radius={[4, 4, 0, 0]}
+            <Bar 
+              dataKey="income" 
+              fill="#10B981" 
+              radius={[4, 4, 0, 0]} 
               name="Receitas"
               barSize={20}
               animationDuration={1500}

@@ -1,5 +1,5 @@
--- Criação do Enum para Tipos de Transações (Entrada/Saída)
 CREATE TYPE transaction_type AS ENUM ('income', 'expense');
+CREATE TYPE recurrence_frequency AS ENUM ('weekly', 'monthly', 'yearly');
 
 -- Tabela de Categorias
 CREATE TABLE categories (
@@ -20,6 +20,9 @@ CREATE TABLE transactions (
   date DATE NOT NULL,
   category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  is_recurrent BOOLEAN DEFAULT false,
+  frequency recurrence_frequency,
+  parent_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -102,17 +105,22 @@ WITH CHECK (auth.uid() = id);
 -- Trigger para criar perfil automaticamente no SignUp (Opcional, mas recomendado)
 -- Vamos deixar manual por enquanto via frontend para simplificar a lógica inicial.
 
--- ==========================================
--- FUNÇÕES E TRIGGERS ADICIONAIS (MIGRATIONS)
--- ==========================================
+-- Migration: Automação de Novo Usuário (Perfis e Categorias)
+-- Issue: #02
 
--- 1. Automação de Novo Usuário
+-- 1. Função para lidar com o novo usuário
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
+  -- Inserir Perfil automático
   INSERT INTO public.profiles (id, full_name, avatar_url)
-  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  VALUES (
+    new.id, 
+    new.raw_user_meta_data->>'full_name', 
+    new.raw_user_meta_data->>'avatar_url'
+  );
 
+  -- Inserir Categorias Padrão automáticas
   INSERT INTO public.categories (name, icon, color, user_id)
   VALUES
     ('Salário', 'banknote', '#10B981', new.id),
@@ -134,12 +142,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 2. Trigger para disparar após a criação do usuário no Auth
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- 2. RPCs para Dashboard
+COMMENT ON FUNCTION public.handle_new_user() IS 'Cria perfil e categorias padrão automaticamente para novos usuários do Auth';
+
+-- Migration: Funções RPC para Dashboard
+-- Issue: #03
+
+-- 1. Função para Resumo do Dashboard
 CREATE OR REPLACE FUNCTION public.get_dashboard_summary(p_month int, p_year int)
 RETURNS json AS $$
 DECLARE
@@ -154,22 +168,33 @@ DECLARE
   v_year_end date;
 BEGIN
   v_user_id := auth.uid();
+  
+  -- Define datas de início e fim do mês
   v_start_date := make_date(p_year, p_month, 1);
   v_end_date := (v_start_date + interval '1 month' - interval '1 day')::date;
+  
+  -- Define datas de início e fim do ano
   v_year_start := make_date(p_year, 1, 1);
   v_year_end := make_date(p_year, 12, 31);
 
-  SELECT COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0),
-         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)
+  -- Busca Receita e Despesa do mês selecionado
+  SELECT 
+    COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0),
+    COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)
   INTO v_income, v_expense
   FROM public.transactions
   WHERE user_id = v_user_id AND date >= v_start_date AND date <= v_end_date;
 
-  SELECT COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0)
+  -- Busca Saldo Total (Acumulado de todo o tempo)
+  SELECT 
+    COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0)
   INTO v_total_balance
-  FROM public.transactions WHERE user_id = v_user_id;
+  FROM public.transactions
+  WHERE user_id = v_user_id;
 
-  SELECT COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0)
+  -- Busca Saldo do Ano selecionado
+  SELECT 
+    COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0)
   INTO v_year_balance
   FROM public.transactions
   WHERE user_id = v_user_id AND date >= v_year_start AND date <= v_year_end;
@@ -179,11 +204,12 @@ BEGIN
     'expense', v_expense,
     'totalBalance', v_total_balance,
     'yearBalance', v_year_balance,
-    'balance', v_total_balance
+    'balance', v_total_balance -- Mantido para compatibilidade com frontend antigo
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 2. Função para Histórico Mensal (Gráfico)
 CREATE OR REPLACE FUNCTION public.get_monthly_history(p_year int)
 RETURNS json AS $$
 DECLARE
@@ -206,9 +232,10 @@ BEGIN
     FROM months
   ),
   stats AS (
-    SELECT EXTRACT(MONTH FROM date) as month_num,
-           COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
-           COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expense
+    SELECT 
+      EXTRACT(MONTH FROM date) as month_num,
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expense
     FROM public.transactions
     WHERE user_id = v_user_id AND EXTRACT(YEAR FROM date) = p_year
     GROUP BY month_num
@@ -220,13 +247,18 @@ BEGIN
       'expense', COALESCE(s.expense, 0),
       'fullMonth', mn.month_num,
       'year', p_year
-    ) ORDER BY mn.month_num
+    )
+    ORDER BY mn.month_num
   ) INTO v_result
-  FROM month_names mn LEFT JOIN stats s ON mn.month_num = s.month_num;
+  FROM month_names mn
+  LEFT JOIN stats s ON mn.month_num = s.month_num;
 
   RETURN v_result;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+COMMENT ON FUNCTION public.get_dashboard_summary(int, int) IS 'Retorna o resumo financeiro de um mês/ano específico e o saldo acumulado.';
+COMMENT ON FUNCTION public.get_monthly_history(int) IS 'Retorna o histórico de receitas e despesas de todos os meses de um ano específico.';
 
 -- 3. RPC para Deletar Conta
 CREATE OR REPLACE FUNCTION public.delete_user()
