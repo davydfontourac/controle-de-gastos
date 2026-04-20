@@ -1,5 +1,5 @@
--- Criação do Enum para Tipos de Transações (Entrada/Saída)
 CREATE TYPE transaction_type AS ENUM ('income', 'expense');
+CREATE TYPE recurrence_frequency AS ENUM ('weekly', 'monthly', 'yearly');
 
 -- Tabela de Categorias
 CREATE TABLE categories (
@@ -20,6 +20,9 @@ CREATE TABLE transactions (
   date DATE NOT NULL,
   category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  is_recurrent BOOLEAN DEFAULT false,
+  frequency recurrence_frequency,
+  parent_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
