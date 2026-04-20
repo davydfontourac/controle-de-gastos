@@ -14,8 +14,7 @@ const registerSchema = z
   .object({
     fullName: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
     email: z.string().email('E-mail inválido'),
-    password: z
-      .string()
+    password: z.string()
       .min(8, 'A senha deve ter pelo menos 8 caracteres')
       .regex(/[A-Z]/, 'Deve conter pelo menos uma letra maiúscula')
       .regex(/[a-z]/, 'Deve conter pelo menos uma letra minúscula')
@@ -53,8 +52,8 @@ export default function Register() {
         options: {
           data: {
             full_name: data.fullName,
-          },
-        },
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
@@ -71,7 +70,7 @@ export default function Register() {
   const handleGoogleRegister = async () => {
     try {
       setIsGoogleLoading(true);
-
+      
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -97,15 +96,12 @@ export default function Register() {
           <div className="w-16 h-16 bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-2xl">📧</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Verifique seu e-mail
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Verifique seu e-mail</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8">
-            Enviamos um link de confirmação para o seu e-mail. Por favor, acesse sua caixa de
-            entrada para ativar sua conta.
+            Enviamos um link de confirmação para o seu e-mail. Por favor, acesse sua caixa de entrada para ativar sua conta.
           </p>
-          <Link
-            to="/login"
+          <Link 
+            to="/login" 
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors"
           >
             Ir para o Login
@@ -122,90 +118,68 @@ export default function Register() {
       </div>
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="/logo-expense-tracker.png"
-            alt="Expense Tracker Logo"
-            className="object-contain"
-          />
+          <img src="/logo-expense-tracker.png" alt="Expense Tracker Logo" className="object-contain" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Crie sua conta</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Comece a ter controle do seu dinheiro
-          </p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Comece a ter controle do seu dinheiro</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label
-              htmlFor="reg-name"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Nome Completo
-            </label>
-            <input
-              id="reg-name"
-              type="text"
-              {...register('fullName')}
-              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
-              placeholder="Seu nome"
+            <div>
+              <label htmlFor="reg-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome Completo</label>
+              <input
+                id="reg-name"
+                type="text"
+                {...register('fullName')}
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholder="Seu nome"
+              />
+              {errors.fullName && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fullName.message}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="reg-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
+              <input
+                id="reg-email"
+                type="email"
+                {...register('email')}
+                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholder="seu@email.com"
+              />
+              {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
+            </div>
+
+            <PasswordInput
+              id="reg-password"
+              label="Senha"
+              {...register('password')}
+              placeholder="••••••••"
+              helperText="Mínimo 8 caracteres, com maiúsculas, minúsculas, números e símbolos"
+              error={errors.password?.message}
             />
-            {errors.fullName && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.fullName.message}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <label
-              htmlFor="reg-email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              E-mail
-            </label>
-            <input
-              id="reg-email"
-              type="email"
-              {...register('email')}
-              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
-              placeholder="seu@email.com"
+            <PasswordInput
+              id="reg-confirm"
+              label="Confirmar Senha"
+              {...register('confirmPassword')}
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
             />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-            )}
-          </div>
 
-          <PasswordInput
-            id="reg-password"
-            label="Senha"
-            {...register('password')}
-            placeholder="••••••••"
-            helperText="Mínimo 8 caracteres, com maiúsculas, minúsculas, números e símbolos"
-            error={errors.password?.message}
-          />
-
-          <PasswordInput
-            id="reg-confirm"
-            label="Confirmar Senha"
-            {...register('confirmPassword')}
-            placeholder="••••••••"
-            error={errors.confirmPassword?.message}
-          />
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                Cadastrar
-                <UserPlus className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Cadastrar
+                  <UserPlus className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
 
         <div className="mt-6 flex items-center justify-center space-x-4">
           <div className="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
@@ -251,10 +225,7 @@ export default function Register() {
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Já tem uma conta?{' '}
-          <Link
-            to="/login"
-            className="text-blue-600 dark:text-blue-500 font-medium hover:underline"
-          >
+          <Link to="/login" className="text-blue-600 dark:text-blue-500 font-medium hover:underline">
             Faça login
           </Link>
         </p>

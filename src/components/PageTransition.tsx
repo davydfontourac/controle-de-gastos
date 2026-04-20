@@ -5,10 +5,7 @@ interface PageTransitionProps {
   className?: string;
 }
 
-export default function PageTransition({
-  children,
-  className = '',
-}: Readonly<PageTransitionProps>) {
+export default function PageTransition({ children, className = '' }: Readonly<PageTransitionProps>) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

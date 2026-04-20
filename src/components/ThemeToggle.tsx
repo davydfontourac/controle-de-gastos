@@ -39,10 +39,8 @@ export function ThemeToggle() {
               setIsOpen(false);
             }}
             className={cn(
-              'w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              theme === 'light'
-                ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                : 'text-gray-700 dark:text-gray-300 font-medium',
+              "w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
+              theme === 'light' ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-gray-700 dark:text-gray-300 font-medium"
             )}
           >
             <Sun className="w-4 h-4" />
@@ -54,10 +52,8 @@ export function ThemeToggle() {
               setIsOpen(false);
             }}
             className={cn(
-              'w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              theme === 'dark'
-                ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                : 'text-gray-700 dark:text-gray-300 font-medium',
+              "w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
+              theme === 'dark' ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-gray-700 dark:text-gray-300 font-medium"
             )}
           >
             <Moon className="w-4 h-4" />
@@ -69,10 +65,8 @@ export function ThemeToggle() {
               setIsOpen(false);
             }}
             className={cn(
-              'w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              theme === 'system'
-                ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                : 'text-gray-700 dark:text-gray-300 font-medium',
+              "w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
+              theme === 'system' ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-gray-700 dark:text-gray-300 font-medium"
             )}
           >
             <Monitor className="w-4 h-4" />

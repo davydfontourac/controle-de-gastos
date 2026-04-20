@@ -31,13 +31,13 @@ export default function ForgotPassword() {
     try {
       setIsLoading(true);
       setError(null);
-
+      
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${globalThis.location.origin}/reset-password`,
       });
 
       if (resetError) throw resetError;
-
+      
       setIsSuccess(true);
     } catch (err: any) {
       setError(err.message || 'Erro ao solicitar redefinição de senha');
@@ -58,8 +58,7 @@ export default function ForgotPassword() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recuperar senha</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 text-center">
-            Digite seu e-mail e enviaremos um link <br className="hidden sm:block" /> para redefinir
-            sua senha
+            Digite seu e-mail e enviaremos um link <br className="hidden sm:block"/> para redefinir sua senha
           </p>
         </div>
 
@@ -77,12 +76,9 @@ export default function ForgotPassword() {
                 <Mail className="w-8 h-8 text-green-600 dark:text-green-500" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              E-mail enviado!
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">E-mail enviado!</h3>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-              Verifique sua caixa de entrada (e a pasta de spam) para encontrar o link de
-              redefinição de senha.
+              Verifique sua caixa de entrada (e a pasta de spam) para encontrar o link de redefinição de senha.
             </p>
             <Link
               to="/login"
@@ -95,12 +91,7 @@ export default function ForgotPassword() {
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label
-                htmlFor="forgot-email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Seu E-mail
-              </label>
+              <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Seu E-mail</label>
               <input
                 id="forgot-email"
                 type="email"
@@ -108,11 +99,7 @@ export default function ForgotPassword() {
                 className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="seu@email.com"
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
             </div>
 
             <button

@@ -28,7 +28,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
-
+        
         {/* Fallback de rotas inexistentes redireciona pra home para o App processar */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
