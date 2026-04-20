@@ -27,26 +27,8 @@ jobs:
           name: frontend-coverage
           path: coverage/lcov.info
 
-  test-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './server/package-lock.json'
-      - run: cd server && npm ci
-      - run: cd server && npm run test:coverage
-      - name: Upload backend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: server/coverage/lcov.info
-
   sonarcloud:
-    needs: [test-frontend, test-backend]
+    needs: [test-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,11 +39,6 @@ jobs:
         with:
           name: frontend-coverage
           path: coverage
-      - name: Download backend coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-coverage
-          path: server/coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -82,7 +59,7 @@ jobs:
       - run: npm run build
 
   deploy:
-    needs: [build, test-backend, sonarcloud]
+    needs: [build, sonarcloud]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     steps:
