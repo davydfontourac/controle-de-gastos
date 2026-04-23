@@ -1,6 +1,6 @@
 import type { TransactionType } from '@/types';
 import { format, parseISO } from 'date-fns';
-import { ArrowUpCircle, ArrowDownCircle, Info, Tag } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Info } from 'lucide-react';
 
 interface Category {
   id: string;

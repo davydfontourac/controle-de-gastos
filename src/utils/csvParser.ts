@@ -72,8 +72,8 @@ export const transformCSVData = (
       parsedDate = new Date(); // Fallback to now
     }
 
-    // Determine type (income/expense)
-    let type: 'income' | 'expense' = 'expense';
+    // Determine type (income/expense/transfer)
+    let type: 'income' | 'expense' | 'transfer_in' | 'transfer_out' = 'expense';
     if (mapping.type && row[mapping.type]) {
       const typeVal = row[mapping.type].toLowerCase();
       if (typeVal.includes('receita') || typeVal.includes('income') || typeVal.includes('entrada') || typeVal.includes('credit')) {
