@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Skeleton } from './ui/Skeleton';
 
@@ -6,7 +6,8 @@ interface Props {
   summary: {
     totalIncome: number;
     totalExpense: number;
-    balance: number;
+    availableBalance: number;
+    caixinhaBalance: number;
     yearBalance: number;
   };
   isLoading?: boolean;
@@ -17,6 +18,11 @@ const COLOR_CLASSES: Record<string, { bg: string; icon: string; amount: string }
     bg: 'bg-blue-600 dark:bg-blue-400',
     icon: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400',
     amount: 'text-gray-900 dark:text-white',
+  },
+  indigo: {
+    bg: 'bg-indigo-600 dark:bg-indigo-400',
+    icon: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+    amount: 'text-indigo-600 dark:text-indigo-400',
   },
   emerald: {
     bg: 'bg-emerald-600 dark:bg-emerald-400',
@@ -33,13 +39,20 @@ const COLOR_CLASSES: Record<string, { bg: string; icon: string; amount: string }
 export default function SummaryCards({ summary, isLoading }: Readonly<Props>) {
   const cards = [
     {
-      title: 'Saldo Total',
-      amount: summary.balance,
+      title: 'Disponível',
+      amount: summary.availableBalance,
       icon: Wallet,
       color: 'blue',
-      description: 'Disponível agora',
-      subValue: summary.yearBalance,
-      subDescription: 'Acumulado no ano'
+      description: 'Saldo em conta',
+      subValue: (summary.availableBalance || 0) + (summary.caixinhaBalance || 0),
+      subDescription: 'Patrimônio Total'
+    },
+    {
+      title: 'Caixinhas',
+      amount: summary.caixinhaBalance,
+      icon: PiggyBank,
+      color: 'indigo',
+      description: 'Investimentos/Reserva'
     },
     {
       title: 'Receitas',
@@ -61,11 +74,11 @@ export default function SummaryCards({ summary, isLoading }: Readonly<Props>) {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-    }).format(value);
+    }).format(value || 0);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {cards.map((card) => {
         const Icon = card.icon;
         

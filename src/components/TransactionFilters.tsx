@@ -12,6 +12,7 @@ interface Props {
     month: string;
     year: string;
   };
+  onClearMonth?: () => void;
 }
 
 const MONTHS = [
@@ -46,6 +47,7 @@ export default function TransactionFilters({
   onMonthChange,
   onYearChange,
   filters,
+  onClearMonth,
 }: Readonly<Props>) {
   return (
     <div className="space-y-4 mb-8">
@@ -112,6 +114,16 @@ export default function TransactionFilters({
         </select>
 
         <div className="flex-1" />
+        
+        {onClearMonth && (
+          <button
+            onClick={onClearMonth}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            title="Excluir todas as transações deste mês"
+          >
+            Limpar Mês
+          </button>
+        )}
 
         <div className="flex items-center gap-2 text-gray-400 text-xs italic">
           <Filter className="w-3 h-3" />

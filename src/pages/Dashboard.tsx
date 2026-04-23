@@ -13,11 +13,16 @@ import MonthlyChart from '@/components/MonthlyChart';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import BottomNavigation from '@/components/BottomNavigation';
 import PageTransition from '@/components/PageTransition';
+import ImportWizard from '@/components/ImportWizard/ImportWizard';
+import { FileDown } from 'lucide-react';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { transactions, summary, history, isLoading, fetchTransactions } = useTransactions();
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isConfirmClearOpen, setIsConfirmClearOpen] = useState(false);
+  const { transactions, summary, history, isLoading, fetchTransactions, deleteTransactionsByMonth } = useTransactions();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   
   // Global Filters State (Shared between Summary and List)
@@ -49,6 +54,14 @@ export default function Dashboard() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingTransaction(null);
+  };
+
+  const handleClearMonth = async () => {
+    const success = await deleteTransactionsByMonth(Number(filters.month), Number(filters.year));
+    if (success) {
+      setIsConfirmClearOpen(false);
+      fetchData();
+    }
   };
 
   return (
@@ -123,6 +136,7 @@ export default function Dashboard() {
             onTypeChange={(v) => setFilters(prev => ({ ...prev, type: v }))}
             onMonthChange={(v) => setFilters(prev => ({ ...prev, month: v }))}
             onYearChange={(v) => setFilters(prev => ({ ...prev, year: v }))}
+            onClearMonth={() => setIsConfirmClearOpen(true)}
           />
 
           <TransactionList 
@@ -163,6 +177,19 @@ export default function Dashboard() {
                 <Tag className="w-5 h-5" />
               </div>
             </Link>
+
+            {/* Opção: Importar CSV */}
+            <button
+              onClick={() => setIsImportOpen(true)}
+              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
+            >
+              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+                Importar CSV
+              </span>
+              <div className="w-12 h-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full shadow-lg flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <FileDown className="w-5 h-5" />
+              </div>
+            </button>
           </div>
 
           {/* Main Button */}
@@ -182,9 +209,24 @@ export default function Dashboard() {
           onSuccess={fetchData}
           transaction={editingTransaction}
         />
-      </main>
 
-      <BottomNavigation />
+        <ImportWizard
+          isOpen={isImportOpen}
+          onClose={() => setIsImportOpen(false)}
+          onSuccess={fetchData}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmClearOpen}
+          onClose={() => setIsConfirmClearOpen(false)}
+          onConfirm={handleClearMonth}
+          title="Excluir histórico do mês?"
+          description={`Isso apagará permanentemente todas as ${transactions.length} transações filtradas para este período. Esta ação não pode ser desfeita.`}
+          isLoading={isLoading}
+        />
+
+        <BottomNavigation />
+      </main>
     </PageTransition>
   );
 }

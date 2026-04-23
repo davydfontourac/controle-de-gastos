@@ -14,7 +14,8 @@ interface Props {
 export default function TransactionItem({ transaction, onDelete, onEdit }: Readonly<Props>) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isIncome = transaction.type === 'income';
+  const isIncome = transaction.type === 'income' || transaction.type === 'transfer_in';
+  const isTransfer = transaction.type === 'transfer_in' || transaction.type === 'transfer_out';
 
   // Dynamically formats R$ based on BRL locale
   const formattedAmount = new Intl.NumberFormat('pt-BR', {
@@ -78,7 +79,9 @@ export default function TransactionItem({ transaction, onDelete, onEdit }: Reado
         <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-gray-100 dark:border-gray-700 pt-3 sm:pt-0">
           {/* Valor */}
           <div
-            className={`flex items-center gap-2 font-bold text-lg sm:text-base ${isIncome ? 'text-emerald-600' : 'text-red-500'}`}
+            className={`flex items-center gap-2 font-bold text-lg sm:text-base ${
+              isTransfer ? 'text-blue-500' : (isIncome ? 'text-emerald-600' : 'text-red-500')
+            }`}
           >
             {isIncome ? (
               <ArrowUpRight className="w-5 h-5 sm:w-4 sm:h-4" />

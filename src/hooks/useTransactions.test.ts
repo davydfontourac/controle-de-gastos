@@ -36,13 +36,14 @@ describe('useTransactions', () => {
     const { result } = renderHook(() => useTransactions());
     expect(result.current.isLoading).toBe(true);
     expect(result.current.transactions).toEqual([]);
-    expect(result.current.summary.balance).toBe(0);
+    expect(result.current.summary.availableBalance).toBe(0);
+    expect(result.current.summary.caixinhaBalance).toBe(0);
     expect(result.current.history).toEqual([]);
   });
 
   it('busca as transações com sucesso aplicando os filtros na query', async () => {
     const mockTransactions = [{ id: 't1', amount: 100, type: 'income' }];
-    const mockSummary = { income: 100, expense: 0, totalBalance: 100, yearBalance: 100 };
+    const mockSummary = { income: 100, expense: 0, availableBalance: 100, caixinhaBalance: 0, yearBalance: 100 };
     const mockHistory = [{ month: 'Jan', value: 100 }];
 
     // Resolves the promise from the mockQuery object for the 'transactions' fetch
@@ -69,7 +70,8 @@ describe('useTransactions', () => {
     expect(supabase.rpc).toHaveBeenCalledWith('get_monthly_history', { p_year: 2023 });
 
     expect(result.current.transactions).toEqual(mockTransactions);
-    expect(result.current.summary.balance).toBe(100);
+    expect(result.current.summary.availableBalance).toBe(100);
+    expect(result.current.summary.caixinhaBalance).toBe(0);
     expect(result.current.history).toEqual(mockHistory);
     expect(result.current.isLoading).toBe(false);
   });

@@ -5,39 +5,43 @@ import SummaryCards from './SummaryCards';
 const baseSummary = {
   totalIncome: 5000,
   totalExpense: 2000,
-  balance: 3000,
+  availableBalance: 3000,
+  caixinhaBalance: 1500,
   yearBalance: 10000,
 };
 
 describe('SummaryCards', () => {
-  it('deve renderizar os três cartões com os títulos corretos', () => {
+  it('deve renderizar os quatro cartões com os títulos corretos', () => {
     render(<SummaryCards summary={baseSummary} />);
-    expect(screen.getByText('Saldo Total')).toBeInTheDocument();
+    expect(screen.getByText('Disponível')).toBeInTheDocument();
+    expect(screen.getByText('Caixinhas')).toBeInTheDocument();
     expect(screen.getByText('Receitas')).toBeInTheDocument();
     expect(screen.getByText('Despesas')).toBeInTheDocument();
   });
 
   it('deve exibir os valores formatados corretamente', () => {
     render(<SummaryCards summary={baseSummary} />);
-    expect(screen.getByText(/R\$\s*3\.000/)).toBeInTheDocument();
-    expect(screen.getByText(/R\$\s*5\.000/)).toBeInTheDocument();
-    expect(screen.getByText(/R\$\s*2\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s*3\.000/)).toBeInTheDocument(); // Disponível
+    expect(screen.getByText(/R\$\s*1\.500/)).toBeInTheDocument(); // Caixinhas
+    expect(screen.getByText(/R\$\s*5\.000/)).toBeInTheDocument(); // Receitas
+    expect(screen.getByText(/R\$\s*2\.000/)).toBeInTheDocument(); // Despesas
   });
 
-  it('deve exibir o valor acumulado no ano (subValue) para o cartão de Saldo', () => {
+  it('deve exibir o Patrimônio Total (soma de disponível + caixinha)', () => {
     render(<SummaryCards summary={baseSummary} />);
-    expect(screen.getByText(/Acumulado no ano/i)).toBeInTheDocument();
-    expect(screen.getByText(/R\$\s*10\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/Patrimônio Total/i)).toBeInTheDocument();
+    // 3000 + 1500 = 4500
+    expect(screen.getByText(/R\$\s*4\.500/)).toBeInTheDocument();
   });
 
-  it('deve aplicar classe verde quando yearBalance >= 0', () => {
-    const { container } = render(<SummaryCards summary={{ ...baseSummary, yearBalance: 500 }} />);
+  it('deve aplicar classe verde quando Patrimonio Total >= 0', () => {
+    const { container } = render(<SummaryCards summary={{ ...baseSummary, availableBalance: 500, caixinhaBalance: 0 }} />);
     const greenSpan = container.querySelector('.text-emerald-500, .text-emerald-400');
     expect(greenSpan).toBeInTheDocument();
   });
 
-  it('deve aplicar classe vermelha quando yearBalance < 0', () => {
-    const { container } = render(<SummaryCards summary={{ ...baseSummary, yearBalance: -100 }} />);
+  it('deve aplicar classe vermelha quando Patrimonio Total < 0', () => {
+    const { container } = render(<SummaryCards summary={{ ...baseSummary, availableBalance: -1000, caixinhaBalance: 200 }} />);
     const redSpan = container.querySelector('.text-red-500, .text-red-400');
     expect(redSpan).toBeInTheDocument();
   });

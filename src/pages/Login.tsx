@@ -90,7 +90,7 @@ export default function Login() {
               type="email"
               {...register('email')}
               className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
-              placeholder="seu@email.com"
+              placeholder="Digite aqui seu email"
             />
             {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
           </div>
@@ -98,8 +98,9 @@ export default function Login() {
             <div className="relative">
               <PasswordInput
                 id="login-password"
+                label="Senha"
                 {...register('password')}
-                placeholder="••••••"
+                placeholder="Digite aqui sua senha"
                 error={errors.password?.message}
               />
               <div className="flex justify-end mt-1">

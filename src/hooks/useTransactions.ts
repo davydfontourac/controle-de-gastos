@@ -6,7 +6,8 @@ import type { Transaction } from '@/types';
 interface Summary {
   totalIncome: number;
   totalExpense: number;
-  balance: number;
+  availableBalance: number;
+  caixinhaBalance: number;
   yearBalance: number;
 }
 
@@ -15,7 +16,8 @@ export function useTransactions() {
   const [summary, setSummary] = useState<Summary>({
     totalIncome: 0,
     totalExpense: 0,
-    balance: 0,
+    availableBalance: 0,
+    caixinhaBalance: 0,
     yearBalance: 0,
   });
   const [history, setHistory] = useState([]);
@@ -62,10 +64,11 @@ export function useTransactions() {
 
         setTransactions(transRes.data || []);
         setSummary({
-          totalIncome: sumRes.data.income,
-          totalExpense: sumRes.data.expense,
-          balance: sumRes.data.totalBalance,
-          yearBalance: sumRes.data.yearBalance,
+          totalIncome: sumRes.data.income || 0,
+          totalExpense: sumRes.data.expense || 0,
+          availableBalance: sumRes.data.availableBalance || 0,
+          caixinhaBalance: sumRes.data.caixinhaBalance || 0,
+          yearBalance: sumRes.data.yearBalance || 0,
         });
         setHistory(historyRes.data || []);
       } catch (err) {
@@ -78,5 +81,31 @@ export function useTransactions() {
     [],
   );
 
-  return { transactions, summary, history, isLoading, fetchTransactions };
+  const deleteTransactionsByMonth = async (month: number, year: number) => {
+    try {
+      setIsLoading(true);
+      
+      const startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+      const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59)).toISOString();
+
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .gte('date', startDate)
+        .lte('date', endDate);
+
+      if (error) throw error;
+      
+      toast.success('Histórico do mês excluído com sucesso');
+      return true;
+    } catch (err: any) {
+      console.error('Erro ao excluir histórico:', err);
+      toast.error('Erro ao excluir histórico do mês');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { transactions, summary, history, isLoading, fetchTransactions, deleteTransactionsByMonth };
 }
