@@ -26,13 +26,14 @@
 
 ## ✨ Features
 
+- **🏦 Bank Import** — Smart CSV import wizard with automatic category detection and column mapping.
+- **📊 Smart Dashboard** — Real-time balance and "Piggy Bank" (Caixinhas) values that stay current regardless of the month filter, while income/expenses adjust to the selected period.
+- **📱 Mobile Optimized** — Improved mobile UX with a Floating Action Button (FAB) for quick access to core actions (New Transaction, Bank Import, Categories).
 - **🔐 Full Authentication** — Login, registration, password recovery, and Google OAuth via Supabase Auth.
-- **💳 Transactions** — Complete CRUD with categories, type (income/expense), date, and search.
-- **📊 Dashboard** — Monthly summary with total balance, income, expenses, and annual history.
+- **💳 Transactions** — Complete CRUD with categories, type (income/expense/transfer), date, and search.
 - **🗂️ Categories** — Native categories + custom category creation with color and emoji.
 - **👤 Profile** — Update name, avatar, and user password.
 - **🌑 Dark Mode** — Toggle between light and dark themes.
-- **📱 Responsive** — Mobile-first layout with bottom navigation for small screens.
 - **🎭 Animations** — Page transitions and micro-animations with Framer Motion.
 
 ---

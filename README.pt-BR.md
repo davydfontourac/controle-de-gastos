@@ -26,13 +26,14 @@
 
 ## ✨ Funcionalidades
 
+- **🏦 Importação Bancária** — Assistente de importação de CSV inteligente com detecção automática de categorias e mapeamento de colunas.
+- **📊 Dashboard Inteligente** — Saldo disponível e "Caixinhas" refletem o valor real acumulado independentemente do filtro mensal, enquanto receitas/despesas respeitam o período selecionado.
+- **📱 UX Mobile Aprimorada** — Botão de Ação Flutuante (FAB) para acesso rápido às funções principais (Nova Transação, Importação CSV, Categorias).
 - **🔐 Autenticação completa** — Login, registro, recuperação de senha e OAuth via Supabase Auth.
-- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa), data e busca.
-- **📊 Dashboard** — Resumo mensal com saldo total, receitas, despesas e histórico anual.
+- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa/transferência), data e busca.
 - **🗂️ Categorias** — Categorias nativas + criação de categorias personalizadas com cor e emoji.
 - **👤 Perfil** — Atualização de nome, avatar e senha do usuário.
 - **🌑 Dark Mode** — Alternância entre tema claro e escuro.
-- **📱 Responsivo** — Layout mobile-first com navegação inferior em telas pequenas.
 - **🎭 Animações** — Transições de página e microanimações com Framer Motion.
 
 ---
