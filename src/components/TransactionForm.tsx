@@ -14,7 +14,7 @@ const formSchema = z.object({
     .min(1, 'O valor é obrigatório.')
     .refine((v) => !Number.isNaN(Number(v)) && Number(v) > 0, 'O valor deve ser maior que zero.'),
   date: z.string().min(1, 'A data é obrigatória.'),
-  type: z.enum(['income', 'expense']),
+  type: z.enum(['income', 'expense', 'transfer_in', 'transfer_out']),
   category_id: z.string().nullable().optional(),
   is_recurrent: z.boolean(),
   frequency: z.enum(['weekly', 'monthly', 'yearly']).nullable().optional(),
@@ -182,34 +182,70 @@ export default function TransactionForm({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+          <div className="grid grid-cols-3 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl">
             <button
               type="button"
               onClick={() => setValue('type', 'expense')}
               className={cn(
-                'flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all',
+                'flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-medium transition-all text-[10px] sm:text-xs',
                 selectedType === 'expense'
                   ? 'bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50',
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
               )}
             >
-              <ArrowDownCircle className="w-5 h-5" />
+              <ArrowDownCircle className="w-4 h-4" />
               Despesa
             </button>
             <button
               type="button"
               onClick={() => setValue('type', 'income')}
               className={cn(
-                'flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all',
+                'flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-medium transition-all text-[10px] sm:text-xs',
                 selectedType === 'income'
                   ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50',
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
               )}
             >
-              <ArrowUpCircle className="w-5 h-5" />
+              <ArrowUpCircle className="w-4 h-4" />
               Receita
             </button>
+            <button
+              type="button"
+              onClick={() => setValue('type', 'transfer_out')}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-medium transition-all text-[10px] sm:text-xs',
+                selectedType.startsWith('transfer')
+                  ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
+              )}
+            >
+              <Tag className="w-4 h-4 rotate-90" />
+              Transf.
+            </button>
           </div>
+
+          {selectedType.startsWith('transfer') && (
+            <div className="flex gap-4 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 rounded-xl animate-in fade-in zoom-in-95">
+              <label className="flex flex-1 items-center gap-2 cursor-pointer group">
+                <input
+                  type="radio"
+                  checked={selectedType === 'transfer_out'}
+                  onChange={() => setValue('type', 'transfer_out')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Aplicação (Saída)</span>
+              </label>
+              <label className="flex flex-1 items-center gap-2 cursor-pointer group">
+                <input
+                  type="radio"
+                  checked={selectedType === 'transfer_in'}
+                  onChange={() => setValue('type', 'transfer_in')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Resgate (Entrada)</span>
+              </label>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div>
