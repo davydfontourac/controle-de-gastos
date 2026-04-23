@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [isConfirmClearOpen, setIsConfirmClearOpen] = useState(false);
   const { transactions, summary, history, isLoading, fetchTransactions, deleteTransactionsByMonth } = useTransactions();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isFABOpen, setIsFABOpen] = useState(false);
   
   // Global Filters State (Shared between Summary and List)
   const [filters, setFilters] = useState({
@@ -149,15 +150,31 @@ export default function Dashboard() {
         </div>
         
         {/* Floating Action Menu */}
-        <div className="fixed bottom-20 md:bottom-8 right-8 flex flex-col items-end gap-3 group z-50 pointer-events-none">
-          {/* Menu Items (Hidden by default, shown on hover) */}
-          <div className="flex flex-col items-end gap-3 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 group-hover:pointer-events-auto">
+        <div className="fixed bottom-20 md:bottom-8 right-8 flex flex-col items-end gap-3 z-50">
+          {/* Backdrop for mobile to close when clicking outside */}
+          {isFABOpen && (
+            <div 
+              className="fixed inset-0 bg-transparent" 
+              onClick={() => setIsFABOpen(false)}
+            />
+          )}
+
+          {/* Menu Items */}
+          <div className={cn(
+            "flex flex-col items-end gap-3 mb-2 transition-all duration-300",
+            isFABOpen 
+              ? "visible opacity-100 translate-y-0" 
+              : "invisible opacity-0 translate-y-4 md:group-hover:visible md:group-hover:opacity-100 md:group-hover:translate-y-0"
+          )}>
             {/* Opção: Nova Transação */}
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsFABOpen(false);
+              }}
+              className="flex items-center gap-3 pr-2 group/item"
             >
-              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity">
+              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl md:opacity-0 md:group-hover/item:opacity-100 transition-opacity">
                 Nova Transação
               </span>
               <div className="w-12 h-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full shadow-lg flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -168,9 +185,10 @@ export default function Dashboard() {
             {/* Opção: Categorias */}
             <Link
               to="/categories"
-              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
+              onClick={() => setIsFABOpen(false)}
+              className="flex items-center gap-3 pr-2 group/item"
             >
-              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl md:opacity-0 md:group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
                 Gerenciar Categorias
               </span>
               <div className="w-12 h-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full shadow-lg flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -180,10 +198,13 @@ export default function Dashboard() {
 
             {/* Opção: Importar CSV */}
             <button
-              onClick={() => setIsImportOpen(true)}
-              className="flex items-center gap-3 pr-2 group/item pointer-events-auto"
+              onClick={() => {
+                setIsImportOpen(true);
+                setIsFABOpen(false);
+              }}
+              className="flex items-center gap-3 pr-2 group/item"
             >
-              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl opacity-0 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+              <span className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold py-1.5 px-3 rounded-lg shadow-xl md:opacity-0 md:group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
                 Importar CSV
               </span>
               <div className="w-12 h-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full shadow-lg flex items-center justify-center border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -194,12 +215,14 @@ export default function Dashboard() {
 
           {/* Main Button */}
           <button
-            className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group-hover:rotate-45 relative overflow-hidden group-hover:bg-blue-700 pointer-events-auto"
+            onClick={() => setIsFABOpen(!isFABOpen)}
+            className={cn(
+              "w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative overflow-hidden",
+              isFABOpen && "rotate-45 bg-blue-700"
+            )}
           >
             <Plus className="w-8 h-8 transition-transform duration-300" />
-            
-            {/* Subtle overlay effect */}
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity" />
           </button>
         </div>
 
