@@ -1,22 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   Trash2,
-  AlertTriangle,
-  User,
-  Mail,
   Camera,
-  ArrowLeft,
   Save,
   Loader2,
-  CheckCircle2,
+  User,
+  ShieldCheck,
+  Smartphone
 } from 'lucide-react';
+import { PasswordInput } from '@/components/PasswordInput';
 import ConfirmModal from '@/components/ConfirmModal';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import BottomNavigation from '@/components/BottomNavigation';
 import PageTransition from '@/components/PageTransition';
 
 export default function Profile() {
@@ -25,11 +22,14 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
-  // Sync local fields with global profile when loaded
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
@@ -42,6 +42,7 @@ export default function Profile() {
       setIsSaving(true);
       if (!user) return;
 
+      // 1. Update Profile Data
       const updates = {
         id: user.id,
         full_name: fullName,
@@ -49,13 +50,27 @@ export default function Profile() {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('profiles').upsert(updates);
+      const { error: profileError } = await supabase.from('profiles').upsert(updates);
+      if (profileError) throw profileError;
 
-      if (error) throw error;
+      // 2. Update Password if provided
+      if (newPassword) {
+        if (newPassword.length < 8) {
+          throw new Error('A nova senha deve ter pelo menos 8 caracteres.');
+        }
+
+        const { error: pwdError } = await supabase.auth.updateUser({ password: newPassword });
+        if (pwdError) throw pwdError;
+        
+        setCurrentPassword('');
+        setNewPassword('');
+        toast.success('Senha atualizada com sucesso!');
+      }
+
       await refreshProfile();
-      toast.success('Perfil atualizado com sucesso!');
+      toast.success('Perfil atualizado!');
     } catch (error: any) {
-      toast.error('Erro ao atualizar perfil');
+      toast.error(error.message || 'Erro ao atualizar perfil');
       console.error('Error updating profile:', error.message);
     } finally {
       setIsSaving(false);
@@ -84,10 +99,7 @@ export default function Profile() {
   async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
     try {
       setUploading(true);
-
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('Você deve selecionar uma imagem para upload.');
-      }
+      if (!event.target.files || event.target.files.length === 0) throw new Error('Selecione uma imagem.');
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
@@ -95,21 +107,19 @@ export default function Profile() {
       const filePath = `${user?.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+      if (uploadError) throw uploadError;
 
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('avatars').getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
       setAvatarUrl(publicUrl);
+      
+      // Update profile immediately with new avatar
+      const { error: updateError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user?.id);
+      if (updateError) throw updateError;
+      
       await refreshProfile();
-      toast.success('Foto carregada com sucesso!');
+      toast.success('Foto atualizada!');
     } catch (error: any) {
       toast.error(error.message);
-      console.error('Error uploading avatar:', error.message);
     } finally {
       setUploading(false);
     }
@@ -117,189 +127,169 @@ export default function Profile() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50/50 dark:bg-gray-950 transition-colors">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-          <p className="text-gray-500 dark:text-gray-400 font-medium">Carregando seu perfil...</p>
-        </div>
+      <div className="h-screen flex items-center justify-center bg-transparent">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <PageTransition className="min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors">
-      {/* Header Premium */}
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-4">
-              <Link
-                to="/dashboard"
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-l border-gray-100 dark:border-gray-800 pl-4">
-                Meu Perfil
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <button
-                onClick={updateProfile}
-                disabled={isSaving || uploading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-200 dark:shadow-blue-900/20 active:scale-95 disabled:opacity-70"
-              >
-                {isSaving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+    <PageTransition className="A-main h-screen overflow-y-auto w-full">
+      <div className="max-w-6xl">
+        {/* Top Header */}
+        <div className="A-top">
+          <div>
+            <h1 className="text-gray-900 dark:text-white font-bold">Meu Perfil</h1>
+            <div className="sub">Gerencie suas informações pessoais e preferências</div>
+          </div>
+          <button 
+            onClick={updateProfile}
+            disabled={isSaving || uploading}
+            className="px-6 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold rounded-xl flex items-center gap-2 transition-all shadow-lg active:scale-95 disabled:opacity-70 text-sm"
+          >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Salvar alterações
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+          {/* Left Card: Avatar & Status */}
+          <div className="A-card flex flex-col items-center py-10 h-fit text-center">
+            <div className="relative mb-6">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-[6px] border-white dark:border-gray-800 shadow-2xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] flex items-center justify-center text-white text-5xl font-bold">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <Save className="w-4 h-4" />
+                  fullName.charAt(0).toUpperCase() || 'U'
                 )}
-                <span className="hidden sm:inline">Salvar Alterações</span>
+              </div>
+              <label 
+                htmlFor="avatar-upload"
+                className="absolute bottom-1 right-1 w-10 h-10 bg-[#0ea5e9] text-white rounded-full flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-xl cursor-pointer hover:bg-[#0284c7] transition-all active:scale-90"
+              >
+                {uploading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={18} />}
+                <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={uploadAvatar} disabled={uploading} />
+              </label>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{fullName || 'Davy Camargo'}</h2>
+            <p className="text-sm text-gray-500 mb-6">{user?.email}</p>
+
+            <div className="px-4 py-1.5 bg-[#f0fdf4] dark:bg-green-900/10 text-[#16a34a] dark:text-green-500 text-[10px] font-bold uppercase tracking-[2px] rounded-full border border-[#dcfce7] dark:border-green-800/30 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+              ATIVA E VERIFICADA
+            </div>
+          </div>
+
+          {/* Right Section: Forms */}
+          <div className="space-y-6">
+            {/* Personal Info */}
+            <div className="A-card space-y-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[#0ea5e9] flex items-center justify-center">
+                    <User size={20} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white m-0">Informações Pessoais</h3>
+                </div>
+                <div className="text-[10px] font-mono text-gray-400 uppercase">ID: {user?.id.slice(0, 8)}...</div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nome Completo</label>
+                  <input 
+                    type="text" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-2xl py-4 px-5 text-sm text-gray-900 dark:text-white outline-none focus:border-[#0ea5e9] transition-all"
+                    placeholder="Seu nome"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">E-mail (Não editável)</label>
+                  <input 
+                    type="email" 
+                    value={user?.email || ''}
+                    disabled
+                    className="w-full bg-gray-50/50 dark:bg-gray-800/20 border border-gray-100 dark:border-gray-700 rounded-2xl py-4 px-5 text-sm text-gray-400 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Security */}
+            <div className="A-card space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[#0ea5e9] flex items-center justify-center">
+                  <ShieldCheck size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white m-0">Segurança</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Senha Atual</label>
+                  <PasswordInput
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="**********"
+                    className="!bg-gray-50 dark:!bg-gray-800/50 !border-gray-100 dark:!border-gray-700 !rounded-2xl !py-4"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nova Senha</label>
+                  <PasswordInput
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Digite a nova senha"
+                    helperText="Mínimo 8 caracteres, incluindo letras maiúsculas, números e símbolos."
+                    className="!bg-gray-50 dark:!bg-gray-800/50 !border-gray-100 dark:!border-gray-700 !rounded-2xl !py-4"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                    <Smartphone size={20} className="text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">Autenticação em 2 fatores</div>
+                    <p className="text-xs text-gray-500">Adicione uma camada extra de proteção</p>
+                  </div>
+                </div>
+                <button className="px-4 py-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 text-gray-600 dark:text-gray-300 font-bold text-[10px] uppercase tracking-widest rounded-lg transition-all">
+                  Ativar
+                </button>
+              </div>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="A-card border-red-100 dark:border-red-900/20 bg-red-50/5 dark:bg-red-900/5 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center">
+                  <Trash2 size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white m-0">Zona de Perigo</h3>
+              </div>
+              
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Ao excluir sua conta, todos os seus dados (transações, categorias, caixinhas e perfil) serão removidos permanentemente. Esta ação não pode ser desfeita.
+              </p>
+
+              <button 
+                onClick={() => setShowDeleteModal(true)}
+                className="flex items-center gap-2 px-6 py-3 border border-red-100 dark:border-red-900/30 text-red-600 font-bold text-sm rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all"
+              >
+                <Trash2 size={16} />
+                Excluir minha conta
               </button>
             </div>
           </div>
         </div>
-      </nav>
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24 lg:pb-10">
-        <div className="space-y-8">
-          {/* Sessão de Avatar */}
-          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center text-center transition-colors">
-            <div className="relative">
-              <div className="w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border-4 border-white dark:border-gray-900 shadow-lg flex items-center justify-center">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-16 h-16 text-gray-400 dark:text-gray-500" />
-                )}
-              </div>
-              <label
-                htmlFor="avatar-upload"
-                className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-blue-700 transition-colors border-4 border-white dark:border-gray-900 active:scale-90 disabled:opacity-50"
-              >
-                {uploading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Camera className="w-5 h-5" />
-                )}
-                <input
-                  type="file"
-                  id="avatar-upload"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={uploadAvatar}
-                  disabled={uploading}
-                />
-              </label>
-            </div>
-            <div className="mt-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {fullName || 'Seu Nome'}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
-            </div>
-          </section>
-
-          {/* Dados Pessoais */}
-          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm space-y-6 transition-colors">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                Informações Pessoais
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="profile-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1"
-                >
-                  Nome Completo
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <input
-                    id="profile-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Como você prefere ser chamado?"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="profile-email"
-                  className="block text-sm font-medium text-gray-400 dark:text-gray-500 mb-1.5 ml-1 select-none"
-                >
-                  E-mail (Não editável)
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <input
-                    id="profile-email"
-                    type="email"
-                    value={user?.email || ''}
-                    disabled
-                    className="w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Informações da Conta (Segurança/Futuro) */}
-          <section className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-500">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-gray-100">Status da Conta</h4>
-                <p className="text-xs text-green-600 dark:text-green-500 font-semibold uppercase tracking-wider">
-                  Ativa e Verificada
-                </p>
-              </div>
-            </div>
-            <div className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-              ID: {user?.id.slice(0, 8)}...
-            </div>
-          </section>
-
-          <section className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-sm space-y-6 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Zona de Perigo</h3>
-            </div>
-
-            <div className="p-4 bg-red-50/50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-900/20">
-              <p className="text-sm text-red-800 dark:text-red-400 font-medium mb-4">
-                Ao excluir sua conta, todos os seus dados (transações, categorias e perfil) serão
-                removidos permanentemente. Esta ação não pode ser desfeita.
-              </p>
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-gray-800 border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-900/50 transition-all flex items-center justify-center gap-2"
-              >
-                <Trash2 className="w-5 h-5" />
-                Excluir Minha Conta
-              </button>
-            </div>
-          </section>
-        </div>
-      </main>
+      </div>
 
       <ConfirmModal
         isOpen={showDeleteModal}
@@ -309,8 +299,6 @@ export default function Profile() {
         description="Esta ação é irreversível. Todos os seus dados de gastos e categorias serão perdidos para sempre."
         isLoading={isDeleting}
       />
-
-      <BottomNavigation />
     </PageTransition>
   );
 }

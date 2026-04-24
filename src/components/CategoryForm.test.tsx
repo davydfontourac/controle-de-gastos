@@ -50,13 +50,13 @@ describe('CategoryForm', () => {
   });
 
   it('deve renderizar "Editar Categoria" quando uma categoria é passada', () => {
-    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444' };
+    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444', monthly_limit: 0 };
     render(<CategoryForm {...defaultProps} category={category} />);
     expect(screen.getByText('Editar Categoria')).toBeInTheDocument();
   });
 
   it('deve preencher campos ao editar uma categoria existente', () => {
-    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444' };
+    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444', monthly_limit: 0 };
     render(<CategoryForm {...defaultProps} category={category} />);
 
     expect(screen.getByPlaceholderText(/Ex: Alimentação/)).toHaveValue('Alimentação');
@@ -102,7 +102,7 @@ describe('CategoryForm', () => {
     const toast = await import('sonner');
     const onSuccess = vi.fn();
     const onClose = vi.fn();
-    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444' };
+    const category = { id: 'c-1', name: 'Alimentação', icon: 'utensils', color: '#EF4444', monthly_limit: 0 };
 
     render(
       <CategoryForm

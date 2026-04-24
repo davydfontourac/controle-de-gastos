@@ -172,7 +172,7 @@ function DashboardA({ tweaks }) {
       <main className="A-main">
         <div className="A-top">
           <div>
-            <h1>Boa tarde, davyd.</h1>
+            <h1>Seja bem-vindo, davyd.</h1>
             <div className="sub">
               Você gastou <b style={{ color: 'var(--a-ink-900)' }}>R$ 1.292,83</b> em abril · 41% da
               sua receita

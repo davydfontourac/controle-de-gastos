@@ -11,6 +11,14 @@ interface Summary {
   yearBalance: number;
 }
 
+interface MonthlyHistory {
+  month: any;
+  fullMonth?: number;
+  year: number;
+  income: number;
+  expense: number;
+}
+
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState<Summary>({
@@ -20,7 +28,7 @@ export function useTransactions() {
     caixinhaBalance: 0,
     yearBalance: 0,
   });
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<MonthlyHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchTransactions = useCallback(
@@ -63,14 +71,16 @@ export function useTransactions() {
         if (historyRes.error) throw historyRes.error;
 
         setTransactions(transRes.data || []);
-        setSummary({
-          totalIncome: sumRes.data.income || 0,
-          totalExpense: sumRes.data.expense || 0,
-          availableBalance: sumRes.data.availableBalance || 0,
-          caixinhaBalance: sumRes.data.caixinhaBalance || 0,
-          yearBalance: sumRes.data.yearBalance || 0,
-        });
-        setHistory(historyRes.data || []);
+        if (sumRes.data) {
+          setSummary({
+            totalIncome: sumRes.data.income || 0,
+            totalExpense: sumRes.data.expense || 0,
+            availableBalance: sumRes.data.availableBalance || 0,
+            caixinhaBalance: sumRes.data.caixinhaBalance || 0,
+            yearBalance: sumRes.data.yearBalance || 0,
+          });
+        }
+        setHistory(Array.isArray(historyRes.data) ? historyRes.data : []);
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
         toast.error('Erro ao carregar transações');
@@ -107,6 +117,26 @@ export function useTransactions() {
     }
   };
 
+  const deleteTransaction = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Transação excluída com sucesso');
+      return true;
+    } catch (err: any) {
+      console.error('Erro ao excluir transação:', err);
+      toast.error('Erro ao excluir transação');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     transactions,
     summary,
@@ -114,5 +144,6 @@ export function useTransactions() {
     isLoading,
     fetchTransactions,
     deleteTransactionsByMonth,
+    deleteTransaction,
   };
 }

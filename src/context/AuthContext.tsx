@@ -6,6 +6,7 @@ import { supabase } from '@/services/supabase';
 export interface ProfileData {
   full_name: string | null;
   avatar_url: string | null;
+  username: string | null;
 }
 
 interface AuthContextType {
@@ -30,7 +31,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url')
+        .select('full_name, avatar_url, username')
         .eq('id', userId)
         .maybeSingle(); // Use maybeSingle to avoid error if it doesn't exist
 
