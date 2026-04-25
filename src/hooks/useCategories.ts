@@ -7,6 +7,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
+  monthly_limit: number;
 }
 
 export function useCategories() {

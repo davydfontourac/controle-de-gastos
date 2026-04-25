@@ -4,10 +4,13 @@ import Landing from '@/pages/Landing';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Dashboard from '@/pages/Dashboard';
+import Transactions from '@/pages/Transactions';
 import Categories from '@/pages/Categories';
+import Savings from '@/pages/Savings';
 import Profile from '@/pages/Profile';
 import { AuthProvider } from '@/context/AuthContext';
 import { PrivateRoute, PublicRoute } from '@/components/RouteGuards';
+import { MainLayout } from '@/components/MainLayout';
 
 function App() {
   return (
@@ -24,9 +27,13 @@ function App() {
 
         {/* Rotas Privadas (apenas logados) */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route element={<MainLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/savings" element={<Savings />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Route>
 
         {/* Fallback de rotas inexistentes redireciona pra home para o App processar */}

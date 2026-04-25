@@ -13,23 +13,23 @@ BEGIN
     new.raw_user_meta_data->>'avatar_url'
   );
 
-  -- Inserir Categorias Padrão automáticas
-  INSERT INTO public.categories (name, icon, color, user_id)
+  -- Inserir Categorias Padrão automáticas com limite padrão de 500
+  INSERT INTO public.categories (name, icon, color, monthly_limit, user_id)
   VALUES
-    ('Salário', 'banknote', '#10B981', new.id),
-    ('Investimentos', 'trending-up', '#059669', new.id),
-    ('Moradia', 'home', '#3B82F6', new.id),
-    ('Conta de Luz', 'zap', '#F59E0B', new.id),
-    ('Conta de Água', 'droplets', '#06B6D4', new.id),
-    ('Internet', 'wifi', '#6366F1', new.id),
-    ('Supermercado', 'shopping-cart', '#8B5CF6', new.id),
-    ('Alimentação', 'utensils', '#EF4444', new.id),
-    ('Transporte', 'car', '#6B7280', new.id),
-    ('Lazer', 'clapperboard', '#F472B6', new.id),
-    ('Saúde', 'heart', '#10B981', new.id),
-    ('Educação', 'graduation-cap', '#4F46E5', new.id),
-    ('Assinaturas', 'tv', '#EC4899', new.id),
-    ('Vestuário', 'shirt', '#D946EF', new.id);
+    ('Salário', '💰', '#10B981', 0, new.id), -- Salário geralmente não tem limite de gastos
+    ('Investimentos', '📈', '#059669', 500, new.id),
+    ('Moradia', '🏠', '#3B82F6', 500, new.id),
+    ('Conta de Luz', '⚡', '#F59E0B', 500, new.id),
+    ('Pix', '💸', '#06B6D4', 500, new.id),
+    ('Cartão de Crédito', '💳', '#6366F1', 500, new.id),
+    ('Supermercado', '🛒', '#8B5CF6', 500, new.id),
+    ('Alimentação', '🍔', '#EF4444', 500, new.id),
+    ('Transporte', '🚗', '#6B7280', 500, new.id),
+    ('Lazer', '🎡', '#F472B6', 500, new.id),
+    ('Saúde', '💊', '#10B981', 500, new.id),
+    ('Educação', '📚', '#4F46E5', 500, new.id),
+    ('Assinaturas', '📺', '#EC4899', 500, new.id),
+    ('Vestuário', '👕', '#D946EF', 500, new.id);
 
   RETURN new;
 END;

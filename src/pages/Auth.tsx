@@ -117,26 +117,62 @@ export default function Auth() {
 
   if (isRegistered) {
     return (
-      <div className="flex w-full lg:w-1/2 min-h-screen items-center justify-center p-8 lg:p-16 bg-white dark:bg-[#0c0c1d]">
-        <div className="absolute top-6 right-6">
+      <PageTransition className="min-h-screen flex items-center justify-center p-8 bg-white dark:bg-[#0c0c1d] relative overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full -mr-48 -mt-48"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full -ml-48 -mb-48"></div>
+
+        <div className="absolute top-6 right-6 z-50">
           <ThemeToggle />
         </div>
-        <div className="w-full max-w-md bg-white dark:bg-[#161629] rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 text-center">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-2xl">📧</span>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md relative z-10"
+        >
+          <div className="bg-white dark:bg-[#161629] rounded-[32px] shadow-2xl p-10 border border-gray-100 dark:border-gray-800 text-center relative overflow-hidden">
+             {/* Decorative Background Pattern */}
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+
+            <div className="relative inline-flex mb-8">
+              <div className="w-24 h-24 bg-blue-50 dark:bg-blue-600/10 text-blue-600 rounded-full flex items-center justify-center shadow-inner">
+                <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </div>
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: 'spring' }}
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 border-4 border-white dark:border-[#161629] rounded-full flex items-center justify-center text-white"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </motion.div>
+            </div>
+
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Verifique seu e-mail</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
+              Enviamos um link de confirmação especial para o seu e-mail. <br className="hidden md:block" />
+              Acesse sua caixa de entrada para ativar sua conta e começar sua jornada.
+            </p>
+
+            <button
+              onClick={() => { setIsRegistered(false); toggleMode('login'); }}
+              className="w-full bg-[#0c0c1d] dark:bg-white hover:bg-[#1a1a33] dark:hover:bg-gray-100 text-white dark:text-[#0c0c1d] font-bold py-4 rounded-2xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
+            >
+              Ir para o Login →
+            </button>
+
+            <p className="mt-8 text-xs text-gray-400 dark:text-gray-500 font-medium">
+              Não recebeu? <button className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Reenviar link</button>
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Verifique seu e-mail</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">
-            Enviamos um link de confirmação para o seu e-mail. Acesse sua caixa de entrada para ativar sua conta.
-          </p>
-          <button
-            onClick={() => { setIsRegistered(false); toggleMode('login'); }}
-            className="block w-full bg-[#0c0c1d] dark:bg-blue-600 hover:bg-[#1a1a33] dark:hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors"
-          >
-            Ir para o Login
-          </button>
-        </div>
-      </div>
+        </motion.div>
+      </PageTransition>
     );
   }
 
