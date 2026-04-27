@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Github, Chrome, Mail, Eye, EyeOff, CheckCircle2, Menu, X, Globe, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useForm } from 'react-hook-form';
@@ -20,6 +20,9 @@ const registerSchema = z.object({
   email: z.string().email('E-mail inválido'),
   password: z.string().min(8, 'Mínimo 8 caracteres'),
   confirmPassword: z.string().min(1, 'Confirme sua senha'),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: 'Aceite os termos' }),
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
@@ -57,7 +60,9 @@ const COPY: any = {
       buttonLoading: 'Criando conta...',
       or: 'ou',
       hasAccount: 'Já tem conta? Entrar',
-      hasAccountLink: 'Entrar'
+      hasAccountLink: 'Entrar',
+      termsError: 'Você deve aceitar os termos',
+      termsText: 'Ao continuar, você concorda com nossos'
     },
     login: {
       title: 'Bem-vindo de volta.',
@@ -81,6 +86,13 @@ const COPY: any = {
       home: 'Página Inicial',
       theme: 'Tema',
       language: 'Idioma'
+    },
+    mock: {
+      balance: 'Saldo',
+      lunch: 'iFood - Almoço',
+      today: 'Hoje',
+      transactions: 'transações',
+      apr: 'Abr'
     }
   },
   'en': {
@@ -110,7 +122,9 @@ const COPY: any = {
       buttonLoading: 'Creating account...',
       or: 'or',
       hasAccount: 'Already have an account? Sign in',
-      hasAccountLink: 'Sign in'
+      hasAccountLink: 'Sign in',
+      termsError: 'You must accept the terms',
+      termsText: 'By continuing, you agree to our'
     },
     login: {
       title: 'Welcome back.',
@@ -134,6 +148,13 @@ const COPY: any = {
       home: 'Home Page',
       theme: 'Theme',
       language: 'Language'
+    },
+    mock: {
+      balance: 'Balance',
+      lunch: 'iFood - Lunch',
+      today: 'Today',
+      transactions: 'transactions',
+      apr: 'Apr'
     }
   }
 };
@@ -143,10 +164,26 @@ type Step = 'splash' | 'onboarding1' | 'onboarding2' | 'onboarding3' | 'register
 export default function MobileAuthFlow() {
   const [step, setStep] = useState<Step>('splash');
   const [direction, setDirection] = useState(0); // 1 for next, -1 for back
-  const [lang, setLang] = useState('pt-BR');
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('language');
+    if (saved === 'en' || saved === 'pt-BR') return saved;
+    return 'pt-BR';
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get('mode');
+
+  useEffect(() => {
+    localStorage.setItem('language', lang);
+  }, [lang]);
+
+  useEffect(() => {
+    if (initialMode === 'login') {
+      setStep('login');
+    }
+  }, [initialMode]);
+
   const t = COPY[lang];
 
   // Handle splash timeout
@@ -159,15 +196,15 @@ export default function MobileAuthFlow() {
     }
   }, [step]);
 
-  const nextStep = (next: Step) => {
+  function nextStep(next: Step) {
     setDirection(1);
     setStep(next);
-  };
+  }
 
-  const prevStep = (prev: Step) => {
+  function prevStep(prev: Step) {
     setDirection(-1);
     setStep(prev);
-  };
+  }
 
   const variants = {
     enter: (direction: number) => ({
@@ -208,7 +245,7 @@ export default function MobileAuthFlow() {
             t={t}
             onNext={() => nextStep('onboarding2')}
             onSkip={() => nextStep('register')}
-            image={<TrackIllustration />}
+            image={<TrackIllustration t={t} />}
           />}
           {step === 'onboarding2' && <OnboardingStep
             num="02"
@@ -217,7 +254,7 @@ export default function MobileAuthFlow() {
             t={t}
             onNext={() => nextStep('onboarding3')}
             onSkip={() => nextStep('register')}
-            image={<ImportIllustration />}
+            image={<ImportIllustration t={t} />}
           />}
           {step === 'onboarding3' && <OnboardingStep
             num="03"
@@ -227,7 +264,7 @@ export default function MobileAuthFlow() {
             onNext={() => nextStep('register')}
             onSkip={() => nextStep('register')}
             isLast
-            image={<InsightsIllustration />}
+            image={<InsightsIllustration t={t} />}
           />}
           {step === 'register' && <RegisterStep
             t={t}
@@ -403,14 +440,14 @@ function OnboardingStep({ num, title, desc, onNext, onSkip, isLast, image, t }: 
 
 // --- ILLUSTRATIONS ---
 
-function TrackIllustration() {
+function TrackIllustration({ t }: { t: any }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full"></div>
       <div className="relative w-full bg-white dark:bg-[#161629] p-6 rounded-[24px] shadow-2xl border border-gray-100 dark:border-white/5">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Saldo</div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t.mock.balance}</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">R$ 2.014,70</div>
           </div>
           <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500">
@@ -421,8 +458,8 @@ function TrackIllustration() {
           <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-xl">
              <div className="w-8 h-8 bg-orange-500/20 text-orange-500 rounded-lg flex items-center justify-center text-xs">🍔</div>
              <div className="flex-1">
-               <div className="text-xs font-bold text-gray-900 dark:text-white">iFood - Almoço</div>
-               <div className="text-[10px] text-gray-500">Hoje, 12:30</div>
+               <div className="text-xs font-bold text-gray-900 dark:text-white">{t.mock.lunch}</div>
+               <div className="text-[10px] text-gray-500">{t.mock.today}, 12:30</div>
              </div>
              <div className="text-xs font-bold text-red-500">- R$ 32,50</div>
           </div>
@@ -432,7 +469,7 @@ function TrackIllustration() {
   );
 }
 
-function ImportIllustration() {
+function ImportIllustration({ t }: { t: any }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full"></div>
@@ -442,14 +479,14 @@ function ImportIllustration() {
         </div>
         <div className="text-center">
           <div className="text-sm font-bold text-gray-900 dark:text-white">extrato.csv</div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mt-1">124 transações</div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mt-1">124 {t.mock.transactions}</div>
         </div>
       </div>
     </div>
   );
 }
 
-function InsightsIllustration() {
+function InsightsIllustration({ t }: { t: any }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <div className="absolute inset-0 bg-cyan-500/5 blur-3xl rounded-full"></div>
@@ -462,7 +499,7 @@ function InsightsIllustration() {
           <circle cx="50" cy="50" r="40" stroke="#06b6d4" strokeWidth="12" fill="transparent" strokeDasharray="251.2" strokeDashoffset="230" />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Abr</div>
+          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.mock.apr}</div>
           <div className="text-xl font-bold text-gray-900 dark:text-white">R$ 1.292</div>
         </div>
       </div>
@@ -513,9 +550,6 @@ function RegisterStep({ onBack, onLogin, onOpenMenu, t }: { onBack: () => void, 
   return (
     <div className="flex-1 flex flex-col bg-white dark:bg-[#0c0c1d] p-8 overflow-y-auto">
       <header className="flex items-center justify-between mb-8">
-        <button onClick={onBack} className="p-2 -ml-2 text-gray-900 dark:text-white">
-          <ArrowLeft className="w-6 h-6" />
-        </button>
         <div className="flex items-center gap-2">
           <img src="/logo-expense-tracker.png" alt="Logo" className="w-6 h-6" />
           <span className="text-sm font-bold dark:text-white">Expense Tracker</span>
@@ -547,16 +581,27 @@ function RegisterStep({ onBack, onLogin, onOpenMenu, t }: { onBack: () => void, 
           </button>
         </div>
 
-        <div className="flex items-start gap-3 py-2">
-          <input type="checkbox" className="mt-1 w-5 h-5 rounded-md border-gray-200 dark:border-white/10 dark:bg-white/5" defaultChecked />
-          <p className="text-xs text-gray-500 leading-relaxed">
-            {t.register.terms.split(t.register.termsLink).map((part: string, i: number) => (
-              <React.Fragment key={i}>
-                {part}
-                {i === 0 && <span className="text-blue-500 font-bold underline">{t.register.termsLink}</span>}
-              </React.Fragment>
-            ))}
-          </p>
+        <div className="flex flex-col gap-1 py-2">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              {...register('acceptTerms')}
+              className="mt-1 w-5 h-5 rounded-md border-gray-200 dark:border-white/10 dark:bg-white/5 text-indigo-600 focus:ring-indigo-600/20" 
+            />
+            <p className="text-xs text-gray-500 leading-relaxed">
+              {t.register.terms.split(t.register.termsLink).map((part: string, i: number) => (
+                <React.Fragment key={i}>
+                  {part}
+                  {i === 0 && <Link to="/terms" className="text-blue-500 font-bold underline">{t.register.termsLink}</Link>}
+                </React.Fragment>
+              ))}
+            </p>
+          </label>
+          {errors.acceptTerms && (
+            <p className="text-[10px] text-red-500 font-medium ml-8">
+              {t.register.termsError}
+            </p>
+          )}
         </div>
 
         <button
@@ -586,6 +631,13 @@ function RegisterStep({ onBack, onLogin, onOpenMenu, t }: { onBack: () => void, 
             onClick={() => handleSocialLogin('github')}
           />
         </div>
+
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center px-4 leading-relaxed">
+          {t.register.termsText}{' '}
+          <Link to="/terms" className="text-indigo-500 font-bold underline">
+            {t.register.termsLink}
+          </Link>
+        </p>
 
         <button onClick={onLogin} className="text-sm font-medium text-gray-500">
           {t.register.hasAccount.split(t.register.hasAccountLink).map((part: string, i: number) => (

@@ -67,7 +67,7 @@ const COPY: Record<string, any> = {
       faq: 'FAQ',
       github: 'GitHub',
       signin: 'Entrar',
-      cta: 'Começar grátis',
+      cta: 'Cadastrar',
     },
     hero: {
       badge: '100% open source · gratuito',
@@ -268,7 +268,7 @@ const COPY: Record<string, any> = {
       faq: 'FAQ',
       github: 'GitHub',
       signin: 'Sign in',
-      cta: 'Start free',
+      cta: 'Sign up',
     },
     hero: {
       badge: '100% open source · free forever',
@@ -746,14 +746,11 @@ const STYLE = `
     0 50px 100px -40px rgba(99,102,241,0.25);
   overflow: hidden;
 }
+/* Dashboard mockup stays white even in dark mode as requested */
 .landing-wrapper[data-theme="dark"] .mock {
-  background: #0f0f1e;
-  border-color: #1e1e2e;
-  box-shadow: 
-    0 1px 0 rgba(255,255,255,0.05) inset,
-    0 2px 4px rgba(0,0,0,0.4),
-    0 24px 64px -20px rgba(0,0,0,0.8),
-    0 50px 100px -40px rgba(99,102,241,0.15);
+  background: white;
+  border-color: var(--ink-200);
+  color: var(--ink-900);
 }
 .landing-wrapper .mock::after {
   content: ''; position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; border-radius: 50%;
@@ -762,12 +759,6 @@ const STYLE = `
 }
 @media (max-width: 820px) {
   .landing-wrapper .mock::after { opacity: 1; }
-}
-.landing-wrapper[data-theme="dark"] .mock .mobile-only .ic {
-  background: #17172a !important;
-}
-.landing-wrapper[data-theme="dark"] .mock .mobile-only > div > div {
-  border-top-color: #17172a !important;
 }
 .landing-wrapper .desktop-only { display: block; }
 .landing-wrapper .mobile-only { display: none; }
@@ -1088,7 +1079,7 @@ const Icon = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Nav
 // ─────────────────────────────────────────────────────────────────────────────
-function Nav({ lang, setLang, t, scrolled }: any) {
+function Nav({ lang, setLang, t, scrolled, isMobile }: any) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -1120,10 +1111,10 @@ function Nav({ lang, setLang, t, scrolled }: any) {
                 EN
               </button>
             </div>
-            <Link to="/login" className="btn btn-ghost btn-sm">
+            <Link to={isMobile ? "/welcome?mode=login" : "/login"} className="btn btn-ghost btn-sm">
               {t.nav.signin}
             </Link>
-            <Link to="/register" className="btn btn-primary btn-sm">
+            <Link to={isMobile ? "/welcome" : "/register"} className="btn btn-primary btn-sm">
               {t.nav.cta}
             </Link>
           </div>
@@ -1177,10 +1168,10 @@ function Nav({ lang, setLang, t, scrolled }: any) {
                 </button>
               </div>
             </div>
-            <Link to="/login" className="btn btn-ghost" onClick={() => setMenuOpen(false)}>
+            <Link to={isMobile ? "/welcome?mode=login" : "/login"} className="btn btn-ghost" onClick={() => setMenuOpen(false)}>
               {t.nav.signin}
             </Link>
-            <Link to="/register" className="btn btn-primary" onClick={() => setMenuOpen(false)}>
+            <Link to={isMobile ? "/welcome" : "/register"} className="btn btn-primary" onClick={() => setMenuOpen(false)}>
               {t.nav.cta}
             </Link>
           </div>
@@ -2233,7 +2224,7 @@ function Footer({ t }: any) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Landing() {
   useTheme();
-  const [lang, setLang] = useState('pt-BR');
+  const [lang, setLang] = useState(() => localStorage.getItem('language') || 'pt-BR');
   const [isDark, setIsDark] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -2261,6 +2252,7 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    localStorage.setItem('language', lang);
     document.documentElement.lang = lang === 'pt-BR' ? 'pt-BR' : 'en';
   }, [lang]);
 
@@ -2285,7 +2277,7 @@ export default function Landing() {
       }}
     >
       <style>{STYLE}</style>
-      <Nav lang={lang} setLang={setLang} t={t} isDark={isDark} scrolled={scrolled} />
+      <Nav lang={lang} setLang={setLang} t={t} scrolled={scrolled} isMobile={isMobile} />
       <Hero t={t} isMobile={isMobile} />
       <Problems t={t} />
       <Features t={t} />

@@ -30,6 +30,9 @@ const registerSchema = z
       .regex(/\d/, 'Deve conter pelo menos um número')
       .regex(/[^A-Za-z0-9]/, 'Deve conter pelo menos um símbolo'),
     confirmPassword: z.string(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: 'Você deve aceitar os termos' }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
@@ -63,7 +66,11 @@ const COPY: any = {
       button: 'Criar conta',
       buttonLoading: 'Criando...',
       hasAccount: 'Já tem uma conta?',
-      signin: 'Entrar'
+      signin: 'Entrar',
+      terms: 'Concordo com os Termos e Privacidade.',
+      termsLink: 'Termos',
+      termsError: 'Você deve aceitar os termos',
+      termsText: 'Ao continuar, você concorda com nossos'
     },
     success: {
       title: 'Verifique seu e-mail',
@@ -96,7 +103,11 @@ const COPY: any = {
       button: 'Create account',
       buttonLoading: 'Creating...',
       hasAccount: 'Already have an account?',
-      signin: 'Sign in'
+      signin: 'Sign in',
+      terms: 'I agree to the Terms and Privacy.',
+      termsLink: 'Terms',
+      termsError: 'You must accept the terms',
+      termsText: 'By continuing, you agree to our'
     },
     success: {
       title: 'Check your email',
@@ -118,7 +129,11 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
-  const [lang, setLang] = useState('pt-BR');
+  const [lang, setLang] = useState(() => localStorage.getItem('language') || 'pt-BR');
+  
+  useEffect(() => {
+    localStorage.setItem('language', lang);
+  }, [lang]);
   
   const t = COPY[lang];
 
@@ -479,6 +494,13 @@ export default function Auth() {
               </button>
             </div>
 
+            <p className="text-[10px] text-gray-500 text-center mb-8 px-4 leading-relaxed">
+              {t.register.termsText}{' '}
+              <Link to="/terms" className="text-blue-600 dark:text-blue-400 font-bold underline hover:text-blue-700">
+                {t.register.termsLink}
+              </Link>
+            </p>
+
             {/* Separator */}
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center">
@@ -630,6 +652,29 @@ export default function Auth() {
                       `${t.register.button} →`
                     )}
                   </button>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        {...registerForm.register('acceptTerms')}
+                        className="mt-1 w-5 h-5 rounded border-gray-200 dark:border-gray-800 text-blue-600 focus:ring-blue-600/20 bg-gray-50 dark:bg-[#161629]"
+                      />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {t.register.terms.split(t.register.termsLink).map((part: string, i: number) => (
+                          <span key={i}>
+                            {part}
+                            {i === 0 && <Link to="/terms" className="text-blue-600 dark:text-blue-400 font-bold underline hover:text-blue-700">{t.register.termsLink}</Link>}
+                          </span>
+                        ))}
+                      </span>
+                    </label>
+                    {registerForm.formState.errors.acceptTerms && (
+                      <p className="text-xs text-red-600">
+                        {lang === 'pt-BR' ? t.register.termsError : 'You must accept the terms'}
+                      </p>
+                    )}
+                  </div>
                 </motion.form>
               )}
             </AnimatePresence>

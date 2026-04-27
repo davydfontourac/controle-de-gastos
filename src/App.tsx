@@ -12,6 +12,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { PrivateRoute, PublicRoute } from '@/components/RouteGuards';
 import { MainLayout } from '@/components/MainLayout';
 import MobileAuthFlow from '@/pages/MobileAuthFlow';
+import Terms from '@/pages/Terms';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/welcome" element={<MobileAuthFlow />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/terms" element={<Terms />} />
         </Route>
 
         {/* Rotas Privadas (apenas logados) */}
