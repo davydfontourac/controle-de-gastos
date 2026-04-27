@@ -3,9 +3,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { supabase } from '@/services/supabase';
 import { cn } from '@/utils/cn';
-import { X, ArrowUpCircle, ArrowDownCircle, Loader2, Tag } from 'lucide-react';
+import { X, ArrowUpCircle, ArrowDownCircle, Loader2, Tag, ChevronLeft, Check, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { useMobile } from '@/hooks/useMobile';
 
 const formSchema = z.object({
   description: z.string().min(1, 'A descrição é obrigatória.'),
@@ -26,14 +28,28 @@ type FormValues = z.infer<typeof formSchema>;
 interface Category {
   id: string;
   name: string;
+  icon?: string;
+  color?: string;
 }
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  transaction?: any; // To load data when editing
+  transaction?: any;
 }
+
+const CAT_EMOJI: Record<string, string> = {
+  Alimentação: '🍔',
+  Transporte: '🚗',
+  Supermercado: '🛒',
+  Pix: '⚡',
+  Receita: '💰',
+  Débito: '💳',
+  Saúde: '💊',
+  Lazer: '🎬',
+  Educação: '📚',
+};
 
 export default function TransactionForm({
   isOpen,
@@ -42,6 +58,7 @@ export default function TransactionForm({
   transaction,
 }: Readonly<Props>) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const isMobile = useMobile();
 
   const {
     register,
@@ -64,8 +81,9 @@ export default function TransactionForm({
 
   const selectedType = watch('type');
   const isRecurrent = watch('is_recurrent');
+  const selectedCategoryId = watch('category_id');
+  const currentAmount = watch('amount');
 
-  // Load categories when opening
   useEffect(() => {
     if (isOpen) {
       supabase
@@ -78,7 +96,6 @@ export default function TransactionForm({
     }
   }, [isOpen]);
 
-  // Load data if editing
   useEffect(() => {
     if (isOpen) {
       if (transaction) {
@@ -107,13 +124,6 @@ export default function TransactionForm({
     }
   }, [transaction, isOpen, reset]);
 
-  // Ensures the category value is applied when categories are loaded
-  useEffect(() => {
-    if (transaction && isOpen && categories.length > 0) {
-      setValue('category_id', transaction.category_id ? String(transaction.category_id) : null);
-    }
-  }, [transaction, isOpen, categories, setValue]);
-
   if (!isOpen) return null;
 
   async function onSubmit(data: FormValues) {
@@ -121,7 +131,7 @@ export default function TransactionForm({
       const payload = {
         ...data,
         amount: Number(data.amount),
-        category_id: data.category_id || null, // UUID is string
+        category_id: data.category_id || null,
         installments: Number(data.installments),
       };
 
@@ -160,10 +170,146 @@ export default function TransactionForm({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      const axiosError = error as { response?: { data?: { error?: string } } };
-      toast.error(axiosError.response?.data?.error ?? 'Erro ao salvar transação.');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar transação.');
     }
+  }
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-white dark:bg-[#0c0c1d] flex flex-col animate-in slide-in-from-bottom duration-300">
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between">
+           <button onClick={onClose} className="p-2.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+              <X size={20} className="text-gray-600 dark:text-gray-400" />
+           </button>
+           <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {transaction ? 'Editar' : 'Nova transação'}
+           </h2>
+           <button 
+             onClick={handleSubmit(onSubmit)}
+             disabled={isSubmitting}
+             className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs"
+           >
+              {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : 'Salvar'}
+           </button>
+        </header>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-6 pb-12 space-y-8">
+           {/* Amount Input */}
+           <div className="text-center py-8">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Valor</div>
+              <div className="flex items-center justify-center gap-2">
+                 <span className="text-2xl font-bold text-gray-400">R$</span>
+                 <input 
+                   type="number"
+                   step="0.01"
+                   placeholder="0,00"
+                   {...register('amount')}
+                   autoFocus
+                   className="text-5xl font-bold text-gray-900 dark:text-white bg-transparent border-none outline-none w-full max-w-[250px] text-center"
+                 />
+              </div>
+           </div>
+
+           {/* Type Tabs */}
+           <div className="bg-gray-50 dark:bg-white/5 p-1 rounded-2xl flex">
+              <button
+                type="button"
+                onClick={() => setValue('type', 'income')}
+                className={cn(
+                  "flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
+                  selectedType === 'income' ? "bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-sm" : "text-gray-400"
+                )}
+              >
+                Receita
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue('type', 'expense')}
+                className={cn(
+                  "flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
+                  selectedType === 'expense' ? "bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-sm" : "text-gray-400"
+                )}
+              >
+                Despesa
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue('type', 'transfer_out')}
+                className={cn(
+                  "flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
+                  selectedType.startsWith('transfer') ? "bg-white dark:bg-white/10 text-indigo-600 dark:text-white shadow-sm" : "text-gray-400"
+                )}
+              >
+                Transfer.
+              </button>
+           </div>
+
+           {/* Categories Grid */}
+           <div>
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Categoria</div>
+              <div className="grid grid-cols-4 gap-4">
+                 {categories.map((cat) => (
+                   <button
+                     key={cat.id}
+                     type="button"
+                     onClick={() => setValue('category_id', cat.id)}
+                     className="flex flex-col items-center gap-2"
+                   >
+                      <div className={cn(
+                        "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all border-2",
+                        selectedCategoryId === cat.id 
+                          ? "bg-white dark:bg-white/10 border-indigo-500 shadow-lg shadow-indigo-500/20" 
+                          : "bg-white dark:bg-[#161629] border-gray-100 dark:border-white/5"
+                      )}>
+                         {cat.icon || CAT_EMOJI[cat.name] || '💰'}
+                      </div>
+                      <span className={cn("text-[9px] font-bold uppercase tracking-tighter truncate w-full text-center", selectedCategoryId === cat.id ? "text-indigo-600 dark:text-white" : "text-gray-400")}>
+                        {cat.name}
+                      </span>
+                   </button>
+                 ))}
+                 <Link to="/categories" className="flex flex-col items-center gap-2">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 dark:border-white/10">
+                       <Plus size={24} />
+                    </div>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Nova</span>
+                 </Link>
+              </div>
+           </div>
+
+           {/* Other Inputs */}
+           <div className="space-y-6">
+              <div>
+                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Descrição</div>
+                 <input 
+                   type="text"
+                   placeholder="Ex: iFood - Almoço"
+                   {...register('description')}
+                   className="w-full bg-white dark:bg-[#161629] p-4 rounded-2xl border border-gray-100 dark:border-white/5 text-sm font-medium text-gray-900 dark:text-white focus:border-indigo-500 outline-none transition-all"
+                 />
+              </div>
+
+              <div>
+                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Data</div>
+                 <input 
+                   type="date"
+                   {...register('date')}
+                   className="w-full bg-white dark:bg-[#161629] p-4 rounded-2xl border border-gray-100 dark:border-white/5 text-sm font-medium text-gray-900 dark:text-white focus:border-indigo-500 outline-none transition-all"
+                 />
+              </div>
+
+              <div>
+                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Conta</div>
+                 <div className="w-full bg-white dark:bg-[#161629] p-4 rounded-2xl border border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">Nubank · Conta principal</span>
+                    <ChevronLeft size={16} className="rotate-180 text-gray-400" />
+                 </div>
+              </div>
+           </div>
+        </form>
+      </div>
+    );
   }
 
   return (

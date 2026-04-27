@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Plus, Search, X, FileUp, Tag } from 'lucide-react';
+import { Plus, Search, X, FileUp, Tag, ArrowUpRight, ArrowDownLeft, MinusCircle, LayoutGrid, Bell, ChevronRight, TrendingUp, Loader2, Receipt, Crosshair } from 'lucide-react';
+import { useMobile } from '@/hooks/useMobile';
+import PageTransition from '@/components/PageTransition';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -41,7 +43,7 @@ interface MonthlyHistory {
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { profile, isLoading: isAuthLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isConfirmClearOpen, setIsConfirmClearOpen] = useState(false);
@@ -131,9 +133,189 @@ export default function Dashboard() {
   }, []);
 
   const typedHistory = history as MonthlyHistory[];
+  const isMobile = useMobile();
+
+  if (isAuthLoading || isLoading && transactions.length === 0) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-transparent">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <PageTransition className="min-h-screen bg-[#f8f9fc] dark:bg-[#0c0c1d] pb-32">
+        {/* Header */}
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-blue-600/20">ET</div>
+             <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Expense Tracker</h1>
+          </div>
+          <div className="flex items-center gap-3">
+             <button className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                <Bell size={20} className="text-gray-600 dark:text-gray-400" />
+             </button>
+             <Link to="/profile" className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
+                {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
+             </Link>
+          </div>
+        </header>
+
+        {/* Balance Card */}
+        <div className="px-6 mb-8">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#4f46e5] via-[#6366f1] to-[#8b5cf6] rounded-[32px] p-6 shadow-2xl shadow-indigo-500/30">
+            {/* Background Chart (Wavy Line) */}
+            <div className="absolute inset-0 opacity-20 mt-12 pointer-events-none">
+              <svg viewBox="0 0 400 150" preserveAspectRatio="none" className="w-full h-full">
+                <path d="M0,100 C50,80 100,120 150,90 C200,60 250,110 300,70 C350,30 400,60 400,60 V150 H0 Z" fill="white" />
+              </svg>
+            </div>
+
+            <div className="relative z-10">
+              <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1 flex items-center gap-2">
+                Saldo · {format(new Date(), 'MMM yyyy', { locale: ptBR }).toUpperCase()}
+              </div>
+              <div className="text-3xl font-bold text-white mb-2">{fmt(summary.availableBalance)}</div>
+              <div className="flex items-center gap-1.5 text-xs font-medium text-white/90">
+                <TrendingUp size={14} className="text-green-300" />
+                <span>+ {fmt(89.12)} (+4.2%) este mês</span>
+              </div>
+
+              {/* Action Buttons Inside Card */}
+              <div className="grid grid-cols-4 gap-2 mt-8">
+                <button onClick={() => setIsModalOpen(true)} className="flex flex-col items-center gap-2">
+                  <div className="w-11 h-11 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl flex items-center justify-center text-white transition-all active:scale-90">
+                    <ArrowUpRight size={20} />
+                  </div>
+                  <span className="text-[9px] font-bold text-white uppercase tracking-tighter">Enviar</span>
+                </button>
+                <button onClick={() => setIsModalOpen(true)} className="flex flex-col items-center gap-2">
+                  <div className="w-11 h-11 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl flex items-center justify-center text-white transition-all active:scale-90">
+                    <ArrowDownLeft size={20} />
+                  </div>
+                  <span className="text-[9px] font-bold text-white uppercase tracking-tighter">Receber</span>
+                </button>
+                <button onClick={() => setIsModalOpen(true)} className="flex flex-col items-center gap-2">
+                  <div className="w-11 h-11 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl flex items-center justify-center text-white transition-all active:scale-90">
+                    <Plus size={20} />
+                  </div>
+                  <span className="text-[9px] font-bold text-white uppercase tracking-tighter">Gasto</span>
+                </button>
+                <Link to="/goals" className="flex flex-col items-center gap-2">
+                  <div className="w-11 h-11 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl flex items-center justify-center text-white transition-all active:scale-90">
+                    <Crosshair size={20} />
+                  </div>
+                  <span className="text-[9px] font-bold text-white uppercase tracking-tighter">Metas</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Grid */}
+        <div className="px-6 grid grid-cols-2 gap-4 mb-10">
+          <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Receitas</div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalIncome)}</div>
+            <div className="mt-2 text-[10px] font-bold text-green-500 flex items-center gap-1">
+               <ArrowUpRight size={12} />
+               +12%
+            </div>
+          </div>
+          <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Despesas</div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalExpense)}</div>
+            <div className="mt-2 text-[10px] font-bold text-red-500 flex items-center gap-1">
+               <ArrowDownLeft size={12} />
+               -3.1%
+            </div>
+          </div>
+          <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Caixinhas</div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white">R$ {Math.round(summary.caixinhaBalance / 1000)}k</div>
+            <div className="mt-2 text-[10px] font-bold text-green-500 flex items-center gap-1">
+               <Plus size={12} />
+               +0.3%
+            </div>
+          </div>
+          <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Metas</div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white">3/5</div>
+            <div className="mt-2 text-[10px] font-bold text-blue-500 flex items-center gap-1 uppercase">
+               no ritmo
+            </div>
+          </div>
+        </div>
+
+        {/* Categories Section */}
+        <div className="px-6 mb-10">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Categorias</h3>
+             <Link to="/categories" className="text-[10px] font-bold text-gray-400 uppercase tracking-widest hover:text-blue-500 transition-colors">Ver tudo</Link>
+          </div>
+          <div className="bg-white dark:bg-[#161629] p-6 rounded-[32px] border border-gray-100 dark:border-white/5 shadow-sm flex items-center gap-6">
+             <div className="w-32 h-32 shrink-0">
+                <Donut 
+                  segs={categoriesData} 
+                  centerLabel="ABR" 
+                  centerValue={fmt(summary.totalExpense).replace('R$ ', '').split(',')[0] + 'k'} 
+                />
+             </div>
+             <div className="flex-1 space-y-2">
+                {categoriesData.slice(0, 4).map((c) => (
+                  <div key={c.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                       <div className="w-2 h-2 rounded-full" style={{ background: c.color }} />
+                       <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{c.name}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400">{c.pct}%</span>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </div>
+
+        {/* Latest Transactions */}
+        <div className="px-6 mb-10">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Últimas transações</h3>
+             <Link to="/transactions" className="text-[10px] font-bold text-gray-400 uppercase tracking-widest hover:text-blue-500 transition-colors">Ver tudo</Link>
+          </div>
+          <div className="space-y-3">
+            {transactions.slice(0, 5).map((t) => (
+              <div 
+                key={t.id} 
+                className="bg-white dark:bg-[#161629] p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm flex items-center gap-4 active:scale-[0.98] transition-transform"
+                onClick={() => handleEdit(t)}
+              >
+                <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                  {CAT_EMOJI[t.categories?.name || ''] || '💰'}
+                </div>
+                <div className="flex-1">
+                   <div className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[120px]">{t.description}</div>
+                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{t.categories?.name} · HOJE</div>
+                </div>
+                <div className={cn("text-sm font-bold", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white')}>
+                   {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <TransactionForm
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSuccess={fetchData}
+          transaction={editingTransaction}
+        />
+      </PageTransition>
+    );
+  }
 
   return (
-    <main className="A-main h-screen overflow-y-auto w-full">
+    <PageTransition className="A-main h-screen overflow-y-auto w-full">
       {/* Top Header */}
       <div className="A-top">
         <div>
@@ -473,6 +655,6 @@ export default function Dashboard() {
         description={`Isso apagará permanentemente todas as transações deste período. Esta ação não pode ser desfeita.`}
         isLoading={isLoading}
       />
-    </main>
+    </PageTransition>
   );
 }

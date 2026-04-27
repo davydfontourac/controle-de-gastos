@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Search, Download, Upload, Trash2, MoreHorizontal } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Search, Download, Upload, Trash2, MoreHorizontal, Bell, ChevronLeft, Filter, ArrowUpRight, ArrowDownLeft, Loader2, Receipt } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
-import { format } from 'date-fns';
+import { useCategories } from '@/hooks/useCategories';
+import { useMobile } from '@/hooks/useMobile';
+import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import TransactionForm from '@/components/TransactionForm';
 import ImportWizard from '@/components/ImportWizard/ImportWizard';
@@ -33,6 +36,7 @@ export default function Transactions() {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const isMobile = useMobile();
 
   const {
     transactions,
@@ -42,6 +46,7 @@ export default function Transactions() {
     deleteTransaction,
     deleteTransactionsByMonth,
   } = useTransactions();
+  const { categories } = useCategories();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const [filters, setFilters] = useState({
@@ -88,6 +93,130 @@ export default function Transactions() {
     setIsConfirmDeleteAllOpen(false);
     fetchData();
   };
+
+  // Group transactions by date for mobile
+  const groupedTransactions = useMemo(() => {
+    const groups: Record<string, Transaction[]> = {};
+    transactions.forEach((t) => {
+      const date = new Date(t.date);
+      let label = '';
+      if (isToday(date)) label = 'HOJE';
+      else if (isYesterday(date)) label = 'ONTEM';
+      else label = format(date, "dd 'de' MMM", { locale: ptBR }).toUpperCase();
+      
+      if (!groups[label]) groups[label] = [];
+      groups[label].push(t);
+    });
+    return Object.entries(groups);
+  }, [transactions]);
+
+  if (isMobile) {
+    return (
+      <PageTransition className="min-h-screen bg-[#f8f9fc] dark:bg-[#0c0c1d] pb-32">
+        {/* Mobile Header */}
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between sticky top-0 bg-[#f8f9fc]/80 dark:bg-[#0c0c1d]/80 backdrop-blur-xl z-20">
+           <div className="flex items-center gap-4">
+              <Link to="/dashboard" className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                 <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Transações</h1>
+           </div>
+           <div className="flex items-center gap-2">
+              <button className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                 <Search size={20} className="text-gray-600 dark:text-gray-400" />
+              </button>
+              <button className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                 <Filter size={20} className="text-gray-600 dark:text-gray-400" />
+              </button>
+           </div>
+        </header>
+
+        {/* Filter Chips */}
+        <div className="px-6 mb-6 flex gap-2 overflow-x-auto no-scrollbar py-2">
+          {['Todas', 'Entradas', 'Saídas', 'Pix', 'Débito', 'Crédito'].map((tag) => {
+             const isActive = (tag === 'Todas' && filters.type === 'all') || 
+                            (tag === 'Entradas' && filters.type === 'income') ||
+                            (tag === 'Saídas' && filters.type === 'expense');
+             return (
+               <button
+                 key={tag}
+                 onClick={() => {
+                    if (tag === 'Todas') setFilters(f => ({...f, type: 'all'}));
+                    if (tag === 'Entradas') setFilters(f => ({...f, type: 'income'}));
+                    if (tag === 'Saídas') setFilters(f => ({...f, type: 'expense'}));
+                 }}
+                 className={cn(
+                   "px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all shadow-sm border",
+                   isActive 
+                    ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white" 
+                    : "bg-white dark:bg-[#161629] text-gray-400 border-gray-100 dark:border-white/5"
+                 )}
+               >
+                 {tag}
+               </button>
+             );
+          })}
+        </div>
+
+        {/* List Content */}
+        <div className="px-6 space-y-8">
+           {groupedTransactions.map(([label, txs]) => (
+             <div key={label}>
+                <div className="flex items-center justify-between mb-4">
+                   <div className="text-[10px] font-bold text-gray-400 tracking-widest">{label}</div>
+                   <div className="text-[10px] font-bold text-gray-400 tracking-widest">
+                      {fmt(txs.reduce((acc, t) => acc + (t.type === 'income' ? t.amount : -t.amount), 0))}
+                   </div>
+                </div>
+                <div className="space-y-3">
+                   {txs.map((t) => (
+                      <div 
+                        key={t.id} 
+                        className="bg-white dark:bg-[#161629] p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm flex items-center gap-4 active:scale-[0.98] transition-transform"
+                        onClick={() => handleEdit(t)}
+                      >
+                        <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                           {CAT_EMOJI[t.categories?.name || ''] || '💰'}
+                        </div>
+                        <div className="flex-1">
+                           <div className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{t.description}</div>
+                           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{t.categories?.name} · {format(new Date(t.date), 'HH:mm')}</div>
+                        </div>
+                        <div className={cn("text-sm font-bold", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white')}>
+                           {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}
+                        </div>
+                      </div>
+                   ))}
+                </div>
+             </div>
+           ))}
+
+           {transactions.length === 0 && !isLoading && (
+              <div className="py-20 text-center flex flex-col items-center gap-4">
+                 <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center">
+                    <Receipt className="text-gray-400" size={32} />
+                 </div>
+                 <div className="text-sm font-medium text-gray-500">Nenhuma transação encontrada</div>
+              </div>
+           )}
+
+           {isLoading && (
+              <div className="py-20 text-center flex flex-col items-center gap-4">
+                 <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+                 <div className="text-sm font-medium text-gray-500">Buscando transações...</div>
+              </div>
+           )}
+        </div>
+
+        <TransactionForm
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSuccess={fetchData}
+          transaction={editingTransaction}
+        />
+      </PageTransition>
+    );
+  }
 
   return (
     <PageTransition className="A-main h-screen overflow-y-auto w-full">
@@ -335,24 +464,5 @@ export default function Transactions() {
         description={`Tem certeza que deseja excluir TODAS as ${transactions.length} transações de ${currentMonthName}? Esta ação é irreversível.`}
       />
     </PageTransition>
-  );
-}
-
-function Loader2(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
   );
 }

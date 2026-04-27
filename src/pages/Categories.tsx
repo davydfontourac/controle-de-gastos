@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/services/supabase';
-import { Plus, MoreHorizontal } from 'lucide-react';
+import { Plus, MoreHorizontal, ChevronLeft, LayoutGrid, Bell, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmModal from '@/components/ConfirmModal';
 import CategoryForm from '@/components/CategoryForm';
@@ -8,22 +8,14 @@ import PageTransition from '@/components/PageTransition';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
-
+import { Link } from 'react-router-dom';
+import { Donut } from '@/components/Donut';
+import { useMobile } from '@/hooks/useMobile';
 import { MonthYearPicker } from '@/components/MonthYearPicker';
-
 import { useCategories } from '@/hooks/useCategories';
 import type { Category } from '@/hooks/useCategories';
 
-const SKELETON_CAT_IDS = [
-  'sk-c-1',
-  'sk-c-2',
-  'sk-c-3',
-  'sk-c-4',
-  'sk-c-5',
-  'sk-c-6',
-  'sk-c-7',
-  'sk-c-8',
-];
+const SKELETON_CAT_IDS = ['sk-c-1', 'sk-c-2', 'sk-c-3', 'sk-c-4'];
 
 const fmt = (n: number) =>
   'R$ ' +
@@ -35,6 +27,7 @@ export default function Categories() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isMobile = useMobile();
   const [filters, setFilters] = useState({
     month: String(new Date().getMonth() + 1),
     year: String(new Date().getFullYear()),
@@ -96,9 +89,8 @@ export default function Categories() {
       toast.success('Categoria excluída com sucesso');
       fetchCategories();
       setDeletingCategory(null);
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      toast.error(error.message || 'Erro ao excluir categoria');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao excluir categoria');
     } finally {
       setIsDeleting(false);
     }
@@ -108,6 +100,107 @@ export default function Categories() {
     setEditingCategory(category);
     setIsFormOpen(true);
   };
+
+  const donutData = useMemo(() => {
+    return categories.map(c => ({
+      name: c.name,
+      total: categoryTotals[c.id] || 0,
+      pct: totalSpentMonth > 0 ? Math.round(((categoryTotals[c.id] || 0) / totalSpentMonth) * 100) : 0,
+      color: c.color
+    })).sort((a, b) => b.total - a.total);
+  }, [categories, categoryTotals, totalSpentMonth]);
+
+  if (isMobile) {
+    return (
+      <PageTransition className="min-h-screen bg-[#f8f9fc] dark:bg-[#0c0c1d] pb-32">
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between sticky top-0 bg-[#f8f9fc]/80 dark:bg-[#0c0c1d]/80 backdrop-blur-xl z-20">
+           <div className="flex items-center gap-4">
+              <Link to="/dashboard" className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                 <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Categorias</h1>
+           </div>
+           <button 
+             onClick={() => { setEditingCategory(null); setIsFormOpen(true); }}
+             className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm"
+           >
+              <Plus size={20} className="text-gray-600 dark:text-gray-400" />
+           </button>
+        </header>
+
+        {/* Donut Summary Card */}
+        <div className="px-6 mb-8">
+           <div className="bg-white dark:bg-[#161629] p-6 rounded-[32px] border border-gray-100 dark:border-white/5 shadow-sm">
+              <div className="flex items-center gap-8">
+                 <div className="w-32 h-32 shrink-0">
+                    <Donut 
+                      segs={donutData} 
+                      centerLabel="TOTAL" 
+                      centerValue={fmt(totalSpentMonth).replace('R$ ', '').split(',')[0] + 'k'} 
+                    />
+                 </div>
+                 <div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">TOTAL NO MÊS</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{fmt(totalSpentMonth)}</div>
+                    <div className="mt-2 text-[10px] font-bold text-red-500 flex items-center gap-1">
+                       <Plus size={12} className="rotate-45" />
+                       -3.1% vs março
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* List Content */}
+        <div className="px-6">
+           <div className="text-[10px] font-bold text-gray-400 tracking-widest mb-6 uppercase">Todas categorias</div>
+           <div className="space-y-4">
+              {categories.map((c) => {
+                const spent = categoryTotals[c.id] || 0;
+                const hasLimit = (c.monthly_limit || 0) > 0;
+                const pctOfLimit = hasLimit ? Math.min((spent / c.monthly_limit) * 100, 100) : 0;
+                const pctOfTotal = totalSpentMonth > 0 ? (spent / totalSpentMonth) * 100 : 0;
+
+                return (
+                  <div 
+                    key={c.id} 
+                    className="bg-white dark:bg-[#161629] p-4 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm active:scale-[0.98] transition-transform"
+                    onClick={() => handleEdit(c)}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                       <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner" style={{ backgroundColor: `${c.color}15`, color: c.color }}>
+                          {c.icon || '💰'}
+                       </div>
+                       <div className="flex-1">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">{c.name}</div>
+                          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                             {hasLimit ? `14 TX · ORÇ. ${fmt(c.monthly_limit)}` : '14 TX · SEM LIMITE'}
+                          </div>
+                       </div>
+                       <div className="text-right">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">{fmt(spent)}</div>
+                          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{Math.round(hasLimit ? pctOfLimit : pctOfTotal)}%</div>
+                       </div>
+                    </div>
+                    {/* Progress Bar */}
+                    <div className="h-1.5 w-full bg-gray-50 dark:bg-white/5 rounded-full overflow-hidden">
+                       <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${hasLimit ? pctOfLimit : pctOfTotal}%`, backgroundColor: c.color }} />
+                    </div>
+                  </div>
+                );
+              })}
+           </div>
+        </div>
+
+        <CategoryForm
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={fetchCategories}
+          category={editingCategory}
+        />
+      </PageTransition>
+    );
+  }
 
   return (
     <PageTransition className="A-main h-screen overflow-y-auto w-full">

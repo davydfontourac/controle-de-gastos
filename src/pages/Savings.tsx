@@ -8,13 +8,18 @@ import {
   MoreHorizontal,
   Trash2,
   Edit2,
+  ChevronLeft,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSavings, type SavingsGoal } from '@/hooks/useSavings';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useMobile } from '@/hooks/useMobile';
+import { Link } from 'react-router-dom';
 import SavingsForm from '@/components/SavingsForm';
 import AporteModal from '@/components/AporteModal';
 import ConfirmModal from '@/components/ConfirmModal';
+import { cn } from '@/utils/cn';
 
 const fmt = (n: number) =>
   'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -22,6 +27,7 @@ const fmt = (n: number) =>
 export default function Savings() {
   const { goals, isLoading, fetchGoals, upsertGoal, deleteGoal, addDeposit } = useSavings();
   const { summary, fetchTransactions } = useTransactions();
+  const isMobile = useMobile();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isAporteOpen, setIsAporteOpen] = useState(false);
@@ -65,6 +71,97 @@ export default function Savings() {
       setSelectedGoal(null);
     }
   };
+
+  if (isMobile) {
+    return (
+      <PageTransition className="min-h-screen bg-[#f8f9fc] dark:bg-[#0c0c1d] pb-32">
+        <header className="px-6 pt-12 pb-6 flex items-center justify-between sticky top-0 bg-[#f8f9fc]/80 dark:bg-[#0c0c1d]/80 backdrop-blur-xl z-20">
+           <div className="flex items-center gap-4">
+              <Link to="/dashboard" className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm">
+                 <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Caixinhas</h1>
+           </div>
+           <button 
+             onClick={() => { setSelectedGoal(null); setIsFormOpen(true); }}
+             className="p-2.5 bg-white dark:bg-[#161629] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm"
+           >
+              <Plus size={20} className="text-gray-600 dark:text-gray-400" />
+           </button>
+        </header>
+
+        {/* Total Saved Card */}
+        <div className="px-6 mb-8">
+           <div className="bg-white dark:bg-[#161629] p-6 rounded-[32px] border border-gray-100 dark:border-white/5 shadow-sm relative overflow-hidden">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">TOTAL GUARDADO</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{fmt(totalReserved)}</div>
+              <div className="flex items-center gap-1.5 text-xs font-medium text-green-500">
+                <TrendingUp size={14} />
+                <span>+ R$ 420 este mês · 4 caixinhas ativas</span>
+              </div>
+              
+              {/* Abstract mini-chart */}
+              <div className="absolute bottom-0 right-0 w-32 h-16 pointer-events-none opacity-50">
+                 <svg viewBox="0 0 100 40" className="w-full h-full">
+                    <path d="M0,40 L20,35 L40,38 L60,30 L80,32 L100,20" fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M0,40 L20,35 L40,38 L60,30 L80,32 L100,20 L100,40 L0,40" fill="url(#grad)" opacity="0.3" />
+                    <defs>
+                       <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0 }} />
+                       </linearGradient>
+                    </defs>
+                 </svg>
+              </div>
+           </div>
+        </div>
+
+        {/* List Content */}
+        <div className="px-6">
+           <div className="text-[10px] font-bold text-gray-400 tracking-widest mb-6 uppercase">Suas caixinhas</div>
+           <div className="space-y-4">
+              {goals.map((goal) => {
+                const pct = goal.target_amount > 0 ? Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100) : 0;
+                return (
+                  <div 
+                    key={goal.id} 
+                    className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm active:scale-[0.98] transition-transform"
+                    onClick={() => handleAddAporte(goal)}
+                  >
+                    <div className="flex items-center gap-4 mb-5">
+                       <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner bg-blue-50/50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                          {goal.icon || '💰'}
+                       </div>
+                       <div className="flex-1">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">{goal.name}</div>
+                          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Reserva de emergência</div>
+                       </div>
+                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{pct}%</div>
+                    </div>
+                    <div className="mb-2">
+                       <div className="flex items-baseline justify-between mb-2">
+                          <div className="text-base font-bold text-gray-900 dark:text-white">{fmt(goal.current_amount)}</div>
+                          <div className="text-[10px] font-bold text-gray-400">DE {fmt(goal.target_amount)}</div>
+                       </div>
+                       <div className="h-1.5 w-full bg-gray-50 dark:bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-green-500 transition-all duration-1000" style={{ width: `${pct}%` }} />
+                       </div>
+                    </div>
+                  </div>
+                );
+              })}
+           </div>
+        </div>
+
+        <SavingsForm
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onConfirm={upsertGoal}
+          goal={selectedGoal}
+        />
+      </PageTransition>
+    );
+  }
 
   return (
     <PageTransition className="A-main h-screen overflow-y-auto w-full">
@@ -253,7 +350,6 @@ export default function Savings() {
         )}
       </div>
 
-      {/* Modals */}
       <SavingsForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}

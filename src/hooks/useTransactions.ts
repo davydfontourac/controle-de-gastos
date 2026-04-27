@@ -59,11 +59,15 @@ export function useTransactions() {
           query = query.gte('date', startDate).lte('date', endDate);
         }
 
+        const now = new Date();
+        const effectiveMonth = monthNum || (now.getMonth() + 1);
+        const effectiveYear = yearNum || now.getFullYear();
+
         // 2. Fetch Summary and History via RPC
         const [transRes, sumRes, historyRes] = await Promise.all([
           query,
-          supabase.rpc('get_dashboard_summary', { p_month: monthNum, p_year: yearNum }),
-          supabase.rpc('get_monthly_history', { p_year: yearNum }),
+          supabase.rpc('get_dashboard_summary', { p_month: effectiveMonth, p_year: effectiveYear }),
+          supabase.rpc('get_monthly_history', { p_year: effectiveYear }),
         ]);
 
         if (transRes.error) throw transRes.error;

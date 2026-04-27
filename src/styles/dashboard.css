@@ -57,12 +57,17 @@
   background: var(--a-panel); 
   border-right: 1px solid var(--a-border); 
   padding: 20px 14px; 
-  display: flex; 
   flex-direction: column; 
   height: 100vh;
   position: sticky;
   top: 0;
   overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .A-sb {
+    display: flex;
+  }
 }
 
 .A-sb ::-webkit-scrollbar {
@@ -532,3 +537,22 @@
 }
 
 .A-search input::placeholder { color: var(--a-ink-400); }
+
+/* Mobile Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (max-width: 820px) {
+  .A-main {
+    padding: 20px;
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

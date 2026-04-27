@@ -30,8 +30,8 @@ const registerSchema = z
       .regex(/\d/, 'Deve conter pelo menos um número')
       .regex(/[^A-Za-z0-9]/, 'Deve conter pelo menos um símbolo'),
     confirmPassword: z.string(),
-    acceptTerms: z.literal(true, {
-      errorMap: () => ({ message: 'Você deve aceitar os termos' }),
+    acceptTerms: z.boolean().refine((v) => v === true, {
+      message: 'Você deve aceitar os termos',
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
