@@ -248,7 +248,7 @@ export default function Dashboard() {
           </div>
           <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Metas</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">3/5</div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white">0/0</div>
             <div className="mt-2 text-[10px] font-bold text-gray-400 flex items-center gap-1 uppercase">
                0%
             </div>
