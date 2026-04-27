@@ -782,7 +782,7 @@ function ProfileA({ tweaks }) {
                   color: 'var(--a-ink-900)',
                 }}
               >
-                davyd camargo
+                Digite seu email
               </div>
               <div style={{ fontSize: 13, color: 'var(--a-ink-500)', marginTop: 4 }}>
                 davydfontoura@gmail.com

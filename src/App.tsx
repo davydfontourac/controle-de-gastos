@@ -11,6 +11,7 @@ import Profile from '@/pages/Profile';
 import { AuthProvider } from '@/context/AuthContext';
 import { PrivateRoute, PublicRoute } from '@/components/RouteGuards';
 import { MainLayout } from '@/components/MainLayout';
+import MobileAuthFlow from '@/pages/MobileAuthFlow';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
+          <Route path="/welcome" element={<MobileAuthFlow />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>

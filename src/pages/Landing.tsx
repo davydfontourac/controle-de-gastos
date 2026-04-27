@@ -1164,7 +1164,7 @@ function Nav({ lang, setLang, t, scrolled }: any) {
           </nav>
           <div className="foot">
             <div className="foot-row">
-              <ThemeToggle />
+              <ThemeToggle dropdownPosition="top" align="left" />
               <div className="lang-toggle" role="tablist" aria-label="Language">
                 <button
                   className={lang === 'pt-BR' ? 'active' : ''}
@@ -1709,7 +1709,7 @@ function Donut({ t }: any) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Hero
 // ─────────────────────────────────────────────────────────────────────────────
-function Hero({ t }: any) {
+function Hero({ t, isMobile }: any) {
   return (
     <section className="hero">
       <div className="hero-bg" />
@@ -1726,7 +1726,7 @@ function Hero({ t }: any) {
         </h1>
         <p className="lede hero-sub">{t.hero.sub}</p>
         <div className="hero-actions">
-          <Link to="/register" className="btn btn-primary">
+          <Link to={isMobile ? "/welcome" : "/register"} className="btn btn-primary">
             {t.hero.cta} <Icon.arrow />
           </Link>
           <a
@@ -2108,7 +2108,7 @@ function HowItWorks({ t, lang }: any) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Final CTA
 // ─────────────────────────────────────────────────────────────────────────────
-function FinalCTA({ t }: any) {
+function FinalCTA({ t, isMobile }: any) {
   return (
     <section className="section" style={{ paddingTop: 0 }}>
       <div className="container">
@@ -2117,7 +2117,7 @@ function FinalCTA({ t }: any) {
             <h2 className="h2">{t.cta.title}</h2>
             <p className="lede">{t.cta.sub}</p>
             <div className="actions">
-              <Link to="/register" className="btn btn-primary">
+              <Link to={isMobile ? "/welcome" : "/register"} className="btn btn-primary">
                 {t.cta.btn} <Icon.arrow />
               </Link>
               <a
@@ -2235,6 +2235,16 @@ export default function Landing() {
   useTheme();
   const [lang, setLang] = useState('pt-BR');
   const [isDark, setIsDark] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 820);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -2276,11 +2286,11 @@ export default function Landing() {
     >
       <style>{STYLE}</style>
       <Nav lang={lang} setLang={setLang} t={t} isDark={isDark} scrolled={scrolled} />
-      <Hero t={t} />
+      <Hero t={t} isMobile={isMobile} />
       <Problems t={t} />
       <Features t={t} />
       <HowItWorks t={t} lang={lang} />
-      <FinalCTA t={t} />
+      <FinalCTA t={t} isMobile={isMobile} />
       <Footer t={t} />
     </div>
   );

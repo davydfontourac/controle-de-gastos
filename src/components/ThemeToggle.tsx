@@ -5,8 +5,10 @@ import { cn } from '@/utils/cn';
 
 export function ThemeToggle({
   dropdownPosition = 'bottom',
+  align = 'right',
 }: {
   dropdownPosition?: 'top' | 'bottom';
+  align?: 'left' | 'right';
 }) {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -38,8 +40,9 @@ export function ThemeToggle({
       {isOpen && (
         <div
           className={cn(
-            'absolute right-0 w-36 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 z-50 overflow-hidden',
+            'absolute w-36 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 z-50 overflow-hidden',
             dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
+            align === 'right' ? 'right-0' : 'left-0',
           )}
         >
           <button

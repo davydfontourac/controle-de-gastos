@@ -39,6 +39,75 @@ const registerSchema = z
 type LoginForm = z.infer<typeof loginSchema>;
 type RegisterForm = z.infer<typeof registerSchema>;
 
+const COPY: any = {
+  'pt-BR': {
+    login: {
+      title: 'Bem-vindo de volta',
+      subtitle: 'Entre para gerenciar suas finanças de forma inteligente.',
+      email: 'E-mail',
+      password: 'Senha',
+      forgot: 'Esqueceu a senha?',
+      button: 'Entrar',
+      buttonLoading: 'Entrando...',
+      noAccount: 'Ainda não tem conta?',
+      create: 'Crie uma agora',
+      or: 'ou continue com'
+    },
+    register: {
+      title: 'Crie sua conta',
+      subtitle: 'Comece a rastrear seus gastos em menos de 1 minuto.',
+      name: 'Nome completo',
+      email: 'E-mail',
+      password: 'Senha',
+      confirm: 'Confirmar senha',
+      button: 'Criar conta',
+      buttonLoading: 'Criando...',
+      hasAccount: 'Já tem uma conta?',
+      signin: 'Entrar'
+    },
+    success: {
+      title: 'Verifique seu e-mail',
+      subtitle: 'Enviamos um link de confirmação especial para o seu e-mail. Acesse sua caixa de entrada para ativar sua conta e começar sua jornada.',
+      button: 'Ir para o Login',
+      noEmail: 'Não recebeu?',
+      resend: 'Reenviar link'
+    }
+  },
+  'en': {
+    login: {
+      title: 'Welcome back',
+      subtitle: 'Sign in to manage your finances intelligently.',
+      email: 'Email',
+      password: 'Password',
+      forgot: 'Forgot password?',
+      button: 'Sign in',
+      buttonLoading: 'Signing in...',
+      noAccount: "Don't have an account?",
+      create: 'Create one now',
+      or: 'or continue with'
+    },
+    register: {
+      title: 'Create your account',
+      subtitle: 'Start tracking your expenses in less than 1 minute.',
+      name: 'Full name',
+      email: 'Email',
+      password: 'Password',
+      confirm: 'Confirm password',
+      button: 'Create account',
+      buttonLoading: 'Creating...',
+      hasAccount: 'Already have an account?',
+      signin: 'Sign in'
+    },
+    success: {
+      title: 'Check your email',
+      subtitle: "We've sent a special confirmation link to your email. Check your inbox to activate your account and start your journey.",
+      button: 'Go to Login',
+      noEmail: "Didn't receive it?",
+      resend: 'Resend link'
+    }
+  }
+};
+
 // ── COMPONENT ────────────────────────────────────────────────────────────────
 
 export default function Auth() {
@@ -49,11 +118,19 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [lang, setLang] = useState('pt-BR');
+  
+  const t = COPY[lang];
 
   // Sync state with URL if it changes externally
   useEffect(() => {
     setIsLogin(location.pathname === '/login');
-  }, [location.pathname]);
+    
+    // Redirect mobile users to the dedicated flow
+    if (window.innerWidth <= 820) {
+      navigate('/welcome', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   const toggleMode = (mode: 'login' | 'register') => {
     setIsLogin(mode === 'login');
@@ -73,10 +150,10 @@ export default function Auth() {
         password: data.password,
       });
       if (error) throw error;
-      toast.success('Login realizado com sucesso!');
+      toast.success(lang === 'pt-BR' ? 'Login realizado com sucesso!' : 'Login successful!');
       navigate('/');
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao realizar login');
+      toast.error(err.message || (lang === 'pt-BR' ? 'Erro ao realizar login' : 'Error logging in'));
     } finally {
       setIsLoading(false);
     }
@@ -92,9 +169,9 @@ export default function Auth() {
       });
       if (error) throw error;
       setIsRegistered(true);
-      toast.success('Cadastro realizado! Verifique seu e-mail.');
+      toast.success(lang === 'pt-BR' ? 'Cadastro realizado! Verifique seu e-mail.' : 'Registered successfully! Check your email.');
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao realizar cadastro');
+      toast.error(err.message || (lang === 'pt-BR' ? 'Erro ao realizar cadastro' : 'Error registering'));
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +186,7 @@ export default function Auth() {
       });
       if (error) throw error;
     } catch (err: any) {
-      toast.error(err.message || `Erro ao conectar com ${provider}`);
+      toast.error(err.message || (lang === 'pt-BR' ? `Erro ao conectar com ${provider}` : `Error connecting with ${provider}`));
     } finally {
       setIsOAuthLoading(null);
     }
@@ -122,7 +199,21 @@ export default function Auth() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full -mr-48 -mt-48"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full -ml-48 -mb-48"></div>
 
-        <div className="absolute top-6 right-6 z-50">
+        <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+          <div className="flex bg-gray-100 dark:bg-white/5 rounded-xl p-1 mr-2">
+            <button 
+              onClick={() => setLang('pt-BR')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${lang === 'pt-BR' ? 'bg-white dark:bg-white/10 shadow-sm text-indigo-500' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              PT
+            </button>
+            <button 
+              onClick={() => setLang('en')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${lang === 'en' ? 'bg-white dark:bg-white/10 shadow-sm text-indigo-500' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              EN
+            </button>
+          </div>
           <ThemeToggle />
         </div>
 
@@ -178,12 +269,10 @@ export default function Auth() {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
-              Verifique seu e-mail
+              {t.success.title}
             </h1>
             <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
-              Enviamos um link de confirmação especial para o seu e-mail.{' '}
-              <br className="hidden md:block" />
-              Acesse sua caixa de entrada para ativar sua conta e começar sua jornada.
+              {t.success.subtitle}
             </p>
 
             <button
@@ -193,13 +282,13 @@ export default function Auth() {
               }}
               className="w-full bg-[#0c0c1d] dark:bg-white hover:bg-[#1a1a33] dark:hover:bg-gray-100 text-white dark:text-[#0c0c1d] font-bold py-4 rounded-2xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
             >
-              Ir para o Login →
+              {t.success.button} →
             </button>
 
             <p className="mt-8 text-xs text-gray-400 dark:text-gray-500 font-medium">
-              Não recebeu?{' '}
+              {t.success.noEmail}{' '}
               <button className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
-                Reenviar link
+                {t.success.resend}
               </button>
             </p>
           </div>
@@ -210,7 +299,21 @@ export default function Auth() {
 
   return (
     <PageTransition className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0c0c1d] transition-colors">
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <div className="flex bg-gray-100 dark:bg-white/5 rounded-xl p-1 mr-2">
+          <button 
+            onClick={() => setLang('pt-BR')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${lang === 'pt-BR' ? 'bg-white dark:bg-white/10 shadow-sm text-indigo-500' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          >
+            PT
+          </button>
+          <button 
+            onClick={() => setLang('en')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${lang === 'en' ? 'bg-white dark:bg-white/10 shadow-sm text-indigo-500' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          >
+            EN
+          </button>
+        </div>
         <ThemeToggle />
       </div>
       {/* ── BACKGROUND / SLIDING BRANDING ── */}
@@ -246,21 +349,22 @@ export default function Auth() {
             </span>
           </div>
           <h2 className="text-6xl font-bold text-white leading-[1.1] tracking-tight mb-6">
-            Seu dinheiro,{' '}
+            {lang === 'pt-BR' ? 'Seu dinheiro, ' : 'Your money, '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
-              sob controle.
+              {lang === 'pt-BR' ? 'sob controle.' : 'under control.'}
             </span>
           </h2>
           <p className="text-lg text-white/60 leading-relaxed mb-16">
-            Dashboard inteligente, importação de extratos em CSV, categorias customizáveis e
-            segurança Supabase. Sem cartão de crédito.
+            {lang === 'pt-BR' 
+              ? 'Dashboard inteligente, importação de extratos em CSV, categorias customizáveis e segurança Supabase.' 
+              : 'Smart dashboard, CSV statement import, customizable categories and Supabase security.'}
           </p>
           <div className="grid grid-cols-2 gap-y-12 gap-x-8">
             {[
-              ['5min', 'Até o primeiro relatório'],
-              ['R$ 0', 'Grátis para sempre'],
-              ['∞', 'Categorias customizáveis'],
-              ['RLS', 'Segurança Supabase'],
+              ['5min', lang === 'pt-BR' ? 'Até o primeiro relatório' : 'Until first report'],
+              ['R$ 0', lang === 'pt-BR' ? 'Grátis para sempre' : 'Free forever'],
+              ['∞', lang === 'pt-BR' ? 'Categorias customizáveis' : 'Custom categories'],
+              ['RLS', lang === 'pt-BR' ? 'Segurança Supabase' : 'Supabase Security'],
             ].map(([v, l]) => (
               <div key={l}>
                 <div className="text-4xl font-bold text-white mb-2">{v}</div>
@@ -299,9 +403,9 @@ export default function Auth() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Entrar</h1>
+                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{t.login.title}</h1>
                   <p className="text-gray-500 dark:text-gray-400 mb-8">
-                    Bem-vindo de volta. Continue de onde parou.
+                    {t.login.subtitle}
                   </p>
                 </motion.div>
               ) : (
@@ -313,10 +417,10 @@ export default function Auth() {
                   transition={{ duration: 0.2 }}
                 >
                   <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    Criar conta
+                    {t.register.title}
                   </h1>
                   <p className="text-gray-500 dark:text-gray-400 mb-8">
-                    Comece a organizar suas finanças em menos de 5 minutos.
+                    {t.register.subtitle}
                   </p>
                 </motion.div>
               )}
@@ -328,13 +432,13 @@ export default function Auth() {
                 onClick={() => toggleMode('register')}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${!isLogin ? 'bg-white dark:bg-[#0c0c1d] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                Cadastrar
+                {t.register.signin === 'Sign in' ? 'Register' : 'Cadastrar'}
               </button>
               <button
                 onClick={() => toggleMode('login')}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isLogin ? 'bg-white dark:bg-[#0c0c1d] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                Entrar
+                {t.register.signin === 'Sign in' ? 'Login' : 'Entrar'}
               </button>
             </div>
 
@@ -382,7 +486,7 @@ export default function Auth() {
               </div>
               <div className="relative flex justify-center text-[10px] uppercase">
                 <span className="bg-white dark:bg-[#0c0c1d] px-4 text-gray-400 font-mono tracking-widest">
-                  ou com e-mail
+                  {t.login.or}
                 </span>
               </div>
             </div>
@@ -400,13 +504,13 @@ export default function Auth() {
                 >
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      E-mail
+                      {t.login.email}
                     </label>
                     <input
                       type="email"
                       {...loginForm.register('email')}
                       className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all"
-                      placeholder="Digite seu email"
+                      placeholder={lang === 'pt-BR' ? 'Digite seu email' : 'Enter your email'}
                     />
                     {loginForm.formState.errors.email && (
                       <p className="mt-1 text-xs text-red-600">
@@ -416,11 +520,11 @@ export default function Auth() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      Senha
+                      {t.login.password}
                     </label>
                     <PasswordInput
                       {...loginForm.register('password')}
-                      placeholder="Digite seu senha"
+                      placeholder={lang === 'pt-BR' ? 'Digite sua senha' : 'Enter your password'}
                       error={loginForm.formState.errors.password?.message}
                       className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5"
                     />
@@ -431,14 +535,13 @@ export default function Auth() {
                         type="checkbox"
                         className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
                       />
-                      <span className="text-sm text-gray-600">Lembrar de mim</span>
+                      <span className="text-sm text-gray-600">{lang === 'pt-BR' ? 'Lembrar de mim' : 'Remember me'}</span>
                     </label>
                     <Link
                       to="/forgot-password"
-                      title="Esqueci minha senha"
                       className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                     >
-                      Esqueci minha senha
+                      {t.login.forgot}
                     </Link>
                   </div>
                   <button
@@ -449,7 +552,7 @@ export default function Auth() {
                     {isLoading ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white dark:border-[#0c0c1d]/30 dark:border-t-[#0c0c1d] rounded-full animate-spin" />
                     ) : (
-                      'Entrar →'
+                      `${t.login.button} →`
                     )}
                   </button>
                 </motion.form>
@@ -464,13 +567,13 @@ export default function Auth() {
                 >
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      Nome completo
+                      {t.register.name}
                     </label>
                     <input
                       type="text"
                       {...registerForm.register('fullName')}
                       className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all"
-                      placeholder="Como devemos te chamar?"
+                      placeholder={lang === 'pt-BR' ? 'Como devemos te chamar?' : 'How should we call you?'}
                     />
                     {registerForm.formState.errors.fullName && (
                       <p className="mt-1 text-xs text-red-600">
@@ -480,13 +583,13 @@ export default function Auth() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      E-mail
+                      {t.register.email}
                     </label>
                     <input
                       type="email"
                       {...registerForm.register('email')}
                       className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all"
-                      placeholder="Digite seu email"
+                      placeholder={lang === 'pt-BR' ? 'Digite seu email' : 'Enter your email'}
                     />
                     {registerForm.formState.errors.email && (
                       <p className="mt-1 text-xs text-red-600">
@@ -496,22 +599,22 @@ export default function Auth() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      Senha
+                      {t.register.password}
                     </label>
                     <PasswordInput
                       {...registerForm.register('password')}
-                      placeholder="Mínimo 8 caracteres"
+                      placeholder={lang === 'pt-BR' ? 'Mínimo 8 caracteres' : 'Minimum 8 characters'}
                       error={registerForm.formState.errors.password?.message}
                       className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5"
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">
-                      Confirmar senha
+                      {t.register.confirm}
                     </label>
                     <PasswordInput
                       {...registerForm.register('confirmPassword')}
-                      placeholder="Confirme sua senha"
+                      placeholder={lang === 'pt-BR' ? 'Confirme sua senha' : 'Confirm your password'}
                       error={registerForm.formState.errors.confirmPassword?.message}
                       className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5"
                     />
@@ -524,7 +627,7 @@ export default function Auth() {
                     {isLoading ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white dark:border-[#0c0c1d]/30 dark:border-t-[#0c0c1d] rounded-full animate-spin" />
                     ) : (
-                      'Criar conta grátis →'
+                      `${t.register.button} →`
                     )}
                   </button>
                 </motion.form>
@@ -534,22 +637,22 @@ export default function Auth() {
             <p className="mt-8 text-center text-sm text-gray-500">
               {isLogin ? (
                 <>
-                  Novo por aqui?{' '}
+                  {t.login.noAccount}{' '}
                   <button
                     onClick={() => toggleMode('register')}
                     className="text-blue-600 font-bold hover:text-blue-700 dark:text-blue-400"
                   >
-                    Crie uma conta
+                    {t.login.create}
                   </button>
                 </>
               ) : (
                 <>
-                  Já tem conta?{' '}
+                  {t.register.hasAccount}{' '}
                   <button
                     onClick={() => toggleMode('login')}
                     className="text-blue-600 font-bold hover:text-blue-700 dark:text-blue-400"
                   >
-                    Entre
+                    {t.register.signin}
                   </button>
                 </>
               )}
