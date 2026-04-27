@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Github } from 'lucide-react';
 import { PasswordInput } from '@/components/PasswordInput';
 import { supabase } from '@/services/supabase';
@@ -13,64 +12,24 @@ import PageTransition from '@/components/PageTransition';
 
 // ── SCHEMAS ──────────────────────────────────────────────────────────────────
 
-const loginSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres'),
-});
-
-const registerSchema = z
-  .object({
-    fullName: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
-    email: z.string().email('E-mail inválido'),
-    password: z
-      .string()
-      .min(8, 'A senha deve ter pelo menos 8 caracteres')
-      .regex(/[A-Z]/, 'Deve conter pelo menos uma letra maiúscula')
-      .regex(/[a-z]/, 'Deve conter pelo menos uma letra minúscula')
-      .regex(/\d/, 'Deve conter pelo menos um número')
-      .regex(/[^A-Za-z0-9]/, 'Deve conter pelo menos um símbolo'),
-    confirmPassword: z.string(),
-    acceptTerms: z.boolean().refine((v) => v === true, {
-      message: 'Você deve aceitar os termos',
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
-    path: ['confirmPassword'],
-  });
-
-type LoginForm = z.infer<typeof loginSchema>;
-type RegisterForm = z.infer<typeof registerSchema>;
+import { loginSchema, registerSchema, type LoginFormValues as LoginForm, type RegisterFormValues as RegisterForm } from '@/utils/auth-schemas';
+import { AUTH_TRANSLATIONS } from '@/utils/auth-translations';
 
 const COPY: any = {
   'pt-BR': {
     login: {
+      ...AUTH_TRANSLATIONS['pt-BR'].login,
       title: 'Bem-vindo de volta',
       subtitle: 'Entre para gerenciar suas finanças de forma inteligente.',
-      email: 'E-mail',
-      password: 'Senha',
-      forgot: 'Esqueceu a senha?',
-      button: 'Entrar',
-      buttonLoading: 'Entrando...',
-      noAccount: 'Ainda não tem conta?',
       create: 'Crie uma agora',
-      or: 'ou continue com'
     },
     register: {
+      ...AUTH_TRANSLATIONS['pt-BR'].register,
       title: 'Crie sua conta',
       subtitle: 'Comece a rastrear seus gastos em menos de 1 minuto.',
-      name: 'Nome completo',
-      email: 'E-mail',
-      password: 'Senha',
       confirm: 'Confirmar senha',
-      button: 'Criar conta',
-      buttonLoading: 'Criando...',
-      hasAccount: 'Já tem uma conta?',
-      signin: 'Entrar',
-      terms: 'Concordo com os Termos e Privacidade.',
       termsLink: 'Termos',
       termsError: 'Você deve aceitar os termos',
-      termsText: 'Ao continuar, você concorda com nossos'
     },
     success: {
       title: 'Verifique seu e-mail',
@@ -82,32 +41,17 @@ const COPY: any = {
   },
   'en': {
     login: {
+      ...AUTH_TRANSLATIONS['en'].login,
       title: 'Welcome back',
       subtitle: 'Sign in to manage your finances intelligently.',
-      email: 'Email',
-      password: 'Password',
-      forgot: 'Forgot password?',
-      button: 'Sign in',
-      buttonLoading: 'Signing in...',
-      noAccount: "Don't have an account?",
       create: 'Create one now',
-      or: 'or continue with'
     },
     register: {
+      ...AUTH_TRANSLATIONS['en'].register,
       title: 'Create your account',
       subtitle: 'Start tracking your expenses in less than 1 minute.',
-      name: 'Full name',
-      email: 'Email',
-      password: 'Password',
-      confirm: 'Confirm password',
-      button: 'Create account',
-      buttonLoading: 'Creating...',
-      hasAccount: 'Already have an account?',
-      signin: 'Sign in',
-      terms: 'I agree to the Terms and Privacy.',
       termsLink: 'Terms',
       termsError: 'You must accept the terms',
-      termsText: 'By continuing, you agree to our'
     },
     success: {
       title: 'Check your email',

@@ -448,7 +448,7 @@ export default function Profile() {
               </div>
 
               <div className="w-full space-y-3">
-                <MobileMenuItem icon={Github} label="GitHub" onClick={() => window.open('https://github.com/davydfontourac', '_blank')} />
+                <MobileMenuItem icon={Github} label="GitHub" onClick={() => window.open('https://github.com/davydfontourac', '_blank', 'noopener,noreferrer')} />
                 <MobileMenuItem icon={History} label="Changelog" onClick={() => {}} />
                 <MobileMenuItem icon={Milestone} label="Roadmap" onClick={() => {}} />
                 <MobileMenuItem icon={Bug} label="Reportar um bug" onClick={() => {}} />

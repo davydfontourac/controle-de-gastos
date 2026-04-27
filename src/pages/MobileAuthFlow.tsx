@@ -5,32 +5,12 @@ import { ArrowLeft, Github, Chrome, Eye, EyeOff, CheckCircle2, Menu, X, LogOut }
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { supabase } from '@/services/supabase';
 import { toast } from 'sonner';
 
 // --- SCHEMAS ---
-const loginSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres'),
-});
-
-const registerSchema = z.object({
-  fullName: z.string().min(3, 'Nome muito curto'),
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(8, 'Mínimo 8 caracteres'),
-  confirmPassword: z.string().min(1, 'Confirme sua senha'),
-  acceptTerms: z.boolean().refine((v) => v === true, {
-    message: 'Aceite os termos',
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "As senhas não coincidem",
-  path: ["confirmPassword"],
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-});
+import { loginSchema, registerSchema, forgotPasswordSchema } from '@/utils/auth-schemas';
+import { AUTH_TRANSLATIONS } from '@/utils/auth-translations';
 
 const COPY: any = {
   'pt-BR': {
@@ -44,33 +24,24 @@ const COPY: any = {
       finish: 'Começar agora'
     },
     register: {
+      ...AUTH_TRANSLATIONS['pt-BR'].register,
       title: 'Crie sua conta.',
       subtitle: 'É grátis. Seus dados são seus. Criptografia em repouso por padrão.',
       name: 'Nome',
       namePlaceholder: 'Digite seu nome',
-      email: 'E-mail',
       emailPlaceholder: 'Digite seu email',
-      password: 'Senha',
       passwordPlaceholder: 'Digite sua senha',
       confirmPassword: 'Confirmar Senha',
       confirmPasswordPlaceholder: 'Confirme sua senha',
-      terms: 'Concordo com os Termos e Privacidade.',
       termsLink: 'Termos',
-      button: 'Criar conta grátis',
-      buttonLoading: 'Criando conta...',
-      or: 'ou',
       hasAccount: 'Já tem conta? Entrar',
       hasAccountLink: 'Entrar',
       termsError: 'Você deve aceitar os termos',
-      termsText: 'Ao continuar, você concorda com nossos'
     },
     login: {
+      ...AUTH_TRANSLATIONS['pt-BR'].login,
       title: 'Bem-vindo de volta.',
       subtitle: 'Entre para continuar acompanhando suas finanças.',
-      forgot: 'Esqueci minha senha',
-      button: 'Entrar',
-      buttonLoading: 'Entrando...',
-      or: 'ou continue com',
       noAccount: 'Ainda não tem conta? Criar conta',
       noAccountLink: 'Criar conta'
     },
@@ -106,33 +77,24 @@ const COPY: any = {
       finish: 'Get started'
     },
     register: {
+      ...AUTH_TRANSLATIONS['en'].register,
       title: 'Create your account.',
       subtitle: "It's free. Your data is yours. Encryption at rest by default.",
       name: 'Name',
       namePlaceholder: 'Enter your name',
-      email: 'Email',
       emailPlaceholder: 'Enter your email',
-      password: 'Password',
       passwordPlaceholder: 'Enter your password',
       confirmPassword: 'Confirm Password',
       confirmPasswordPlaceholder: 'Confirm your password',
-      terms: 'I agree to the Terms and Privacy.',
       termsLink: 'Terms',
-      button: 'Create free account',
-      buttonLoading: 'Creating account...',
-      or: 'or',
       hasAccount: 'Already have an account? Sign in',
       hasAccountLink: 'Sign in',
       termsError: 'You must accept the terms',
-      termsText: 'By continuing, you agree to our'
     },
     login: {
+      ...AUTH_TRANSLATIONS['en'].login,
       title: 'Welcome back.',
       subtitle: 'Sign in to continue tracking your finances.',
-      forgot: 'Forgot my password',
-      button: 'Sign in',
-      buttonLoading: 'Signing in...',
-      or: 'or continue with',
       noAccount: "Don't have an account? Create one",
       noAccountLink: 'Create one'
     },
