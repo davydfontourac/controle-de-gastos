@@ -62,11 +62,11 @@ export default function ResetPassword() {
       </div>
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="/logo-expense-tracker.png"
-            alt="Expense Tracker Logo"
-            className="object-contain"
-          />
+            <img
+              src="/logo-expense-tracker.png"
+              alt="Expense Tracker Logo"
+              className="object-contain rounded-xl"
+            />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Nova Senha</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 text-center">
             Digite sua nova senha abaixo para acessar sua conta

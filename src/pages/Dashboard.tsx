@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Plus, Search, X, FileUp, Tag, ArrowUpRight, ArrowDownLeft, Bell, TrendingUp, Loader2, Crosshair } from 'lucide-react';
+import { Plus, Search, X, FileUp, Tag, ArrowUpRight, ArrowDownLeft, Bell, TrendingUp, Loader2, Crosshair, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import { useMobile } from '@/hooks/useMobile';
 import PageTransition from '@/components/PageTransition';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -15,6 +16,7 @@ import TransactionForm from '@/components/TransactionForm';
 import ImportWizard from '@/components/ImportWizard/ImportWizard';
 import ConfirmModal from '@/components/ConfirmModal';
 import { MonthYearPicker } from '@/components/MonthYearPicker';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { cn } from '@/utils/cn';
 import type { Transaction } from '@/types';
 
@@ -44,6 +46,9 @@ interface MonthlyHistory {
 
 export default function Dashboard() {
   const { profile, isLoading: isAuthLoading } = useAuth();
+  const { hideBalance, setHideBalance } = usePrivacy();
+  const [searchParams] = useSearchParams();
+  const [showBalanceLocal, setShowBalanceLocal] = useState(!hideBalance);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isConfirmClearOpen, setIsConfirmClearOpen] = useState(false);
@@ -78,6 +83,12 @@ export default function Dashboard() {
     );
     return () => clearTimeout(timer);
   }, [fetchData, filters.search]);
+
+  useEffect(() => {
+    if (searchParams.get('import') === 'true') {
+      setIsImportOpen(true);
+    }
+  }, [searchParams]);
 
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
@@ -161,7 +172,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="px-6 pt-12 pb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-blue-600/20">ET</div>
+             <img src="/logo-expense-tracker.png" alt="Logo" className="w-8 h-8 object-contain rounded-xl shadow-lg shadow-blue-600/10" />
              <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Expense Tracker</h1>
           </div>
           <div className="flex items-center gap-3">
@@ -189,10 +200,15 @@ export default function Dashboard() {
             </div>
 
             <div className="relative z-10">
-              <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1 flex items-center gap-2">
-                Saldo · {currentMonthName}
+              <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1 flex items-center justify-between">
+                <span>Saldo · {currentMonthName}</span>
+                <button onClick={() => setShowBalanceLocal(!showBalanceLocal)} className="p-1 hover:bg-white/10 rounded-md transition-colors">
+                  {showBalanceLocal ? <Eye size={12} /> : <EyeOff size={12} />}
+                </button>
               </div>
-              <div className="text-3xl font-bold text-white mb-2">{fmt(summary.availableBalance)}</div>
+              <div className={cn("text-3xl font-bold text-white mb-2 transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
+                {fmt(summary.availableBalance)}
+              </div>
               <div className="flex items-center gap-1.5 text-xs font-medium text-white/90">
                 <TrendingUp size={14} className="text-white/60" />
                 <span>{fmt(0)} (0%) este mês</span>
@@ -241,11 +257,32 @@ export default function Dashboard() {
            </div>
         </div>
 
+        {/* Import CSV Shortcut */}
+        <div className="px-6 mb-8">
+           <button 
+            onClick={() => setIsImportOpen(true)}
+            className="w-full bg-white dark:bg-[#161629] p-4 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
+           >
+              <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-xl flex items-center justify-center">
+                    <FileUp size={20} />
+                 </div>
+                 <div className="text-left">
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">Importar dados do banco</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Sincronize seu extrato via CSV</div>
+                 </div>
+              </div>
+              <ChevronRight size={18} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+           </button>
+        </div>
+
         {/* Summary Grid */}
         <div className="px-6 grid grid-cols-2 gap-4 mb-10">
           <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Receitas</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalIncome)}</div>
+            <div className={cn("text-lg font-bold text-gray-900 dark:text-white transition-all", !showBalanceLocal && "blur-md select-none")}>
+              {fmt(summary.totalIncome)}
+            </div>
             <div className="mt-2 text-[10px] font-bold text-gray-400 flex items-center gap-1">
                <ArrowUpRight size={12} />
                0%
@@ -253,7 +290,9 @@ export default function Dashboard() {
           </div>
           <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Despesas</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalExpense)}</div>
+            <div className={cn("text-lg font-bold text-gray-900 dark:text-white transition-all", !showBalanceLocal && "blur-md select-none")}>
+              {fmt(summary.totalExpense)}
+            </div>
             <div className="mt-2 text-[10px] font-bold text-gray-400 flex items-center gap-1">
                <ArrowDownLeft size={12} />
                0%
@@ -261,7 +300,9 @@ export default function Dashboard() {
           </div>
           <div className="bg-white dark:bg-[#161629] p-5 rounded-[24px] border border-gray-100 dark:border-white/5 shadow-sm">
             <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Caixinhas</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.caixinhaBalance)}</div>
+            <div className={cn("text-lg font-bold text-gray-900 dark:text-white transition-all", !showBalanceLocal && "blur-md select-none")}>
+              {fmt(summary.caixinhaBalance)}
+            </div>
             <div className="mt-2 text-[10px] font-bold text-gray-400 flex items-center gap-1">
                <Plus size={12} />
                0%
@@ -288,6 +329,7 @@ export default function Dashboard() {
                   segs={categoriesData} 
                   centerLabel="ABR" 
                   centerValue={fmt(summary.totalExpense).replace('R$ ', '').split(',')[0] + 'k'} 
+                  isBlurred={!showBalanceLocal}
                 />
              </div>
              <div className="flex-1 space-y-2">
@@ -377,7 +419,7 @@ export default function Dashboard() {
                      })()}
                    </div>
                 </div>
-                <div className={cn("text-sm font-bold", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white')}>
+                <div className={cn("text-sm font-bold transition-all", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white', !showBalanceLocal && "blur-md select-none")}>
                    {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}
                 </div>
               </div>
@@ -392,6 +434,11 @@ export default function Dashboard() {
           transaction={editingTransaction}
           initialType={modalInitialType}
         />
+        <ImportWizard
+          isOpen={isImportOpen}
+          onClose={() => setIsImportOpen(false)}
+          onSuccess={fetchData}
+        />
       </PageTransition>
     );
   }
@@ -404,9 +451,15 @@ export default function Dashboard() {
           <h1 className="text-gray-900 dark:text-white">
             {greeting}, {profile?.full_name?.split(' ')[0] || 'usuário'}.
           </h1>
-          <div className="sub">
-            Você gastou <b className="text-gray-900 dark:text-white">{fmt(summary.totalExpense)}</b>{' '}
-            em {format(new Date(), 'MMMM', { locale: ptBR })}
+          <div className="sub flex items-center gap-2">
+            <span>Você gastou</span>
+            <b className={cn("text-gray-900 dark:text-white transition-all", !showBalanceLocal && "blur-md select-none")}>
+              {fmt(summary.totalExpense)}
+            </b>
+            <span>em {format(new Date(), 'MMMM', { locale: ptBR })}</span>
+            <button onClick={() => setShowBalanceLocal(!showBalanceLocal)} className="ml-2 p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors text-gray-400">
+              {showBalanceLocal ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
           </div>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
@@ -467,28 +520,36 @@ export default function Dashboard() {
         <div className="A-kpi">
           <div className="lbl">DISPONÍVEL</div>
           <div className="sublbl">Saldo em conta</div>
-          <div className="val">{fmt(summary.availableBalance)}</div>
+          <div className={cn("val transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
+            {fmt(summary.availableBalance)}
+          </div>
           <div className="dlt pos">0% vs. mês anterior</div>
           <Sparkline data={[32, 41, 28, 52, 45, 63, 58, 72]} color="#10b981" className="spark" />
         </div>
         <div className="A-kpi">
           <div className="lbl">CAIXINHAS</div>
           <div className="sublbl">Investimentos/Reserva</div>
-          <div className="val">{fmt(summary.caixinhaBalance)}</div>
+          <div className={cn("val transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
+            {fmt(summary.caixinhaBalance)}
+          </div>
           <div className="dlt pos">0% vs. mês anterior</div>
           <Sparkline data={[10, 15, 12, 18, 22, 20, 25, 30]} color="#8b5cf6" className="spark" />
         </div>
         <div className="A-kpi">
           <div className="lbl">RECEITAS</div>
           <div className="sublbl">Neste mês</div>
-          <div className="val">{fmt(summary.totalIncome)}</div>
+          <div className={cn("val transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
+            {fmt(summary.totalIncome)}
+          </div>
           <div className="dlt pos">0% vs. mês anterior</div>
           <Sparkline data={[20, 40, 30, 50, 60, 45, 70, 80]} color="#6366f1" className="spark" />
         </div>
         <div className="A-kpi">
           <div className="lbl">DESPESAS</div>
           <div className="sublbl">Neste mês</div>
-          <div className="val">{fmt(summary.totalExpense)}</div>
+          <div className={cn("val transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
+            {fmt(summary.totalExpense)}
+          </div>
           <div className="dlt neg">0% vs. mês anterior</div>
           <Sparkline data={[50, 40, 60, 30, 20, 35, 25, 40]} color="#ef4444" className="spark" />
         </div>
@@ -587,6 +648,7 @@ export default function Dashboard() {
                   ? fmt(summary.totalIncome).replace('R$ ', '')
                   : fmt(summary.totalExpense).replace('R$ ', '')
               }
+              isBlurred={!showBalanceLocal}
             />
             <div className="flex-1 flex flex-col gap-2">
               {categoriesData.slice(0, 5).map((c) => (
@@ -696,8 +758,9 @@ export default function Dashboard() {
               </div>
               <div
                 className={cn(
-                  'val font-semibold',
+                  'val font-semibold transition-all',
                   t.type === 'income' ? 'pos text-green-500' : 'text-gray-900 dark:text-white',
+                  !showBalanceLocal && "blur-md select-none"
                 )}
               >
                 {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}
@@ -713,7 +776,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Modals */}
       <TransactionForm
         isOpen={isModalOpen}
         onClose={handleCloseModal}

@@ -150,13 +150,13 @@ export default function Auth() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48"></div>
         <div className="relative z-10 max-w-lg">
           <h2 className="text-6xl font-bold text-white leading-[1.1] tracking-tight mb-6">
-            {lang === 'pt-BR' ? 'Seu dinheiro, ' : 'Your money, '}
+            {t.register.sidebarTitle}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
-              {lang === 'pt-BR' ? 'sob controle.' : 'under control.'}
+              {t.register.sidebarSubtitle}
             </span>
           </h2>
           <p className="text-lg text-white/60 leading-relaxed mb-16">
-            {lang === 'pt-BR' ? 'Dashboard inteligente, importação de extratos em CSV e segurança Supabase.' : 'Smart dashboard, CSV import and Supabase security.'}
+            {t.register.sidebarDesc}
           </p>
         </div>
       </motion.div>
@@ -168,9 +168,27 @@ export default function Auth() {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
         >
           <div className="max-w-md w-full mx-auto">
-            <div className="flex items-center gap-3 mb-8">
-              <img src="/logo-expense-tracker.png" alt="Logo" className="w-8 h-8" />
-              <span className="font-semibold text-gray-900 dark:text-white text-lg">Expense Tracker</span>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <img src="/logo-expense-tracker.png" alt="Logo" className="w-8 h-8 rounded-xl" />
+                <span className="font-semibold text-gray-900 dark:text-white text-lg">Expense Tracker</span>
+              </div>
+
+              {/* Desktop Toggle */}
+              <div className="flex bg-gray-100 dark:bg-white/5 rounded-2xl p-1 shadow-inner">
+                <button 
+                  onClick={() => toggleMode('register')}
+                  className={`px-6 py-2 text-xs font-bold rounded-xl transition-all ${!isLogin ? 'bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                >
+                  {t.register.signup}
+                </button>
+                <button 
+                  onClick={() => toggleMode('login')}
+                  className={`px-6 py-2 text-xs font-bold rounded-xl transition-all ${isLogin ? 'bg-white dark:bg-white/10 shadow-sm text-gray-900 dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                >
+                  {t.register.signin}
+                </button>
+              </div>
             </div>
 
             <AnimatePresence mode="wait">
@@ -196,12 +214,12 @@ export default function Auth() {
                 <motion.form key="form-login" onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.login.email}</label>
-                    <input type="email" {...loginForm.register('email')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder="Enter your email" />
+                    <input type="email" {...loginForm.register('email')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder={t.login.emailPlaceholder} />
                     {loginForm.formState.errors.email && <p className="mt-1 text-xs text-red-600">{loginForm.formState.errors.email.message}</p>}
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.login.password}</label>
-                    <PasswordInput {...loginForm.register('password')} placeholder="Enter your password" error={loginForm.formState.errors.password?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
+                    <PasswordInput {...loginForm.register('password')} placeholder={t.login.passwordPlaceholder} error={loginForm.formState.errors.password?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
                   </div>
                   <button type="submit" disabled={isLoading} className="w-full bg-[#0c0c1d] dark:bg-white hover:bg-[#1a1a33] dark:hover:bg-gray-100 text-white dark:text-[#0c0c1d] font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]">
                     {isLoading ? '...' : `${t.login.button} →`}
@@ -211,21 +229,21 @@ export default function Auth() {
                 <motion.form key="form-register" onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.register.name}</label>
-                    <input type="text" {...registerForm.register('fullName')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder="Full name" />
+                    <input type="text" {...registerForm.register('fullName')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder={t.register.namePlaceholder} />
                     {registerForm.formState.errors.fullName && <p className="mt-1 text-xs text-red-600">{registerForm.formState.errors.fullName.message}</p>}
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.register.email}</label>
-                    <input type="email" {...registerForm.register('email')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder="Email" />
+                    <input type="email" {...registerForm.register('email')} className="w-full px-4 py-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#161629] text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all" placeholder={t.register.emailPlaceholder} />
                     {registerForm.formState.errors.email && <p className="mt-1 text-xs text-red-600">{registerForm.formState.errors.email.message}</p>}
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.register.password}</label>
-                    <PasswordInput {...registerForm.register('password')} placeholder="Password" error={registerForm.formState.errors.password?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
+                    <PasswordInput {...registerForm.register('password')} placeholder={t.register.passwordPlaceholder} error={registerForm.formState.errors.password?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 font-mono">{t.register.confirm}</label>
-                    <PasswordInput {...registerForm.register('confirmPassword')} placeholder="Confirm password" error={registerForm.formState.errors.confirmPassword?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
+                    <PasswordInput {...registerForm.register('confirmPassword')} placeholder={t.register.confirmPasswordPlaceholder} error={registerForm.formState.errors.confirmPassword?.message} className="!bg-gray-50 dark:!bg-[#161629] !border-gray-200 dark:!border-gray-800 !rounded-xl !py-3.5" />
                   </div>
                   <button type="submit" disabled={isLoading} className="w-full bg-[#0c0c1d] dark:bg-white hover:bg-[#1a1a33] dark:hover:bg-gray-100 text-white dark:text-[#0c0c1d] font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] mt-4">
                     {isLoading ? '...' : `${t.register.button} →`}

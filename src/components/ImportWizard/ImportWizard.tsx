@@ -144,19 +144,19 @@ export default function ImportWizard({ isOpen, onClose, onSuccess }: ImportWizar
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center lg:p-4 bg-white dark:bg-[#0c0c1d] lg:bg-transparent">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm hidden lg:block"
       />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden"
+        className="relative w-full h-full lg:h-auto lg:max-w-2xl bg-white dark:bg-gray-900 lg:rounded-3xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
@@ -202,7 +202,7 @@ export default function ImportWizard({ isOpen, onClose, onSuccess }: ImportWizar
         </div>
 
         {/* Content */}
-        <div className="p-8 max-h-[60vh] overflow-y-auto">
+        <div className="p-6 lg:p-8 flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}

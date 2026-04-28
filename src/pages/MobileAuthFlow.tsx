@@ -6,7 +6,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthActions } from '@/hooks/useAuthActions';
-import { AuthHeader, SocialAuth, AuthFooter, Input } from '@/components/AuthUI';
+import { AuthHeader, SocialAuth, AuthFooter, Input, StrengthMeter } from '@/components/AuthUI';
 
 // --- SCHEMAS ---
 import { loginSchema, registerSchema, forgotPasswordSchema } from '@/utils/auth-schemas';
@@ -123,6 +123,7 @@ export default function MobileAuthFlow() {
           />}
           {step === 'register' && <RegisterStep
             t={t}
+            lang={lang}
             onLogin={() => setStep('login')}
             onOpenMenu={() => setIsMenuOpen(true)}
           />}
@@ -167,7 +168,7 @@ export default function MobileAuthFlow() {
 
               <div className="flex items-center gap-3 mb-12">
                 <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-                  <img src="/logo-expense-tracker.png" alt="Logo" className="w-6 h-6 brightness-0 invert" />
+                  <img src="/logo-expense-tracker.png" alt="Logo" className="w-6 h-6 brightness-0 invert rounded-md" />
                 </div>
                 <span className="text-xl font-bold dark:text-white">Expense Tracker</span>
               </div>
@@ -232,7 +233,7 @@ function SplashStep({ t }: { t: any }) {
         className="relative z-10 flex flex-col items-center"
       >
         <div className="w-20 h-20 bg-indigo-500 rounded-[28px] shadow-2xl shadow-indigo-500/20 flex items-center justify-center mb-8">
-           <img src="/logo-expense-tracker.png" alt="Logo" className="w-12 h-12 brightness-0 invert" />
+           <img src="/logo-expense-tracker.png" alt="Logo" className="w-12 h-12 brightness-0 invert rounded-xl" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Expense Tracker</h1>
         <p className="text-gray-500 dark:text-gray-400 font-medium mb-12">{t.splash.subtitle}</p>
@@ -364,14 +365,48 @@ function InsightsIllustration({ t }: { t: any }) {
 
 // --- FORMS ---
 
-function RegisterStep({ onLogin, onOpenMenu, t }: { onLogin: () => void, onOpenMenu: () => void, t: any }) {
+function RegisterStep({ onLogin, onOpenMenu, t, lang }: { onLogin: () => void, onOpenMenu: () => void, t: any, lang: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { isLoading, handleSocialLogin, handleRegister } = useAuthActions();
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema)
   });
+
+  const passwordValue = watch('password', '');
+  const confirmPasswordValue = watch('confirmPassword', '');
+
+  const getPasswordScore = (pass: string) => {
+    if (!pass) return 0;
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+
+  const getMatchScore = (pass: string, confirm: string) => {
+    if (!pass || !confirm) return 0;
+    if (confirm === pass) return 4;
+    
+    let matchCount = 0;
+    for (let i = 0; i < confirm.length; i++) {
+      if (confirm[i] === pass[i]) matchCount++;
+      else {
+        // If there is any mismatch, return 1 (red bar indicator of error)
+        return 1;
+      }
+    }
+    
+    // Calculate progress based on original password length
+    const score = Math.floor((matchCount / pass.length) * 4);
+    return Math.max(1, score);
+  };
+
+  const passwordScore = getPasswordScore(passwordValue);
+  const matchScore = getMatchScore(passwordValue, confirmPasswordValue);
 
   const onSubmit = (data: any) => handleRegister(data);
 
@@ -391,6 +426,52 @@ function RegisterStep({ onLogin, onOpenMenu, t }: { onLogin: () => void, onOpenM
           <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[42px] text-gray-400">
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
+          <StrengthMeter score={passwordScore} />
+          <div className="mt-3 px-1 h-6 flex items-center">
+            <AnimatePresence mode="wait">
+              {(() => {
+                const allReqs = [
+                  { label: t.register.reqLen, met: passwordValue.length >= 8 },
+                  { label: t.register.reqUpper, met: /[A-Z]/.test(passwordValue) },
+                  { label: t.register.reqNum, met: /[0-9]/.test(passwordValue) },
+                  { label: t.register.reqSymbol, met: /[^A-Za-z0-9]/.test(passwordValue) },
+                ];
+                const unmet = allReqs.find(r => !r.met);
+                
+                if (!unmet) {
+                  return (
+                    <motion.div 
+                      key="success"
+                      initial={{ opacity: 0, y: 5 }} 
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className="flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <span className="text-[11px] font-bold text-green-500 uppercase tracking-wider">
+                        {t.register.reqSuccess}
+                      </span>
+                    </motion.div>
+                  );
+                }
+
+                return (
+                  <motion.div 
+                    key={unmet.label}
+                    initial={{ opacity: 0, y: 5 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="flex items-center gap-2"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                      {unmet.label}
+                    </span>
+                  </motion.div>
+                );
+              })()}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="relative">
@@ -398,6 +479,7 @@ function RegisterStep({ onLogin, onOpenMenu, t }: { onLogin: () => void, onOpenM
           <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-[42px] text-gray-400">
             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
+          <StrengthMeter score={matchScore} mode="match" />
         </div>
 
         <div className="flex flex-col gap-1 py-2">
@@ -453,6 +535,7 @@ function RegisterStep({ onLogin, onOpenMenu, t }: { onLogin: () => void, onOpenM
 }
 
 function LoginStep({ onBack, onRegister, onForgotPassword, onOpenMenu, t }: { onBack: () => void, onRegister: () => void, onForgotPassword: () => void, onOpenMenu: () => void, t: any }) {
+  const [showPassword, setShowPassword] = useState(false);
   const { isLoading, handleSocialLogin, handleLogin } = useAuthActions();
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema)
@@ -472,7 +555,12 @@ function LoginStep({ onBack, onRegister, onForgotPassword, onOpenMenu, t }: { on
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Input label={t.register.email} placeholder={t.register.emailPlaceholder} type="email" {...register('email')} error={errors.email?.message as string} />
         <div className="space-y-2">
-          <Input label={t.register.password} placeholder={t.register.passwordPlaceholder} type="password" {...register('password')} error={errors.password?.message as string} />
+          <div className="relative">
+            <Input label={t.register.password} placeholder={t.register.passwordPlaceholder} type={showPassword ? 'text' : 'password'} {...register('password')} error={errors.password?.message as string} />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[42px] text-gray-400">
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
           <div className="flex justify-end">
             <button type="button" onClick={onForgotPassword} className="text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors">
               {t.login.forgot}

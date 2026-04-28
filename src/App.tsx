@@ -9,6 +9,7 @@ import Categories from '@/pages/Categories';
 import Savings from '@/pages/Savings';
 import Profile from '@/pages/Profile';
 import { AuthProvider } from '@/context/AuthContext';
+import { PrivacyProvider } from '@/context/PrivacyContext';
 import { PrivateRoute, PublicRoute } from '@/components/RouteGuards';
 import { MainLayout } from '@/components/MainLayout';
 import MobileAuthFlow from '@/pages/MobileAuthFlow';
@@ -17,6 +18,7 @@ import Terms from '@/pages/Terms';
 function App() {
   return (
     <AuthProvider>
+      <PrivacyProvider>
       <Routes>
         {/* Rotas Públicas (apenas deslogados) */}
         <Route element={<PublicRoute />}>
@@ -43,6 +45,7 @@ function App() {
         {/* Fallback de rotas inexistentes redireciona pra home para o App processar */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </PrivacyProvider>
     </AuthProvider>
   );
 }

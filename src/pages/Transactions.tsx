@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Download, Upload, Trash2, MoreHorizontal, ChevronLeft, Filter, Loader2, Receipt, X } from 'lucide-react';
+import { Plus, Search, Download, Upload, Trash2, MoreHorizontal, ChevronLeft, Filter, Loader2, Receipt, X, Eye, EyeOff } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useMobile } from '@/hooks/useMobile';
 import { format, isToday, isYesterday } from 'date-fns';
@@ -10,6 +10,7 @@ import TransactionForm from '@/components/TransactionForm';
 import ImportWizard from '@/components/ImportWizard/ImportWizard';
 import PageTransition from '@/components/PageTransition';
 import { MonthYearPicker } from '@/components/MonthYearPicker';
+import { usePrivacy } from '@/context/PrivacyContext';
 import ConfirmModal from '@/components/ConfirmModal';
 import { cn } from '@/utils/cn';
 import type { Transaction } from '@/types';
@@ -31,6 +32,8 @@ const fmt = (n: number) =>
   Math.abs(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function Transactions() {
+  const { hideBalance } = usePrivacy();
+  const [showBalanceLocal, setShowBalanceLocal] = useState(!hideBalance);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
@@ -122,6 +125,9 @@ export default function Transactions() {
                  <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
               </Link>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Transações</h1>
+              <button onClick={() => setShowBalanceLocal(!showBalanceLocal)} className="ml-1 p-1.5 hover:bg-white dark:hover:bg-[#161629] rounded-xl transition-colors text-gray-400 border border-transparent hover:border-gray-100 dark:hover:border-white/5">
+                 {showBalanceLocal ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
            </div>
            <div className="flex items-center gap-2">
               <button 
@@ -209,7 +215,7 @@ export default function Transactions() {
              <div key={label}>
                 <div className="flex items-center justify-between mb-4">
                    <div className="text-[10px] font-bold text-gray-400 tracking-widest">{label}</div>
-                   <div className="text-[10px] font-bold text-gray-400 tracking-widest">
+                   <div className={cn("text-[10px] font-bold text-gray-400 tracking-widest transition-all", !showBalanceLocal && "blur-md select-none")}>
                       {fmt(txs.reduce((acc, t) => acc + (t.type === 'income' ? t.amount : -t.amount), 0))}
                    </div>
                 </div>
@@ -227,7 +233,7 @@ export default function Transactions() {
                            <div className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{t.description}</div>
                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{t.categories?.name} · {format(new Date(t.date), 'HH:mm')}</div>
                         </div>
-                        <div className={cn("text-sm font-bold", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white')}>
+                        <div className={cn("text-sm font-bold transition-all", t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white', !showBalanceLocal && "blur-md select-none")}>
                            {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}
                         </div>
                       </div>
@@ -358,8 +364,11 @@ export default function Transactions() {
       <div className="A-top">
         <div>
           <h1 className="text-gray-900 dark:text-white">Transações</h1>
-          <div className="sub">
-            {transactions.length} registros · {currentMonthName}
+          <div className="sub flex items-center gap-2">
+            <span>{transactions.length} registros · {currentMonthName}</span>
+            <button onClick={() => setShowBalanceLocal(!showBalanceLocal)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors text-gray-400">
+              {showBalanceLocal ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
           </div>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
@@ -388,19 +397,19 @@ export default function Transactions() {
           <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
             Total no período
           </div>
-          <div className="text-2xl font-bold mt-2 text-red-500">− {fmt(summary.totalExpense)}</div>
+          <div className={cn("text-2xl font-bold mt-2 text-red-500 transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>− {fmt(summary.totalExpense)}</div>
         </div>
         <div className="A-card !p-4">
           <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
             Receitas
           </div>
-          <div className="text-2xl font-bold mt-2 text-green-500">+ {fmt(summary.totalIncome)}</div>
+          <div className={cn("text-2xl font-bold mt-2 text-green-500 transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>+ {fmt(summary.totalIncome)}</div>
         </div>
         <div className="A-card !p-4">
           <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
             {filters.type === 'income' ? 'Maior receita' : 'Maior gasto'}
           </div>
-          <div className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
+          <div className={cn("text-2xl font-bold mt-2 text-gray-900 dark:text-white transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
             {fmt(
               Math.max(
                 ...transactions
@@ -417,7 +426,7 @@ export default function Transactions() {
           <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
             Média diária
           </div>
-          <div className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
+          <div className={cn("text-2xl font-bold mt-2 text-gray-900 dark:text-white transition-all duration-300", !showBalanceLocal && "blur-md select-none")}>
             {fmt((filters.type === 'income' ? summary.totalIncome : summary.totalExpense) / 30)}
           </div>
         </div>
@@ -530,8 +539,9 @@ export default function Transactions() {
               </div>
               <div
                 className={cn(
-                  'text-sm font-semibold text-right',
+                  'text-sm font-semibold text-right transition-all',
                   t.type === 'income' ? 'text-green-500' : 'text-gray-900 dark:text-white',
+                  !showBalanceLocal && "blur-md select-none"
                 )}
               >
                 {t.type === 'income' ? '+' : '−'} {fmt(t.amount)}

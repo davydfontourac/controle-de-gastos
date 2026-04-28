@@ -67,7 +67,7 @@ function Nav({ lang, setLang, t, scrolled, isMobile }: any) {
       <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="container nav-inner">
           <a href="#" className="brand">
-            <img src="/logo-expense-tracker.png" alt="" />
+            <img src="/logo-expense-tracker.png" alt="" className="rounded-lg" />
             <span>Expense Tracker</span>
           </a>
           <div className="nav-links">
@@ -110,7 +110,7 @@ function Nav({ lang, setLang, t, scrolled, isMobile }: any) {
         <div className="mobile-sheet">
           <div className="top">
             <a href="#" className="brand" onClick={() => setMenuOpen(false)}>
-              <img src="/logo-expense-tracker.png" alt="" />
+              <img src="/logo-expense-tracker.png" alt="" className="rounded-lg" />
               <span>Expense Tracker</span>
             </a>
             <button className="x-btn" onClick={() => setMenuOpen(false)} aria-label="Close menu">
@@ -232,7 +232,7 @@ function DashboardMock({ t }: any) {
               <img
                 src="/logo-expense-tracker.png"
                 alt=""
-                style={{ width: 22, height: 22, objectFit: 'contain' }}
+                style={{ width: 22, height: 22, objectFit: 'contain', borderRadius: 6 }}
               />
               <span style={{ fontWeight: 600, fontSize: 13, letterSpacing: '-0.01em' }}>
                 Expense Tracker

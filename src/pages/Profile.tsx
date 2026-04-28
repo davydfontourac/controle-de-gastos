@@ -3,25 +3,31 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Trash2, Camera, Save, Loader2, User, ShieldCheck, Smartphone, ArrowLeft, ChevronRight, Bell, Palette, Globe, DollarSign, Clock, Calendar, Database, HardDrive, Info, Github, History, Milestone, Bug, Lock, Eye, EyeOff, BarChart, LogOut, CheckCircle2, Moon, Sun, Monitor } from 'lucide-react';
+import { Trash2, Camera, Save, Loader2, User, ShieldCheck, Smartphone, ArrowLeft, ChevronRight, Bell, Palette, Globe, DollarSign, Clock, Calendar, Database, HardDrive, Info, Github, History, Milestone, Bug, Lock, EyeOff, BarChart, LogOut, CheckCircle2, Moon, Sun, Monitor } from 'lucide-react';
 import { PasswordInput } from '@/components/PasswordInput';
 import ConfirmModal from '@/components/ConfirmModal';
 import PageTransition from '@/components/PageTransition';
 import { useMobile } from '@/hooks/useMobile';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
-import { cn } from '@/utils/cn';
 import { useTheme } from '@/context/ThemeContext';
+import { usePrivacy } from '@/context/PrivacyContext';
+import { cn } from '@/utils/cn';
+import { usePWA } from '@/hooks/usePWA';
+
 
 export default function Profile() {
   const { user, profile, isLoading: isAuthLoading, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const isMobile = useMobile();
-  const [view, setView] = useState<'main' | 'edit' | 'settings' | 'security' | 'notifications' | 'appearance' | 'about'>('main');
+  const { isInstallable, installApp } = usePWA();
+  const { theme, setTheme } = useTheme();
+  const { hideBalance, setHideBalance } = usePrivacy();
+  const [view, setView] = useState<'main' | 'edit' | 'security' | 'about' | 'change_password' | 'changelog' | 'roadmap'>('main');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { theme, setTheme } = useTheme();
+
 
   const { summary, fetchTransactions, transactions } = useTransactions();
   const { categories, fetchCategories } = useCategories();
@@ -32,6 +38,10 @@ export default function Profile() {
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [cacheSize, setCacheSize] = useState('0 KB');
+  const [isClearingCache, setIsClearingCache] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -47,7 +57,62 @@ export default function Profile() {
     
     fetchTransactions({ type: 'all', month: currentMonth, year: currentYear, search: '' });
     fetchCategories();
+    calculateCacheSize();
   }, [fetchTransactions, fetchCategories]);
+
+  const calculateCacheSize = async () => {
+    try {
+      if ('storage' in navigator && 'estimate' in navigator.storage) {
+        const { usage } = await navigator.storage.estimate();
+        if (usage !== undefined) {
+          if (usage > 1024 * 1024) {
+            setCacheSize(`${(usage / (1024 * 1024)).toFixed(1)} MB`);
+          } else {
+            setCacheSize(`${(usage / 1024).toFixed(0)} KB`);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error estimating storage:', e);
+    }
+  };
+
+  const handleClearCache = async () => {
+    if (isClearingCache) return;
+    
+    try {
+      setIsClearingCache(true);
+      
+      const clearPromise = new Promise(async (resolve, reject) => {
+        try {
+          // Clear Cache Storage (Service Worker caches)
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+          }
+
+          // Artificial delay for UX
+          setTimeout(() => {
+            calculateCacheSize();
+            resolve(true);
+          }, 1500);
+        } catch (e) {
+          reject(e);
+        }
+      });
+
+      toast.promise(clearPromise, {
+        loading: 'Limpando arquivos temporários...',
+        success: 'Cache limpo com sucesso!',
+        error: 'Erro ao limpar cache'
+      });
+
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+    } finally {
+      setTimeout(() => setIsClearingCache(false), 2000);
+    }
+  };
 
   async function updateProfile() {
     try {
@@ -76,6 +141,7 @@ export default function Profile() {
 
         setCurrentPassword('');
         setNewPassword('');
+        setConfirmPassword('');
         toast.success('Senha atualizada com sucesso!');
       }
 
@@ -235,26 +301,75 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Theme Selection */}
+            <MobileSection title="Tema">
+              <div className="p-4 grid grid-cols-3 gap-3">
+                <button 
+                  onClick={() => setTheme('light')} 
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", 
+                    theme === 'light' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5"
+                  )}
+                >
+                  <Sun size={20} className={theme === 'light' ? "text-blue-500" : "text-gray-400"} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Claro</span>
+                </button>
+                <button 
+                  onClick={() => setTheme('dark')} 
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", 
+                    theme === 'dark' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5"
+                  )}
+                >
+                  <Moon size={20} className={theme === 'dark' ? "text-blue-500" : "text-gray-400"} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Escuro</span>
+                </button>
+                <button 
+                  onClick={() => setTheme('system')} 
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", 
+                    theme === 'system' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5"
+                  )}
+                >
+                  <Monitor size={20} className={theme === 'system' ? "text-blue-500" : "text-gray-400"} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Sistema</span>
+                </button>
+              </div>
+            </MobileSection>
+
             {/* Navigation Groups */}
             <MobileSection title="Preferências">
               <MobileMenuItem icon={User} label="Editar perfil" onClick={() => setView('edit')} />
-              <MobileMenuItem icon={Bell} label="Notificações" value="Ativadas" onClick={() => setView('notifications')} />
-              <MobileMenuItem icon={Palette} label="Aparência" value={theme === 'dark' ? 'Escuro' : theme === 'light' ? 'Claro' : 'Sistema'} onClick={() => setView('appearance')} />
-              <MobileMenuItem icon={Globe} label="Idioma" value="Português (BR)" onClick={() => setView('settings')} />
-              <MobileMenuItem icon={DollarSign} label="Moeda" value="BRL" onClick={() => setView('settings')} />
+              <MobileMenuItem icon={Bell} label="Notificações" value="Em breve" onClick={() => {}} />
+              <MobileMenuItem icon={Palette} label="Aparência" value="Em breve" onClick={() => {}} />
+              <MobileMenuItem icon={Globe} label="Idioma" value="Em breve" onClick={() => {}} />
+              <MobileMenuItem icon={DollarSign} label="Moeda" value="Em breve" onClick={() => {}} />
             </MobileSection>
 
-            <MobileSection title="Segurança & Privacidade">
-              <MobileMenuItem icon={ShieldCheck} label="Senha & biometria" onClick={() => setView('security')} />
+            <MobileSection title="Segurança">
+              <MobileMenuItem icon={ShieldCheck} label="Segurança" onClick={() => setView('security')} />
             </MobileSection>
 
             <MobileSection title="Dados">
-              <MobileMenuItem icon={Database} label="Importar CSV" onClick={() => navigate('/dashboard')} />
-              <MobileMenuItem icon={HardDrive} label="Exportar dados" onClick={() => {}} />
-              <MobileMenuItem icon={Trash2} label="Limpar cache" value="2.4 MB" onClick={() => {}} />
+              <MobileMenuItem icon={Database} label="Importar CSV" onClick={() => navigate('/dashboard?import=true')} />
+              <MobileMenuItem icon={HardDrive} label="Exportar dados" value="Em breve" onClick={() => {}} />
+              <MobileMenuItem 
+                icon={Trash2} 
+                label="Limpar cache" 
+                value={isClearingCache ? "Limpando..." : cacheSize} 
+                onClick={handleClearCache} 
+              />
             </MobileSection>
 
             <MobileSection title="Sobre">
+              {isInstallable && (
+                <MobileMenuItem 
+                  icon={Smartphone} 
+                  label="Instalar aplicativo" 
+                  onClick={installApp} 
+                  value="PWA"
+                />
+              )}
               <MobileMenuItem icon={Info} label="Sobre o app" onClick={() => setView('about')} />
               <MobileMenuItem icon={LogOut} label="Sair da conta" danger onClick={() => signOut()} />
             </MobileSection>
@@ -330,38 +445,31 @@ export default function Profile() {
               </div>
 
               <MobileSection title="Autenticação">
-                <MobileMenuItem icon={Lock} label="Alterar senha" value="Últ. alt. 42 dias" onClick={() => {}} />
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
+                <MobileMenuItem icon={Lock} label="Alterar senha" onClick={() => setView('change_password')} />
+                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5 last:border-0 opacity-60">
                    <div className="flex items-center gap-3">
                      <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><History size={18} /></div>
                      <span className="text-[14px] font-medium">Autenticação 2 fatores</span>
                    </div>
-                   <input type="checkbox" className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
-                </div>
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><Smartphone size={18} /></div>
-                     <span className="text-[14px] font-medium">Face ID</span>
+                   <div className="flex items-center gap-2">
+                     <span className="text-[10px] font-bold text-blue-500 uppercase">Em breve</span>
+                     <input type="checkbox" disabled className="w-10 h-6 bg-gray-200 rounded-full appearance-none transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all cursor-not-allowed" />
                    </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
                 </div>
-                <MobileMenuItem icon={Clock} label="Bloqueio automático" value="1 min" onClick={() => {}} />
               </MobileSection>
 
               <MobileSection title="Privacidade">
-                 <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
+                 <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5 last:border-0">
                    <div className="flex items-center gap-3">
                      <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><EyeOff size={18} /></div>
                      <span className="text-[14px] font-medium">Ocultar saldo ao abrir</span>
                    </div>
-                   <input type="checkbox" className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
-                </div>
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><History size={18} /></div>
-                     <span className="text-[14px] font-medium">Ocultar valores em screenshots</span>
-                   </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
+                   <input 
+                    type="checkbox" 
+                    checked={hideBalance}
+                    onChange={(e) => setHideBalance(e.target.checked)}
+                    className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-blue-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" 
+                   />
                 </div>
               </MobileSection>
 
@@ -370,62 +478,72 @@ export default function Profile() {
                   <div className="flex items-center gap-3">
                     <Smartphone size={24} className="text-gray-400" />
                     <div>
-                      <div className="text-xs font-bold">iPhone 15 — Este dispositivo</div>
+                      <div className="text-xs font-bold">Dispositivo Atual</div>
                       <div className="text-[10px] text-green-500 font-bold uppercase tracking-wider">AGORA</div>
                     </div>
                   </div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">Este dispositivo</span>
                 </div>
-                <button className="w-full p-4 text-center text-sm font-bold text-red-500 active:bg-red-50 dark:active:bg-red-500/5 transition-colors">
-                   Encerrar todas as sessões
-                </button>
+                <div className="w-full p-4 text-center opacity-50">
+                   <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Outras sessões: Em breve</span>
+                </div>
               </MobileSection>
             </div>
           </div>
         )}
 
-        {view === 'appearance' && (
+
+        {view === 'change_password' && (
           <div className="flex flex-col">
-            <MobileHeader title="Aparência" onBack={() => setView('main')} />
-            <div className="px-6 space-y-8">
-              <MobileSection title="Tema">
-                <div className="p-4 grid grid-cols-3 gap-3">
-                  <button onClick={() => setTheme('light')} className={cn("flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", theme === 'light' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5")}>
-                    <Sun size={20} className={theme === 'light' ? "text-blue-500" : "text-gray-400"} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Claro</span>
-                  </button>
-                  <button onClick={() => setTheme('dark')} className={cn("flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", theme === 'dark' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5")}>
-                    <Moon size={20} className={theme === 'dark' ? "text-blue-500" : "text-gray-400"} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Escuro</span>
-                  </button>
-                  <button onClick={() => setTheme('system')} className={cn("flex flex-col items-center gap-2 p-3 rounded-xl border transition-all", theme === 'system' ? "border-blue-500 bg-blue-500/5" : "border-gray-100 dark:border-white/5")}>
-                    <Monitor size={20} className={theme === 'system' ? "text-blue-500" : "text-gray-400"} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Sistema</span>
-                  </button>
+            <MobileHeader title="Alterar senha" onBack={() => setView('security')} />
+            <div className="px-6 space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Senha atual</label>
+                  <PasswordInput
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Digite sua senha atual"
+                    className="!bg-white dark:!bg-[#161629] !border-gray-100 dark:!border-white/5 !rounded-2xl !py-4 !px-5"
+                  />
                 </div>
-              </MobileSection>
-
-              <MobileSection title="Cor de destaque">
-                <div className="p-4 flex gap-4 overflow-x-auto no-scrollbar">
-                  {['#6366f1', '#a855f7', '#0ea5e9', '#10b981', '#f59e0b'].map(color => (
-                    <button key={color} className="w-10 h-10 rounded-full shrink-0 border-2 border-white dark:border-[#161629] shadow-sm" style={{ background: color }} />
-                  ))}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nova senha</label>
+                  <PasswordInput
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Digite a nova senha"
+                    className="!bg-white dark:!bg-[#161629] !border-gray-100 dark:!border-white/5 !rounded-2xl !py-4 !px-5"
+                  />
+                  <p className="text-[10px] text-gray-500 ml-1">Mínimo 8 caracteres.</p>
                 </div>
-              </MobileSection>
-
-              <MobileSection title="Tipografia">
-                <MobileMenuItem icon={Palette} label="Tamanho" value="Padrão" onClick={() => {}} />
-                <MobileMenuItem icon={Palette} label="Peso das fontes" value="Regular" onClick={() => {}} />
-              </MobileSection>
-
-              <MobileSection title="Acessibilidade">
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><Eye size={18} /></div>
-                     <span className="text-[14px] font-medium">Alto contraste</span>
-                   </div>
-                   <input type="checkbox" className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Confirmar nova senha</label>
+                  <PasswordInput
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repita a nova senha"
+                    className="!bg-white dark:!bg-[#161629] !border-gray-100 dark:!border-white/5 !rounded-2xl !py-4 !px-5"
+                  />
                 </div>
-              </MobileSection>
+              </div>
+
+              <button
+                onClick={async () => {
+                  if (newPassword !== confirmPassword) {
+                    toast.error('As senhas não coincidem');
+                    return;
+                  }
+                  await updateProfile();
+                  if (!newPassword) return;
+                  setView('security');
+                }}
+                disabled={isSaving || !newPassword || !confirmPassword}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-70 mt-8"
+              >
+                {isSaving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                Atualizar Senha
+              </button>
             </div>
           </div>
         )}
@@ -434,7 +552,7 @@ export default function Profile() {
           <div className="flex flex-col">
             <MobileHeader title="Sobre" onBack={() => setView('main')} />
             <div className="px-6 flex flex-col items-center">
-              <img src="/logo-expense-tracker.png" alt="Logo" className="w-20 h-20 mb-6" />
+              <img src="/logo-expense-tracker.png" alt="Logo" className="w-20 h-20 mb-6 rounded-3xl" />
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Expense Tracker</h2>
               <p className="text-sm text-gray-400 font-mono mt-1 mb-6">VERSÃO 1.2.0 · BUILD 204</p>
               
@@ -449,71 +567,73 @@ export default function Profile() {
 
               <div className="w-full space-y-3">
                 <MobileMenuItem icon={Github} label="GitHub" onClick={() => window.open('https://github.com/davydfontourac', '_blank', 'noopener,noreferrer')} />
-                <MobileMenuItem icon={History} label="Changelog" onClick={() => {}} />
-                <MobileMenuItem icon={Milestone} label="Roadmap" onClick={() => {}} />
-                <MobileMenuItem icon={Bug} label="Reportar um bug" onClick={() => {}} />
+                <MobileMenuItem icon={History} label="Changelog" onClick={() => setView('changelog')} />
+                <MobileMenuItem icon={Milestone} label="Roadmap" onClick={() => setView('roadmap')} />
+                <MobileMenuItem icon={Bug} label="Reportar um bug" onClick={() => window.open('https://github.com/davydfontourac/expense-tracker/issues/new', '_blank')} />
               </div>
             </div>
           </div>
         )}
 
-        {view === 'notifications' && (
+        {view === 'changelog' && (
           <div className="flex flex-col">
-            <MobileHeader title="Notificações" onBack={() => setView('main')} />
-            <div className="px-6 space-y-8">
-              <MobileSection title="Push">
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><Bell size={18} /></div>
-                     <span className="text-[14px] font-medium">Todas as notificações</span>
-                   </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
+            <MobileHeader title="Changelog" onBack={() => setView('about')} />
+            <div className="px-6 space-y-6">
+              {[
+                { version: '1.2.0', date: '28 Abr 2026', changes: ['Suporte a Progressive Web App (PWA)', 'Modo de privacidade (Ocultar saldo)', 'Nova interface mobile premium', 'Limpeza de cache funcional'] },
+                { version: '1.1.0', date: '22 Abr 2026', changes: ['Importação de dados via CSV', 'Categorização inteligente', 'Gráficos de gastos por categoria'] },
+                { version: '1.0.0', date: '15 Abr 2026', changes: ['Lançamento inicial', 'Controle de transações', 'Gestão de caixinhas'] }
+              ].map((v, i) => (
+                <div key={i} className="p-6 bg-white dark:bg-[#161629] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-bold rounded-full">v{v.version}</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{v.date}</span>
+                  </div>
+                  <ul className="space-y-3">
+                    {v.changes.map((change, j) => (
+                      <li key={j} className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 shrink-0" />
+                        {change}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><BarChart size={18} /></div>
-                     <span className="text-[14px] font-medium">Alertas de orçamento</span>
-                   </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
-                </div>
-              </MobileSection>
-
-              <MobileSection title="E-mail">
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><Globe size={18} /></div>
-                     <span className="text-[14px] font-medium">Resumo mensal</span>
-                   </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
-                </div>
-              </MobileSection>
+              ))}
             </div>
           </div>
         )}
 
-        {view === 'settings' && (
+        {view === 'roadmap' && (
           <div className="flex flex-col">
-            <MobileHeader title="Configurações" onBack={() => setView('main')} />
+            <MobileHeader title="Roadmap" onBack={() => setView('about')} />
             <div className="px-6 space-y-8">
-              <MobileSection title="Geral">
-                <MobileMenuItem icon={Globe} label="Idioma" value="Português (BR)" onClick={() => {}} />
-                <MobileMenuItem icon={DollarSign} label="Moeda principal" value="BRL" onClick={() => {}} />
-                <MobileMenuItem icon={Clock} label="Fuso horário" value="GMT-3" onClick={() => {}} />
-                <MobileMenuItem icon={Calendar} label="Início da semana" value="Segunda" onClick={() => {}} />
-              </MobileSection>
-
-              <MobileSection title="Comportamento">
-                <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-3">
-                     <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400"><History size={18} /></div>
-                     <span className="text-[14px] font-medium">Sempre começar no Dashboard</span>
-                   </div>
-                   <input type="checkbox" defaultChecked className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-green-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" />
+              {[
+                { status: 'Em desenvolvimento', color: 'bg-orange-500', items: ['Autenticação em 2 fatores (2FA)', 'Notificações push para gastos', 'Metas mensais por categoria'] },
+                { status: 'Planejado', color: 'bg-blue-500', items: ['Exportação de relatórios em PDF/Excel', 'Compartilhamento de conta (Casal)', 'Widgets para iOS e Android'] },
+                { status: 'Ideias', color: 'bg-purple-500', items: ['Leitura automática de SMS de bancos', 'Integração direta com APIs bancárias', 'IA para análise preditiva de gastos'] }
+              ].map((section, i) => (
+                <div key={i} className="space-y-4">
+                  <div className="flex items-center gap-2 ml-1">
+                    <div className={cn("w-2 h-2 rounded-full", section.color)} />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{section.status}</span>
+                  </div>
+                  <div className="bg-white dark:bg-[#161629] rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
+                    {section.items.map((item, j) => (
+                      <div key={j} className="p-4 border-b border-gray-50 dark:border-white/5 last:border-0 flex items-center gap-4">
+                        <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center shrink-0">
+                          <CheckCircle2 size={14} className="text-gray-200" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </MobileSection>
+              ))}
             </div>
           </div>
         )}
+
+
       </PageTransition>
     );
   }
@@ -538,8 +658,9 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-          {/* Left Card: Avatar & Status */}
-          <div className="A-card flex flex-col items-center py-10 h-fit text-center">
+          {/* Left Column: Avatar & PWA */}
+          <div className="flex flex-col gap-6">
+            <div className="A-card flex flex-col items-center py-10 h-fit text-center">
             <div className="relative mb-6">
               <div className="w-32 h-32 rounded-full overflow-hidden border-[6px] border-white dark:border-gray-800 shadow-2xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] flex items-center justify-center text-white text-5xl font-bold">
                 {avatarUrl ? (
@@ -574,6 +695,58 @@ export default function Profile() {
               ATIVA E VERIFICADA
             </div>
           </div>
+
+          {isInstallable && (
+            <div className="A-card p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 text-center">
+              <Smartphone className="w-8 h-8 text-blue-500 mx-auto mb-3" />
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">App Desktop</h4>
+              <p className="text-[11px] text-gray-500 mb-4 leading-relaxed">Instale o Expense Tracker para acesso rápido e offline.</p>
+              <button 
+                onClick={installApp}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+              >
+                Instalar agora
+              </button>
+            </div>
+          )}
+
+          {/* Theme Selector Card */}
+          <div className="A-card p-6">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Aparência</h4>
+            <div className="grid grid-cols-1 gap-2">
+              <button 
+                onClick={() => setTheme('light')} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl border transition-all text-sm font-medium", 
+                  theme === 'light' ? "border-blue-500 bg-blue-500/5 text-blue-600" : "border-gray-100 dark:border-white/5 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+                )}
+              >
+                <Sun size={18} />
+                <span>Modo Claro</span>
+              </button>
+              <button 
+                onClick={() => setTheme('dark')} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl border transition-all text-sm font-medium", 
+                  theme === 'dark' ? "border-blue-500 bg-blue-500/5 text-blue-600" : "border-gray-100 dark:border-white/5 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+                )}
+              >
+                <Moon size={18} />
+                <span>Modo Escuro</span>
+              </button>
+              <button 
+                onClick={() => setTheme('system')} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl border transition-all text-sm font-medium", 
+                  theme === 'system' ? "border-blue-500 bg-blue-500/5 text-blue-600" : "border-gray-100 dark:border-white/5 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+                )}
+              >
+                <Monitor size={18} />
+                <span>Sistema</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
           {/* Right Section: Forms */}
           <div className="space-y-6">
@@ -656,7 +829,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+              <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between opacity-60">
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0">
                     <Smartphone size={20} className="text-gray-400" />
@@ -668,9 +841,33 @@ export default function Profile() {
                     <p className="text-xs text-gray-500">Adicione uma camada extra de proteção</p>
                   </div>
                 </div>
-                <button className="px-4 py-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 text-gray-600 dark:text-gray-300 font-bold text-[10px] uppercase tracking-widest rounded-lg transition-all">
-                  Ativar
-                </button>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold text-blue-500 uppercase">Em breve</span>
+                  <button disabled className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-400 font-bold text-[10px] uppercase tracking-widest rounded-lg cursor-not-allowed">
+                    Ativar
+                  </button>
+                </div>
+              </div>
+
+              {/* Privacy Toggle Desktop */}
+              <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                    <EyeOff size={20} className="text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">
+                      Ocultar saldo ao abrir
+                    </div>
+                    <p className="text-xs text-gray-500">Blura os valores principais por padrão</p>
+                  </div>
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={hideBalance}
+                  onChange={(e) => setHideBalance(e.target.checked)}
+                  className="w-10 h-6 bg-gray-200 rounded-full appearance-none checked:bg-blue-500 transition-all relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all checked:after:left-5 cursor-pointer" 
+                />
               </div>
             </div>
 

@@ -12,15 +12,23 @@ interface DonutProps {
   centerValue: string;
   size?: number;
   stroke?: number;
+  isBlurred?: boolean;
 }
 
-export function Donut({ segs, centerLabel, centerValue, size = 140, stroke = 18 }: DonutProps) {
+export function Donut({ 
+  segs, 
+  centerLabel, 
+  centerValue, 
+  size = 140, 
+  stroke = 18,
+  isBlurred = false
+}: DonutProps) {
   const R = (size - stroke) / 2;
   const C = 2 * Math.PI * R;
   let acc = 0;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 overflow-visible">
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -66,7 +74,7 @@ export function Donut({ segs, centerLabel, centerValue, size = 140, stroke = 18 
         textAnchor="middle"
         fontSize="18"
         fontWeight="600"
-        className="fill-gray-900 dark:fill-white font-sans tracking-tight"
+        className={`fill-gray-900 dark:fill-white font-sans tracking-tight transition-all duration-300 ${isBlurred ? 'blur-md select-none' : ''}`}
       >
         {centerValue}
       </text>

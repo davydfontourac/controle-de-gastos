@@ -50,7 +50,7 @@ export function Sidebar() {
   return (
     <aside className="A-sb hidden lg:flex">
       <div className="A-sb-brand">
-        <img src="/logo-expense-tracker.png" alt="Logo" />
+        <img src="/logo-expense-tracker.png" alt="Logo" className="rounded-lg" />
         <b className="text-gray-900 dark:text-white">Expense Tracker</b>
       </div>
 

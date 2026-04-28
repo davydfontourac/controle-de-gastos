@@ -11,7 +11,7 @@ export function AuthHeader({ onBack, onOpenMenu, title, subtitle }: { onBack?: (
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <img src="/logo-expense-tracker.png" alt="Logo" className="w-6 h-6" />
+            <img src="/logo-expense-tracker.png" alt="Logo" className="w-6 h-6 rounded-lg" />
             <span className="text-sm font-bold dark:text-white">Expense Tracker</span>
           </div>
         )}
@@ -91,3 +91,32 @@ export const Input = React.forwardRef<HTMLInputElement, any>(({ label, error, ..
     {error && <p className="text-[10px] font-bold text-red-500 uppercase tracking-wide">{error}</p>}
   </div>
 ));
+
+export function StrengthMeter({ score, segments = 4, mode = 'strength' }: { score: number, segments?: number, mode?: 'strength' | 'match' }) {
+  return (
+    <div className="flex gap-1.5 mt-2">
+      {Array.from({ length: segments }).map((_, i) => {
+        let active = i < score;
+        let colorClass = 'bg-gray-100 dark:bg-white/5';
+        
+        if (active) {
+          if (mode === 'match') {
+            colorClass = score === segments ? 'bg-green-500' : 'bg-red-500';
+          } else {
+            if (score <= 1) colorClass = 'bg-red-500';
+            else if (score <= 2) colorClass = 'bg-orange-500';
+            else if (score <= 3) colorClass = 'bg-yellow-500';
+            else colorClass = 'bg-green-500';
+          }
+        }
+        
+        return (
+          <div 
+            key={i} 
+            className={`h-1 flex-1 rounded-full transition-all duration-500 ${colorClass} ${active ? 'opacity-100' : 'opacity-100'}`} 
+          />
+        );
+      })}
+    </div>
+  );
+}

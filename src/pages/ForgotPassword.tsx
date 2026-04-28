@@ -141,7 +141,7 @@ export default function ForgotPassword() {
         <div className="max-w-md w-full">
           {/* Header */}
           <div className="flex items-center gap-3 mb-16">
-            <img src="/logo-expense-tracker.png" alt="Logo" className="w-8 h-8 object-contain" />
+            <img src="/logo-expense-tracker.png" alt="Logo" className="w-8 h-8 object-contain rounded-xl" />
             <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
               Expense Tracker
             </span>

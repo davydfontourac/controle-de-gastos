@@ -75,12 +75,12 @@ export default function FileUpload({ file, onFileSelect }: FileUploadProps) {
             animate={{ opacity: 1, scale: 1 }}
             className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl p-6 flex items-center justify-between"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white dark:bg-blue-900/50 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-12 h-12 bg-white dark:bg-blue-900/50 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm shrink-0">
                 <FileText className="w-6 h-6" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                   {file.name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
