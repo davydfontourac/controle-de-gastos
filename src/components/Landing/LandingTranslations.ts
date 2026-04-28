@@ -118,7 +118,7 @@ export const LANDING_COPY: Record<string, any> = {
         company: [
           ['GitHub', 'https://github.com/davydfontourac/expense-tracker'],
           ['Issues', 'https://github.com/davydfontourac/expense-tracker/issues'],
-          ['Licença MIT', '/LICENSE-PT.md'],
+          ['Licença MIT', 'https://github.com/davydfontourac/expense-tracker/blob/develop/LICENSE-PT.md'],
         ],
         resources: [
           ['Documentação', '#'],
@@ -340,7 +340,7 @@ export const LANDING_COPY: Record<string, any> = {
         company: [
           ['GitHub', 'https://github.com/davydfontourac/expense-tracker'],
           ['Issues', 'https://github.com/davydfontourac/expense-tracker/issues'],
-          ['MIT License', '/LICENSE'],
+          ['MIT License', 'https://github.com/davydfontourac/expense-tracker/blob/develop/LICENSE'],
         ],
         resources: [
           ['Docs', '#'],
