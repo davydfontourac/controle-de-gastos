@@ -4,151 +4,128 @@
 </p>
 
 <div align="center">
-  <img src="public/logo-expense-tracker.png" alt="Expense Tracker" width="120" />
+  <img src="public/logo-expense-tracker.png" alt="Logo Expense Tracker" width="120" />
   <h1>💰 Expense Tracker</h1>
-  <p>Gerenciamento pessoal de finanças com dashboard inteligente, gráficos e categorias customizáveis.</p>
+  <p><strong>Gestão de Finanças Pessoais de Alto Nível</strong></p>
+  <p>Um companheiro financeiro sofisticado, focado em mobile, construído com React 19, Supabase e Tailwind CSS 4.</p>
 
   <div align="center">
-    <img src="./demo.gif" alt="Demo Expense Tracker" width="800"/>
+    <img src="./demo.gif" alt="Preview Expense Tracker" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"/>
   </div>
+
+  <br />
 
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript)
   ![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite)
   ![Supabase](https://img.shields.io/badge/Supabase-Full%20Stack-3ECF8E?style=flat-square&logo=supabase)
   ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
+  ![PWA](https://img.shields.io/badge/PWA-Ready-FF69B4?style=flat-square&logo=pwa)
   [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davydfontourac_controle-de-gastos&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davydfontourac_controle-de-gastos)
 
-  [🌐 Ver Demo](https://controle-de-gastos-tan-six.vercel.app) · [📋 Issues](https://github.com/davydfontourac/expense-tracker/issues)
+  <br />
+
+  [🌐 Ver Demo](https://controle-de-gastos-tan-six.vercel.app) · [🐞 Reportar Bug](https://github.com/davydfontourac/expense-tracker/issues) · [💡 Sugerir Funcionalidade](https://github.com/davydfontourac/expense-tracker/issues)
 </div>
 
 ---
 
-## ✨ Funcionalidades
+## 🚀 Principais Funcionalidades (Branch Develop)
 
-- **🏦 Importação Bancária** — Assistente de importação de CSV inteligente com detecção automática de categorias e mapeamento de colunas.
-- **📊 Dashboard Inteligente** — Saldo disponível e "Caixinhas" refletem o valor real acumulado independentemente do filtro mensal, enquanto receitas/despesas respeitam o período selecionado.
-- **📱 UX Mobile Aprimorada** — Botão de Ação Flutuante (FAB) para acesso rápido às funções principais (Nova Transação, Importação CSV, Categorias).
-- **🔐 Autenticação completa** — Login, registro, recuperação de senha e OAuth via Supabase Auth.
-- **💳 Transações** — CRUD completo com categorias, tipo (receita/despesa/transferência), data e busca.
-- **🗂️ Categorias** — Categorias nativas + criação de categorias personalizadas com cor e emoji.
-- **👤 Perfil** — Atualização de nome, avatar e senha do usuário.
-- **🌑 Dark Mode** — Alternância entre tema claro e escuro.
-- **🎭 Animações** — Transições de página e microanimações com Framer Motion.
+A versão mais recente introduz ferramentas poderosas para um controle financeiro avançado:
 
----
-
-## 🛠️ Tecnologias
-
-| Tecnologia | Uso |
-|---|---|
-| **React 19** | Interface e lógica de UI |
-| **TypeScript** | Tipagem estática |
-| **Vite** | Ferramenta de build e dev server ultra rápido |
-| **Supabase** | Backend-as-a-Service (Autenticação, Banco de Dados, RPCs) |
-| **Tailwind CSS 4** | Estilização utilitária |
-| **Framer Motion** | Animações fluidas |
-| **Recharts** | Gráficos interativos |
-| **React Hook Form** | Gestão de formulários |
-| **Zod** | Validação de esquemas |
-| **Vitest** | Testes unitários e de integração |
+- **📱 PWA & Mobile-First** — Otimizado para uso móvel com suporte offline e capacidade de instalação na tela inicial.
+- **🕵️ Modo Privacidade** — Oculte dados financeiros sensíveis com um único clique, ideal para ambientes públicos.
+- **🏦 Importação Bancária Imersiva** — Assistente de três etapas para importação de CSV com mapeamento automático de categorias e pré-visualização em tempo real.
+- **🎯 Metas de Economia** — Defina, acompanhe e alcance seus marcos financeiros com indicadores visuais de progresso.
+- **📊 Dashboard Otimizado** — Análises em tempo real alimentadas por RPCs no PostgreSQL, garantindo atualizações instantâneas e saldo sempre preciso.
+- **🔐 Segurança Reforçada** — Fluxo de autenticação robusto, incluindo recuperação de senha e telas de login otimizadas para mobile.
+- **🌓 Tema Adaptativo** — Suporte completo para modos Claro e Escuro com transições fluidas via Framer Motion.
 
 ---
 
-## 🚀 Como rodar localmente
+## 🛠️ Stack Tecnológica
+
+| Core | Estilo & Movimento | Lógica & Dados |
+|---|---|---|
+| **React 19** | **Tailwind CSS 4** | **Supabase** (DB & Auth) |
+| **TypeScript** | **Framer Motion** | **Zod** (Validação) |
+| **Vite 7** | **Lucide Icons** | **React Hook Form** |
+| **Recharts** | **Sonner** (Toasts) | **Vitest** (Testes) |
+
+---
+
+## 💻 Primeiros Passos
 
 ### Pré-requisitos
 
-- Node.js 20+
-- Conta no [Supabase](https://supabase.com)
+- **Node.js** 20 ou superior
+- **NPM** ou **Yarn**
+- Uma conta no **Supabase**
 
-### 1. Clone o repositório
+### Instruções de Instalação
 
-```bash
-git clone https://github.com/davydfontourac/expense-tracker.git
-cd expense-tracker
-```
+1. **Clonar & Instalar**
+   ```bash
+   git clone https://github.com/davydfontourac/expense-tracker.git
+   cd expense-tracker
+   npm install
+   ```
 
-### 2. Instale as dependências
+2. **Configuração de Ambiente**
+   Crie um arquivo `.env` e adicione suas credenciais do Supabase:
+   ```env
+   VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+   VITE_SUPABASE_ANON_KEY=sua-anon-key-aqui
+   ```
 
-```bash
-npm install
-```
+3. **Migração do Banco de Dados**
+   Aplique os scripts SQL em `supabase/migrations` ao seu projeto Supabase para habilitar as RPCs do dashboard e funcionalidades de metas.
 
-### 3. Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
-
-```bash
-cp .env.example .env
-```
-
-Preencha com suas credenciais do Supabase:
-
-```env
-VITE_SUPABASE_URL=https://SEU_PROJETO.supabase.co
-VITE_SUPABASE_ANON_KEY=sua_anon_key_aqui
-```
-
-### 4. Configuração do Banco de Dados
-
-O projeto utiliza funções PostgreSQL (RPCs) para cálculos otimizados no dashboard. Execute os scripts SQL encontrados em `supabase/migrations` diretamente no **SQL Editor do Supabase**.
-
-### 5. Inicie o projeto
-
-```bash
-npm run dev
-```
+4. **Iniciar Servidor de Desenvolvimento**
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-## 🧪 Testes
+## 🧪 Garantia de Qualidade
+
+Mantemos altos padrões através de testes automatizados e análises:
 
 ```bash
-# Rodar testes unitários
+# Executar testes unitários
 npm run test:run
 
 # Abrir interface visual de testes
 npm run test:ui
 
-# Gerar relatório de cobertura
+# Gerar relatório de cobertura de código
 npm run test:coverage
 ```
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Arquitetura do Projeto
 
 ```
 expense-tracker/
 ├── src/
-│   ├── components/     # Componentes de UI reutilizáveis
-│   ├── context/        # Estado global (Auth, Tema)
-│   ├── hooks/          # Lógica de negócio (useTransactions, useCategories)
-│   ├── pages/          # Visualizações principais da aplicação
-│   ├── services/       # Inicialização do cliente Supabase
-│   └── types/          # Interfaces TypeScript
+│   ├── components/     # Componentes de UI de alta performance
+│   ├── context/        # Gestão de estado (Auth, Tema, Privacidade)
+│   ├── hooks/          # Lógica de domínio & hooks personalizados
+│   ├── pages/          # Visualizações de página completa
+│   ├── services/       # Infraestrutura (Supabase)
+│   └── utils/          # Schemas e funções auxiliares
 ├── supabase/
-│   └── migrations/     # Scripts SQL para funções e triggers do banco
-├── .github/workflows/  # Pipeline de CI/CD
-└── public/             # Assets estáticos
-```
-
----
-
-## 🔁 Fluxo CI/CD
-
-```
-Push / PR → develop ou main
-     │
-     ├── 🧪 Testes Unitários (Vitest + Coverage)
-     ├── 📊 Análise SonarCloud
-     ├── 🏗️  Build Vite
-     └── 🚀 Deploy Vercel (Produção/Preview)
+│   └── migrations/     # Schema e lógica do banco de dados
+└── public/             # Assets PWA & arquivos estáticos
 ```
 
 ---
 
 <div align="center">
-  Feito com ❤️ por <a href="https://github.com/davydfontourac">Davyd Fontoura</a>
+  Construído com precisão por <a href="https://github.com/davydfontourac">Davyd Fontoura</a>
+  <br />
+  Distribuído sob a <a href="./LICENSE">Licença MIT</a>
 </div>
