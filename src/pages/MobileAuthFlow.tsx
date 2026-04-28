@@ -123,7 +123,7 @@ export default function MobileAuthFlow() {
           />}
           {step === 'register' && <RegisterStep
             t={t}
-            lang={lang}
+
             onLogin={() => setStep('login')}
             onOpenMenu={() => setIsMenuOpen(true)}
           />}
@@ -365,7 +365,7 @@ function InsightsIllustration({ t }: { t: any }) {
 
 // --- FORMS ---
 
-function RegisterStep({ onLogin, onOpenMenu, t, lang }: { onLogin: () => void, onOpenMenu: () => void, t: any, lang: string }) {
+function RegisterStep({ onLogin, onOpenMenu, t }: { onLogin: () => void, onOpenMenu: () => void, t: any }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { isLoading, handleSocialLogin, handleRegister } = useAuthActions();

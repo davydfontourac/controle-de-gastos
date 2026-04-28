@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/services/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Trash2, Camera, Save, Loader2, User, ShieldCheck, Smartphone, ArrowLeft, ChevronRight, Bell, Palette, Globe, DollarSign, Clock, Calendar, Database, HardDrive, Info, Github, History, Milestone, Bug, Lock, EyeOff, BarChart, LogOut, CheckCircle2, Moon, Sun, Monitor } from 'lucide-react';
+import { Trash2, Camera, Save, Loader2, User, ShieldCheck, Smartphone, ArrowLeft, ChevronRight, Bell, Palette, Globe, DollarSign, Database, HardDrive, Info, Github, History, Milestone, Bug, Lock, EyeOff, LogOut, CheckCircle2, Moon, Sun, Monitor } from 'lucide-react';
 import { PasswordInput } from '@/components/PasswordInput';
 import ConfirmModal from '@/components/ConfirmModal';
 import PageTransition from '@/components/PageTransition';

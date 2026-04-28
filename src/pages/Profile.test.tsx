@@ -13,6 +13,42 @@ vi.mock('@/context/AuthContext', () => ({
   }),
 }));
 
+vi.mock('@/context/PrivacyContext', () => ({
+  usePrivacy: () => ({
+    hideBalance: false,
+    setHideBalance: vi.fn(),
+  }),
+}));
+
+vi.mock('@/context/ThemeContext', () => ({
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: vi.fn(),
+  }),
+}));
+
+vi.mock('@/hooks/useTransactions', () => ({
+  useTransactions: () => ({
+    summary: { caixinhaBalance: 0 },
+    transactions: [],
+    fetchTransactions: vi.fn(),
+  }),
+}));
+
+vi.mock('@/hooks/useCategories', () => ({
+  useCategories: () => ({
+    categories: [],
+    fetchCategories: vi.fn(),
+  }),
+}));
+
+vi.mock('@/hooks/usePWA', () => ({
+  usePWA: () => ({
+    isInstallable: false,
+    installApp: vi.fn(),
+  }),
+}));
+
 vi.mock('@/services/supabase', () => ({
   supabase: {
     rpc: vi.fn(),

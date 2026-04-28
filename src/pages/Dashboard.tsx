@@ -46,7 +46,7 @@ interface MonthlyHistory {
 
 export default function Dashboard() {
   const { profile, isLoading: isAuthLoading } = useAuth();
-  const { hideBalance, setHideBalance } = usePrivacy();
+  const { hideBalance } = usePrivacy();
   const [searchParams] = useSearchParams();
   const [showBalanceLocal, setShowBalanceLocal] = useState(!hideBalance);
   const [isModalOpen, setIsModalOpen] = useState(false);

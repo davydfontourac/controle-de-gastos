@@ -3,9 +3,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Dashboard from './Dashboard';
 import { useAuth } from '@/context/AuthContext';
 import { useTransactions } from '@/hooks/useTransactions';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 vi.mock('@/context/AuthContext', () => ({
   useAuth: vi.fn(),
+}));
+
+vi.mock('@/context/PrivacyContext', () => ({
+  usePrivacy: vi.fn(),
 }));
 
 vi.mock('@/hooks/useTransactions', () => ({
@@ -15,6 +20,7 @@ vi.mock('@/hooks/useTransactions', () => ({
 vi.mock('react-router-dom', () => ({
   Link: ({ children, to }: any) => <a href={to}>{children}</a>,
   useNavigate: () => vi.fn(),
+  useSearchParams: () => [new URLSearchParams()],
 }));
 
 // Mocks for components to avoid rendering deep trees
@@ -73,6 +79,11 @@ describe('Dashboard', () => {
       user: { id: '1', email: 'test@test.com' },
       profile: { full_name: 'Test User' },
       signOut: vi.fn(),
+    });
+
+    (usePrivacy as any).mockReturnValue({
+      hideBalance: false,
+      setHideBalance: vi.fn(),
     });
 
     (useTransactions as any).mockReturnValue({
