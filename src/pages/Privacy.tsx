@@ -1,27 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Shield, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageTransition from '@/components/PageTransition';
 
 // Import markdown content as raw string
-import termsMarkdown from '../../terms_of_use.md?raw';
+import privacyMarkdown from '../../privacy_policy.md?raw';
 
-export default function Terms() {
+export default function Privacy() {
   const navigate = useNavigate();
   const [lang] = useState(() => localStorage.getItem('language') || 'pt-BR');
   
-  // Filter content by language if needed, or show both as in the file
-  // The file has both, so we can just show it all or try to split it.
-  // Given the file structure, showing both is fine as it has a language selector at the top.
-
-  const downloadTerms = () => {
+  const downloadPrivacy = () => {
     const element = document.createElement("a");
-    const file = new Blob([termsMarkdown], {type: 'text/markdown'});
+    const file = new Blob([privacyMarkdown], {type: 'text/markdown'});
     element.href = URL.createObjectURL(file);
-    element.download = "terms_of_use.md";
+    element.download = "privacy_policy.md";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -40,11 +36,11 @@ export default function Terms() {
               <ArrowLeft className="w-6 h-6 text-gray-900 dark:text-white" />
             </button>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {lang === 'pt-BR' ? 'Termos de Uso' : 'Terms of Use'}
+              {lang === 'pt-BR' ? 'Política de Privacidade' : 'Privacy Policy'}
             </h1>
           </div>
           <button 
-            onClick={downloadTerms}
+            onClick={downloadPrivacy}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl text-sm font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
@@ -61,7 +57,7 @@ export default function Terms() {
         >
           <div className="flex justify-center mb-10">
             <div className="w-20 h-20 bg-blue-500/10 rounded-[28px] flex items-center justify-center">
-              <FileText className="w-10 h-10 text-blue-500" />
+              <Shield className="w-10 h-10 text-blue-500" />
             </div>
           </div>
 
@@ -76,7 +72,7 @@ export default function Terms() {
             prose-li:text-gray-600 dark:prose-li:text-gray-400
           ">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {termsMarkdown}
+              {privacyMarkdown}
             </ReactMarkdown>
           </div>
         </motion.div>

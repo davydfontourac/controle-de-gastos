@@ -121,7 +121,8 @@ export const LANDING_COPY: Record<string, any> = {
         resources: [
           ['Documentação', '/docs'],
           ['Changelog', '/changelog'],
-          ['Privacidade', '/terms'],
+          ['Termos de Uso', '/terms'],
+          ['Privacidade', '/privacy'],
         ],
       },
       rights: '© 2026 Expense Tracker · Open source sob licença MIT',
@@ -341,7 +342,8 @@ export const LANDING_COPY: Record<string, any> = {
         resources: [
           ['Docs', '/docs'],
           ['Changelog', '/changelog'],
-          ['Privacy', '/terms'],
+          ['Terms of Use', '/terms'],
+          ['Privacy', '/privacy'],
         ],
       },
       rights: '© 2026 Expense Tracker · Open source under MIT license',

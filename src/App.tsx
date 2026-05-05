@@ -16,6 +16,7 @@ import MobileAuthFlow from '@/pages/MobileAuthFlow';
 import Terms from '@/pages/Terms';
 import Docs from '@/pages/Docs';
 import Changelog from '@/pages/Changelog';
+import Privacy from '@/pages/Privacy';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/changelog" element={<Changelog />} />
+          <Route path="/privacy" element={<Privacy />} />
         </Route>
 
         {/* Rotas Privadas (apenas logados) */}
